@@ -578,3 +578,79 @@ export function getProjectLayerLegend(
   const query = new URLSearchParams({ project_dir: projectDir, layer });
   return coreFetch<ProjectLayerLegend>(`/v1/projects/preview/legend?${query.toString()}`);
 }
+
+export type GamusInfo = {
+  dataset: string;
+  provider: string;
+  repository: string;
+  modalities: string;
+  license: string;
+  status: "connected" | "local_cached" | "offline";
+  online: boolean;
+  total_records: number;
+  splits: { train: number; val: number; test: number };
+  sample_count: number;
+  cached_samples: string[];
+  cached_count: number;
+  description: string;
+  tags: string[];
+};
+
+export type GamusSample = {
+  id: string;
+  split: string;
+  scene_type: string;
+  resolution: string;
+  dimensions: [number, number];
+  channels: number;
+  elevation_range_m: [number, number];
+  has_height_ground_truth: boolean;
+  rgb_path: string;
+  height_path: string;
+  description: string;
+  is_cached?: boolean;
+};
+
+export type GamusLoadResult = {
+  sample_id: string;
+  split: string;
+  rgb_path: string;
+  rgb_preview: string;
+  agl_reference_path: string | null;
+  width: number;
+  height: number;
+  channels: number;
+  status: string;
+  project_dir?: string | null;
+};
+
+export function getGamusInfo(): Promise<GamusInfo> {
+  return coreFetch<GamusInfo>("/v1/dataset/gamus/info");
+}
+
+export function getGamusSamples(split = "val", limit = 20): Promise<GamusSample[]> {
+  const query = new URLSearchParams({ split, limit: String(limit) });
+  return coreFetch<GamusSample[]>(`/v1/dataset/gamus/samples?${query.toString()}`);
+}
+
+export function loadGamusSample(sampleId: string, split = "val"): Promise<GamusLoadResult> {
+  return coreFetch<GamusLoadResult>("/v1/dataset/gamus/load", {
+    method: "POST",
+    body: JSON.stringify({ sample_id: sampleId, split }),
+  });
+}
+
+export function loadDemoProject(): Promise<{
+  status: string;
+  project_dir: string;
+  manifest_path: string;
+  manifest: ProjectManifest;
+}> {
+  return coreFetch<{
+    status: string;
+    project_dir: string;
+    manifest_path: string;
+    manifest: ProjectManifest;
+  }>("/v1/demo/load");
+}
+

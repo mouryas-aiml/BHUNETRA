@@ -1,0 +1,61 @@
+{
+  "files": [
+    {
+      "arcname": "evidence/provenance.json",
+      "bytes": 1932,
+      "semantics": "project_processing_provenance",
+      "sha256": "e45d8b7f502bbd7aa1bab168ad71b9db42262aa7db0cdec3d55bbf41ae9af80b",
+      "units": null
+    },
+    {
+      "arcname": "mesh/mesh-manifest.json",
+      "bytes": 2183,
+      "semantics": "terrain_lod_manifest",
+      "sha256": "9c7b75f78d5df7b9e8e308edebc4b38ff86786b43af678062357b68954b18ab9",
+      "units": null
+    },
+    {
+      "arcname": "mesh/terrain-lod0.glb",
+      "bytes": 11565888,
+      "semantics": "textured_terrain_glb_lod_0",
+      "sha256": "bd8b5e15e8d80dc060d243b5b0b544ebb10e93aa32b99ccbe401b6c5632e453d",
+      "units": null
+    },
+    {
+      "arcname": "mesh/terrain-lod1.glb",
+      "bytes": 2949940,
+      "semantics": "textured_terrain_glb_lod_1",
+      "sha256": "edd06f79893f0fa722d5770af1bfb717b792526121dc3dbef151f2893dcc7e32",
+      "units": null
+    },
+    {
+      "arcname": "mesh/terrain-lod2.glb",
+      "bytes": 782128,
+      "semantics": "textured_terrain_glb_lod_2",
+      "sha256": "6212255153a1aa66a2c382975054a6c97cb23284a95fd879dcdf036ebab3499b",
+      "units": null
+    },
+    {
+      "arcname": "mesh/terrain-lod3.glb",
+      "bytes": 238888,
+      "semantics": "textured_terrain_glb_lod_3",
+      "sha256": "c9b43b952d7f56b819fdaf8a35ead58f7cbcaeba5d82651cd91c85e5e7da029c",
+      "units": null
+    },
+    {
+      "arcname": "products/rdsm.tif",
+      "bytes": 619863,
+      "semantics": "dimensionless_relative_surface_height",
+      "sha256": "b7a1545914a30d315029deac245541a04408cefe7e33d5a1d557724c3a6ec16a",
+      "units": "relative"
+    }
+  ],
+  "include_mesh": true,
+  "include_source": false,
+  "include_validation": true,
+  "project_id": "88b92b01edbb4e64ac04087edff646a7",
+  "project_manifest_sha256": "be4506206ac668cb812b751101cefe432775a15e3981bb15c19da793c879b0d3",
+  "schema_version": 1,
+  "scientific_boundary": "Export packaging copies already-persisted project products and evidence only; it does not recompute reconstruction, calibration, validation, or analytical measurements.",
+  "source_sha256": "a92afad48e77b20fe1fb9637a72b5a2c6b9d3c00590c014f9b541a7a733f4492"
+}

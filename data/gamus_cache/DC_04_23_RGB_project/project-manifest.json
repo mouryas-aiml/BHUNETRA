@@ -1,0 +1,232 @@
+{
+  "artifacts": {
+    "mesh_manifest": {
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\mesh\\mesh-manifest.json",
+      "semantics": "terrain_lod_manifest",
+      "sha256": "6e624b434c8372f6e0d20b4e2e882b031d557da49c2f6b5f7ee608ecdde8b9ce",
+      "units": null
+    },
+    "provenance": {
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\provenance.json",
+      "semantics": "project_processing_provenance",
+      "sha256": "b06641f117cc879c7c03d6dc7fd92c952c8871d243d5501c844439ee92265821",
+      "units": null
+    },
+    "rdsm": {
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\products\\rdsm.tif",
+      "semantics": "dimensionless_relative_surface_height",
+      "sha256": "fbd543aea139347021f662c101f993fd75fcbed2925e7df4312c22a542aedb86",
+      "units": "relative"
+    },
+    "terrain_lod0": {
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\mesh\\terrain-lod0.glb",
+      "semantics": "textured_terrain_glb_lod_0",
+      "sha256": "2961b3672830b055526a706ee9c9d18fd53acf56fab1547d5984dd5e524e485c",
+      "units": null
+    },
+    "terrain_lod1": {
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\mesh\\terrain-lod1.glb",
+      "semantics": "textured_terrain_glb_lod_1",
+      "sha256": "14b30e3db8b1fd9fa841b203a1bde4639ee83b42324e0f3bf599ce96e1a6e062",
+      "units": null
+    },
+    "terrain_lod2": {
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\mesh\\terrain-lod2.glb",
+      "semantics": "textured_terrain_glb_lod_2",
+      "sha256": "283b14b9db2929dff069b2e10373718b52276b6ad7924abdcbb285f4407afbd0",
+      "units": null
+    },
+    "terrain_lod3": {
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\mesh\\terrain-lod3.glb",
+      "semantics": "textured_terrain_glb_lod_3",
+      "sha256": "21519028f92a862e9e03e2dbd29795622fb88a5616128beb7ba15dd902da0afa",
+      "units": null
+    }
+  },
+  "created_at_utc": "2026-09-29T13:31:31.701782+00:00",
+  "errors": [],
+  "estimator": {
+    "evidence": [
+      {
+        "branch_id": "DepthWizard-V4-confidence-gated-v2",
+        "evidence_id": "potsdam-external-v2:3b1ecb2ae9b559d84cc2233af25887e05575889bdbd7b57bd2568b7e98bc7118",
+        "independently_evaluated": true,
+        "promotion_passed": false,
+        "summary": "Frozen V4 was slightly worse than independently calibrated DA3 in aggregate and violated the per-tile non-degradation criterion."
+      }
+    ],
+    "geometry_pipeline_revision": "scene-global-affine-mosaic-v2",
+    "reason": "calibrated DA3 retained because no learned branch has independently satisfied the production promotion contract",
+    "selected_model_id": "DA3MONO-LARGE",
+    "selected_path": "calibrated_da3"
+  },
+  "geometry_config_sha256": "096b26196df54c9754feaaa759e500f7f49bf8c7ddfc8a3e76f18e5b917b4dc5",
+  "input_kind": "non_georeferenced",
+  "job_id": "8e7263edca2844d8a0aac600c4765c52",
+  "project_id": "9ae79320c433478994e1a8a2ddf448cd",
+  "run_config_sha256": "75cfede0657a65e88876a9aa9ce128c57dfd75bd49e16394feec163abe10c698",
+  "schema_version": 2,
+  "source_path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB.tif",
+  "source_sha256": "e3fe40a8735d1f6fba14c3e8cab5c6c062f6276e2634912c6b90e7a575fd9289",
+  "stages": {
+    "calibration": {
+      "artifacts": {},
+      "completed_at_utc": "2026-09-29T13:31:54.389901+00:00",
+      "details": {
+        "metric_claim": false,
+        "reason": "non_georeferenced_input"
+      },
+      "started_at_utc": "2026-09-29T13:31:54.389901+00:00",
+      "status": "skipped",
+      "updated_at_utc": "2026-09-29T13:31:54.389901+00:00"
+    },
+    "complete": {
+      "artifacts": {},
+      "completed_at_utc": "2026-09-29T13:31:54.433712+00:00",
+      "details": {},
+      "started_at_utc": "2026-09-29T13:31:54.433712+00:00",
+      "status": "completed",
+      "updated_at_utc": "2026-09-29T13:31:54.433712+00:00"
+    },
+    "export": {
+      "artifacts": {
+        "provenance": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\provenance.json",
+        "rdsm": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\products\\rdsm.tif"
+      },
+      "completed_at_utc": "2026-09-29T13:31:54.427542+00:00",
+      "details": {
+        "elevation_units": "relative",
+        "metric_claim": false,
+        "source_files_overwritten": false
+      },
+      "started_at_utc": "2026-09-29T13:31:54.427542+00:00",
+      "status": "completed",
+      "updated_at_utc": "2026-09-29T13:31:54.427542+00:00"
+    },
+    "geometry": {
+      "artifacts": {
+        "rdsm": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\products\\rdsm.tif"
+      },
+      "completed_at_utc": "2026-09-29T13:31:54.385948+00:00",
+      "details": {
+        "estimator_path": "calibrated_da3",
+        "foundation_model_id": "DA3MONO-LARGE",
+        "harmonized_tiles": 0,
+        "model_id": "DA3MONO-LARGE",
+        "normalization": {
+          "high": [
+            153.0,
+            143.0,
+            133.0
+          ],
+          "high_percentile": 99.0,
+          "low": [
+            12.0,
+            3.0,
+            4.0
+          ],
+          "low_percentile": 1.0
+        },
+        "tile_count": 1,
+        "valid_pixel_fraction": 1.0
+      },
+      "elapsed_seconds": 22.46323879999909,
+      "started_at_utc": "2026-09-29T13:31:31.920126+00:00",
+      "status": "completed",
+      "updated_at_utc": "2026-09-29T13:31:54.385948+00:00"
+    },
+    "ingest": {
+      "artifacts": {},
+      "completed_at_utc": "2026-09-29T13:31:31.920126+00:00",
+      "details": {
+        "quality_assessment": {
+          "assessment_limitations": [
+            "Cloud and shadow fractions are radiometric candidates, not semantic masks",
+            "Building lean cannot be inferred reliably without sensor geometry or stereo evidence"
+          ],
+          "bright_low_chroma_candidate_fraction": 0.014078140258789062,
+          "deep_shadow_candidate_fraction": 0.04008674621582031,
+          "flags": [],
+          "off_nadir_degrees": null,
+          "saturation_fraction": 0.000713348388671875,
+          "status": "pass",
+          "texture_gradient_score": 0.0655737704918033
+        },
+        "raster": {
+          "count": 3,
+          "crs": null,
+          "dtype": "uint8",
+          "elevation_reference": "unknown",
+          "ground_sample_distance_x": null,
+          "ground_sample_distance_y": null,
+          "height": 1024,
+          "nodata": null,
+          "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB.tif",
+          "quality": {
+            "assessment_limitations": [
+              "Cloud and shadow fractions are radiometric candidates, not semantic masks",
+              "Building lean cannot be inferred reliably without sensor geometry or stereo evidence"
+            ],
+            "bright_low_chroma_candidate_fraction": 0.014078140258789062,
+            "deep_shadow_candidate_fraction": 0.04008674621582031,
+            "flags": [],
+            "off_nadir_degrees": null,
+            "saturation_fraction": 0.000713348388671875,
+            "status": "pass",
+            "texture_gradient_score": 0.0655737704918033
+          },
+          "transform": null,
+          "valid_data_fraction": 1.0,
+          "vertical_crs": null,
+          "vertical_datum": null,
+          "width": 1024
+        }
+      },
+      "started_at_utc": "2026-09-29T13:31:31.920126+00:00",
+      "status": "completed",
+      "updated_at_utc": "2026-09-29T13:31:31.920126+00:00"
+    },
+    "mesh": {
+      "artifacts": {
+        "mesh_manifest": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\mesh\\mesh-manifest.json",
+        "terrain_lod0": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\mesh\\terrain-lod0.glb",
+        "terrain_lod1": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\mesh\\terrain-lod1.glb",
+        "terrain_lod2": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\mesh\\terrain-lod2.glb",
+        "terrain_lod3": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\mesh\\terrain-lod3.glb"
+      },
+      "completed_at_utc": "2026-09-29T13:41:30.333043+00:00",
+      "details": {
+        "build_config_sha256": "6a3c086fc635aab29dbf0d1197cd648616f7e0f5018540bef83ff8811f869bfa",
+        "display_only_normalization": true,
+        "display_vertical_center_raw": 0.47531354427337646,
+        "display_vertical_scale": 147.11124948075675,
+        "display_vertical_scale_policy": "robust_p02_p98_target_12pct_shorter_xy_span_v1",
+        "gsd_x": 1.0,
+        "gsd_y": 1.0,
+        "horizontal_units": "px",
+        "lod_strides": [
+          2,
+          4,
+          8,
+          16
+        ],
+        "metric_horizontal_scale_trusted": false,
+        "reference_data_used": false,
+        "surface_product": "rdsm",
+        "surface_sha256": "fbd543aea139347021f662c101f993fd75fcbed2925e7df4312c22a542aedb86",
+        "texture_sha256": "e3fe40a8735d1f6fba14c3e8cab5c6c062f6276e2634912c6b90e7a575fd9289",
+        "valid_pixels": 1048576,
+        "vertical_units": "relative"
+      },
+      "elapsed_seconds": 1.0525770999993256,
+      "started_at_utc": "2026-09-29T13:41:29.285657+00:00",
+      "status": "completed",
+      "updated_at_utc": "2026-09-29T13:41:30.333043+00:00"
+    }
+  },
+  "status": "complete",
+  "updated_at_utc": "2026-09-29T13:41:30.333043+00:00",
+  "warnings": [
+    "selected geometry path emitted no native confidence raster; no confidence values were fabricated"
+  ]
+}

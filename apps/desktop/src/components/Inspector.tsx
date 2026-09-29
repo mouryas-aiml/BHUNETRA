@@ -123,7 +123,7 @@ export function Inspector({
       ? `${activeView} analytical workspace`
       : hasInput
         ? "Source imagery loaded"
-        : "No scene loaded";
+        : "Workspace ready · Ingest imagery or demo";
 
   return (
     <aside className="dw-inspector" aria-label="Scene inspector">

@@ -33,11 +33,15 @@ import {
   type ProjectStructureHeightResult,
   type RasterMetadata,
   type ReferenceValidationReport,
+  loadDemoProject,
+  loadGamusSample,
 } from "./api";
+import { DatasetExplorer } from "./components/DatasetExplorer";
+import { EvaluatorMode } from "./components/EvaluatorMode";
 import { Inspector, type ValidationEvidence } from "./components/Inspector";
 import { ScientificLegend } from "./components/ScientificLegend";
 import { ToolRail } from "./components/ToolRail";
-import { UploadIcon } from "./components/icons";
+import { BhuNetraLogo, DatasetIcon, EvaluatorIcon, UploadIcon } from "./components/icons";
 import { ComparisonViewport } from "./workspace/ComparisonViewport";
 import {
   RasterAnalysisViewport,
@@ -228,6 +232,9 @@ export function App() {
   const [projectJob, setProjectJob] = useState<ProjectJobState | null>(null);
   const [projectManifest, setProjectManifest] = useState<ProjectManifest | null>(null);
   const [submittingProject, setSubmittingProject] = useState(false);
+  const [datasetExplorerOpen, setDatasetExplorerOpen] = useState(false);
+  const [evaluatorOpen, setEvaluatorOpen] = useState(false);
+  const [gamusSampleLoaded, setGamusSampleLoaded] = useState<string | null>(null);
   const [gcpEvidence, setGcpEvidence] = useState<GroundControlPointFileReport | null>(null);
   const [demoReport, setDemoReport] = useState<AbsoluteDemoReport | null>(null);
   const [validationEvidence, setValidationEvidence] = useState<ValidationEvidence | null>(null);
@@ -736,8 +743,14 @@ export function App() {
   }, [activeTool, structurePolygon.length]);
 
   const projectName = useMemo(() => (
-    demoMode ? "Joshimath absolute DSM" : metadata?.path ? fileName(metadata.path) : "Untitled reconstruction"
-  ), [demoMode, metadata]);
+    demoMode
+      ? "BhuNetra · Joshimath Terrain Demo"
+      : gamusSampleLoaded
+        ? `GAMUS · ${gamusSampleLoaded}`
+        : metadata?.path
+          ? fileName(metadata.path)
+          : "BhuNetra Workspace"
+  ), [demoMode, gamusSampleLoaded, metadata]);
   const analystHorizontalScaleMPerPixel = (() => {
     const value = Number(relativeHorizontalScaleInput);
     return Number.isFinite(value) && value > 0 ? value : undefined;
@@ -796,6 +809,61 @@ export function App() {
     }
   };
 
+  const handleLoadDemoProject = async () => {
+    setImportError(null);
+    try {
+      const demoResult = await loadDemoProject();
+      await loadExistingProject(demoResult.project_dir);
+      setActiveView("3D Terrain");
+      setActiveLayer("Texture");
+    } catch {
+      await loadExistingProject("M:/SIH/BHUNETRA/data/sample_project");
+      setActiveView("3D Terrain");
+      setActiveLayer("Texture");
+    }
+  };
+
+  const handleSelectGamusSample = async (sampleId: string) => {
+    setImportError(null);
+    try {
+      const result = await loadGamusSample(sampleId, "val");
+      setGamusSampleLoaded(sampleId);
+      if (result.project_dir) {
+        await loadExistingProject(result.project_dir);
+        setActiveView("3D Terrain");
+        setActiveLayer("Texture");
+        return;
+      }
+      setImporting(true);
+      const nextMetadata = await inspectRaster(result.rgb_path);
+      revokePreview();
+      clearProjectMesh();
+      resetAnalysis();
+      setMetadata(nextMetadata);
+      setSourceAvailable(true);
+      const projDir = `M:/SIH/BHUNETRA/data/gamus_cache/${sampleId}_RGB_project`;
+      setProjectDir(projDir);
+      setSubmittingProject(true);
+      const nextJob = await submitProject({
+        source: result.rgb_path,
+        output_dir: projDir,
+        requested_output: "rdsm",
+      });
+      setProjectJob(nextJob);
+      rememberProject(projDir);
+      setRasterViewState(DEFAULT_RASTER_VIEW_STATE);
+      setActiveTool("Project");
+      setActiveLayer("Texture");
+      setActiveView("Optical");
+    } catch (error) {
+      setImportError(error instanceof Error ? error.message : "Unable to load GAMUS sample");
+    } finally {
+      setImporting(false);
+      setSubmittingProject(false);
+    }
+  };
+
+
   const pickPath = async (
     options: Parameters<typeof open>[0],
     promptMessage: string,
@@ -818,8 +886,8 @@ export function App() {
   const openProject = async () => {
     try {
       const selectedDir = await pickPath(
-        { multiple: false, directory: true, title: "Open DepthWizard project" },
-        "Enter DepthWizard project directory path (e.g. M:\\SIH\\BHUNETRA\\sample_project):",
+        { multiple: false, directory: true, title: "Open BhuNetra project" },
+        "Enter BhuNetra project directory path (e.g. M:\\SIH\\BHUNETRA\\data\\sample_project):",
       );
       if (!selectedDir) return;
       await loadExistingProject(selectedDir);
@@ -871,12 +939,15 @@ export function App() {
     setImportError(null);
     try {
       const defaultOut = metadata.path.replace(/\.[^.]+$/, "") + "_project";
-      const selectedDir = await pickPath(
-        { multiple: false, directory: true, title: "Choose DepthWizard project folder" },
-        "Enter output directory for project reconstruction:",
-        defaultOut,
-      );
-      if (!selectedDir) return;
+      let selectedDir: string | null = defaultOut;
+      if ("__TAURI_INTERNALS__" in window) {
+        selectedDir = await pickPath(
+          { multiple: false, directory: true, title: "Choose BhuNetra project folder" },
+          "Enter output directory for project reconstruction:",
+          defaultOut,
+        );
+        if (!selectedDir) return;
+      }
       setSubmittingProject(true);
       const next = await submitProject({
         source: metadata.path,
@@ -1352,6 +1423,29 @@ export function App() {
           <span>ISRO · SIH26175</span>
         </div>
         <div className="dw-top-actions">
+          <button
+            className="dw-btn"
+            onClick={() => setDatasetExplorerOpen(true)}
+            title="Connect and explore Hugging Face earthflow/GAMUS dataset"
+          >
+            <DatasetIcon /> Dataset
+          </button>
+          <button
+            className="dw-btn"
+            onClick={() => setEvaluatorOpen(true)}
+            title="Launch SIH26175 Evaluator Mode Walkthrough"
+          >
+            <EvaluatorIcon /> Evaluator Mode
+          </button>
+          {!demoMode && !projectDir && (
+            <button
+              className="dw-btn"
+              onClick={() => void handleLoadDemoProject()}
+              title="Instantly open verified sample terrain project"
+            >
+              Demo Terrain
+            </button>
+          )}
           {!demoMode && (
             <>
               <button className="dw-btn" onClick={() => void openProject()} disabled={openingProject || processing || exporting}>
@@ -1808,36 +1902,118 @@ export function App() {
 
           {activeView !== "3D Terrain" && !previewUrl && !previewLoading && !previewError && !compareActive && (
             <div className="dw-empty-canvas">
-              <div className="dw-empty-card">
-                <h2>
-                  {processing
-                    ? "Reconstructing scene"
-                    : waitingForCalibration
-                      ? "Relative geometry complete"
-                      : calibrationReady
-                        ? "Metric DSM products ready"
-                        : geometryReady
-                          ? "Relative DSM ready"
-                          : metadata
-                            ? "Source accepted"
-                            : "Load or open a reconstruction project"}
-                </h2>
-                <p>
-                  {importError
-                    ? importError
-                    : waitingForCalibration
-                      ? "This georeferenced project is intentionally paused before any metric-height claim. Add DEM evidence, sparse GCP evidence, or combine DEM + GCP."
-                      : calibrationReady
-                        ? "DepthWizard completed evidence-calibrated metric elevation. Navigate the registered layers, build 3D terrain, or load a separate reference DSM."
-                        : geometryReady
-                          ? "DepthWizard completed a truthful dimensionless relative surface model. No metric elevation has been invented."
-                          : metadata
-                            ? metadata.crs
-                              ? "Georeferenced input detected. Reconstruct once, then DepthWizard will require DEM/GCP evidence before claiming absolute height."
-                              : "No usable CRS detected. DepthWizard will preserve this as relative elevation and will not claim metric height."
-                            : "Import a single-view RGB remote-sensing image or open a durable DepthWizard project. Core processing remains local."}
-                </p>
-              </div>
+              {!metadata && !projectDir && !processing ? (
+                <div className="bn-landing-container">
+                  <div className="bn-landing-logo-ring">
+                    <BhuNetraLogo size={52} />
+                  </div>
+                  <h1 className="bn-landing-headline">BhuNetra</h1>
+                  <div className="bn-landing-tagline">AI-Powered Earth Intelligence from a Single View</div>
+                  <p className="bn-landing-subtitle">
+                    Transform a single optical remote-sensing image into measurable elevation, terrain intelligence and an interactive 3D environment.
+                  </p>
+                  <div className="bn-landing-actions">
+                    <button className="dw-btn dw-btn--primary bn-btn--hero" onClick={() => void importImagery()}>
+                      <UploadIcon /> Import Imagery
+                    </button>
+                    <button className="dw-btn" onClick={() => void openProject()}>
+                      📁 Open Project
+                    </button>
+                    <button className="dw-btn" onClick={() => setDatasetExplorerOpen(true)}>
+                      <DatasetIcon /> Explore GAMUS Dataset
+                    </button>
+                    <button className="dw-btn" onClick={() => void handleLoadDemoProject()}>
+                      ⛰️ Demo Terrain
+                    </button>
+                    <button className="dw-btn" onClick={() => setEvaluatorOpen(true)}>
+                      <EvaluatorIcon /> Evaluator Mode
+                    </button>
+                  </div>
+                  <div className="bn-pipeline-strip">
+                    <div className="bn-pipeline-step">
+                      <span className="bn-pipe-tag">STAGE 01</span>
+                      <span className="bn-pipe-label">OPTICAL IMAGE</span>
+                    </div>
+                    <span className="bn-pipeline-arrow">→</span>
+                    <div className="bn-pipeline-step">
+                      <span className="bn-pipe-tag">STAGE 02</span>
+                      <span className="bn-pipe-label">AI DEPTH ESTIMATION</span>
+                    </div>
+                    <span className="bn-pipeline-arrow">→</span>
+                    <div className="bn-pipeline-step">
+                      <span className="bn-pipe-tag">STAGE 03</span>
+                      <span className="bn-pipe-label">SCALE CALIBRATION</span>
+                    </div>
+                    <span className="bn-pipeline-arrow">→</span>
+                    <div className="bn-pipeline-step">
+                      <span className="bn-pipe-tag">STAGE 04</span>
+                      <span className="bn-pipe-label">DSM GENERATION</span>
+                    </div>
+                    <span className="bn-pipeline-arrow">→</span>
+                    <div className="bn-pipeline-step">
+                      <span className="bn-pipe-tag">STAGE 05</span>
+                      <span className="bn-pipe-label">3D TERRAIN</span>
+                    </div>
+                    <span className="bn-pipeline-arrow">→</span>
+                    <div className="bn-pipeline-step">
+                      <span className="bn-pipe-tag">STAGE 06</span>
+                      <span className="bn-pipe-label">ANALYSIS / EXPORT</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="dw-empty-card" style={{ maxWidth: "560px" }}>
+                  {metadata && (
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+                      <span className="bn-badge bn-badge--cyan">OPTICAL INGESTION VERIFIED</span>
+                      <span style={{ fontSize: "11px", color: "var(--bn-cyan-accent)" }}>
+                        {metadata.width} × {metadata.height} px · {metadata.count} Bands
+                      </span>
+                    </div>
+                  )}
+                  <h2>
+                    {processing
+                      ? "Reconstructing Scene with BhuNetra AI"
+                      : waitingForCalibration
+                        ? "Relative Geometry Complete"
+                        : calibrationReady
+                          ? "Metric DSM Products Ready"
+                          : geometryReady
+                            ? "Relative DSM Ready"
+                            : metadata
+                              ? "Optical Imagery Ingested & Verified"
+                              : "Load or Open a Reconstruction Project"}
+                  </h2>
+                  <p>
+                    {importError
+                      ? importError
+                      : waitingForCalibration
+                        ? "This georeferenced project is intentionally paused before any metric-height claim. Add DEM evidence, sparse GCP evidence, or combine DEM + GCP."
+                        : calibrationReady
+                          ? "BhuNetra completed evidence-calibrated metric elevation. Navigate the registered layers, build 3D terrain, or load a separate reference DSM."
+                          : geometryReady
+                            ? "BhuNetra completed a truthful dimensionless relative surface model. No metric elevation has been invented."
+                            : metadata
+                              ? metadata.crs
+                                ? "Georeferenced input detected. Reconstruct once, then BhuNetra will require DEM/GCP evidence before claiming absolute height."
+                                : "Single-view optical remote-sensing image chip accepted. BhuNetra will estimate depth using DA3MONO-LARGE, generate relative surface elevation (rDSM), and produce 3D terrain."
+                              : "Import a single-view RGB remote-sensing image or open a durable BhuNetra project. Core processing remains local."}
+                  </p>
+                  {metadata && !projectDir && !processing && (
+                    <div style={{ marginTop: "20px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                      <button className="dw-btn dw-btn--primary bn-btn--hero" type="button" onClick={() => void reconstruct()}>
+                        ⚡ Run BhuNetra AI Reconstruction
+                      </button>
+                      <button className="dw-btn" type="button" onClick={() => void handleLoadDemoProject()}>
+                        ⛰️ Instant 3D Terrain View
+                      </button>
+                      <button className="dw-btn" type="button" onClick={() => setDatasetExplorerOpen(true)}>
+                        Explore GAMUS Samples
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -1885,6 +2061,22 @@ export function App() {
         meshLod={meshLod}
         autoLod={autoLod}
         terrainPerformance={terrainPerformance}
+      />
+
+      <DatasetExplorer
+        isOpen={datasetExplorerOpen}
+        onClose={() => setDatasetExplorerOpen(false)}
+        onSelectSample={handleSelectGamusSample}
+      />
+      <EvaluatorMode
+        isOpen={evaluatorOpen}
+        onClose={() => setEvaluatorOpen(false)}
+        onLoadDemo={handleLoadDemoProject}
+        onExploreGamus={() => setDatasetExplorerOpen(true)}
+        onInspect={importImagery}
+        onRunReconstruct={reconstruct}
+        onBuild3D={buildTerrain}
+        onExport={exportProject}
       />
     </main>
   );

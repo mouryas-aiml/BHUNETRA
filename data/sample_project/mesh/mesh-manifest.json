@@ -1,0 +1,62 @@
+{
+  "build_config_sha256": "362bec17f12a11245b25103e146c4ef4842dcaeb70b30f39fdc452ec280b322c",
+  "gsd_x": 1.0,
+  "gsd_y": 1.0,
+  "horizontal_units": "px",
+  "lods": [
+    {
+      "faces": 522242,
+      "height_samples": 512,
+      "level": 0,
+      "path": "M:\\SIH\\BHUNETRA\\data\\sample_project\\mesh\\terrain-lod0.glb",
+      "sha256": "bd8b5e15e8d80dc060d243b5b0b544ebb10e93aa32b99ccbe401b6c5632e453d",
+      "stride": 1,
+      "vertices": 262144,
+      "width_samples": 512
+    },
+    {
+      "faces": 131072,
+      "height_samples": 257,
+      "level": 1,
+      "path": "M:\\SIH\\BHUNETRA\\data\\sample_project\\mesh\\terrain-lod1.glb",
+      "sha256": "edd06f79893f0fa722d5770af1bfb717b792526121dc3dbef151f2893dcc7e32",
+      "stride": 2,
+      "vertices": 66049,
+      "width_samples": 257
+    },
+    {
+      "faces": 32768,
+      "height_samples": 129,
+      "level": 2,
+      "path": "M:\\SIH\\BHUNETRA\\data\\sample_project\\mesh\\terrain-lod2.glb",
+      "sha256": "6212255153a1aa66a2c382975054a6c97cb23284a95fd879dcdf036ebab3499b",
+      "stride": 4,
+      "vertices": 16641,
+      "width_samples": 129
+    },
+    {
+      "faces": 8192,
+      "height_samples": 65,
+      "level": 3,
+      "path": "M:\\SIH\\BHUNETRA\\data\\sample_project\\mesh\\terrain-lod3.glb",
+      "sha256": "c9b43b952d7f56b819fdaf8a35ead58f7cbcaeba5d82651cd91c85e5e7da029c",
+      "stride": 8,
+      "vertices": 4225,
+      "width_samples": 65
+    }
+  ],
+  "maximum_elevation": 1.1780966520309448,
+  "mesh_manifest_path": "M:\\SIH\\BHUNETRA\\data\\sample_project\\mesh\\mesh-manifest.json",
+  "minimum_elevation": -0.13898718357086182,
+  "project_id": "88b92b01edbb4e64ac04087edff646a7",
+  "raster_height": 512,
+  "raster_width": 512,
+  "relief": 1.3170838356018066,
+  "schema_version": 1,
+  "semantics": "textured_relative_surface_terrain_pixel_xy_display_normalized_z",
+  "surface_product": "rdsm",
+  "surface_sha256": "b7a1545914a30d315029deac245541a04408cefe7e33d5a1d557724c3a6ec16a",
+  "texture_sha256": "a92afad48e77b20fe1fb9637a72b5a2c6b9d3c00590c014f9b541a7a733f4492",
+  "valid_pixels": 262144,
+  "vertical_units": "relative"
+}

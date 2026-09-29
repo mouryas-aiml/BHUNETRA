@@ -1,0 +1,62 @@
+{
+  "build_config_sha256": "534a7c70619d6229946df77b2ae3a7f7391c6642c1f6008944d2cd73042d42e0",
+  "gsd_x": 1.0,
+  "gsd_y": 1.0,
+  "horizontal_units": "px",
+  "lods": [
+    {
+      "faces": 524288,
+      "height_samples": 513,
+      "level": 0,
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_02_26_RGB_project\\mesh\\terrain-lod0.glb",
+      "sha256": "a86701c98c1799192fc4f8f3f3c9fb990443a8f232f9225dbd59157e569f4346",
+      "stride": 2,
+      "vertices": 263169,
+      "width_samples": 513
+    },
+    {
+      "faces": 131072,
+      "height_samples": 257,
+      "level": 1,
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_02_26_RGB_project\\mesh\\terrain-lod1.glb",
+      "sha256": "2c97ba86694748903dfc80ec450d9570a4a9b555d200297f7610c03152450477",
+      "stride": 4,
+      "vertices": 66049,
+      "width_samples": 257
+    },
+    {
+      "faces": 32768,
+      "height_samples": 129,
+      "level": 2,
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_02_26_RGB_project\\mesh\\terrain-lod2.glb",
+      "sha256": "1a2b666431227d890953ea1f9f3c40e369bf6646666ba9231eaf3599838259a3",
+      "stride": 8,
+      "vertices": 16641,
+      "width_samples": 129
+    },
+    {
+      "faces": 8192,
+      "height_samples": 65,
+      "level": 3,
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_02_26_RGB_project\\mesh\\terrain-lod3.glb",
+      "sha256": "3456d877716d65db1538f62a47e047068048ca26fe98c8f10edcc167c9735bb1",
+      "stride": 16,
+      "vertices": 4225,
+      "width_samples": 65
+    }
+  ],
+  "maximum_elevation": 1.5616697072982788,
+  "mesh_manifest_path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_02_26_RGB_project\\mesh\\mesh-manifest.json",
+  "minimum_elevation": -0.06127062439918518,
+  "project_id": "93d096e941d94ce8b8c4c30426954b0b",
+  "raster_height": 1024,
+  "raster_width": 1024,
+  "relief": 1.622940331697464,
+  "schema_version": 1,
+  "semantics": "textured_relative_surface_terrain_pixel_xy_display_normalized_z",
+  "surface_product": "rdsm",
+  "surface_sha256": "e3cc014f46e6ab4a4b3622ab702a7765cbfefb9d57b4fe202998a4dfab90b944",
+  "texture_sha256": "0a596928b38738ea794c37065e64a078a490246ed27403d3ea4878ca29e36fc0",
+  "valid_pixels": 1048576,
+  "vertical_units": "relative"
+}

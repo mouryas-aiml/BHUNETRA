@@ -633,3 +633,48 @@ def project_preview_legend(project_dir: Path, layer: str) -> dict[str, object]:
         raise HTTPException(
             status_code=422, detail=f"unable to derive project layer legend: {exc}"
         ) from exc
+
+
+class GamusLoadRequest(BaseModel):
+    sample_id: str
+    split: str = "val"
+
+
+@app.get("/v1/dataset/gamus/info", dependencies=[Depends(_session_guard)])
+def gamus_info() -> dict[str, object]:
+    from depthwizard.dataset.gamus import get_dataset_info
+    return get_dataset_info()
+
+
+@app.get("/v1/dataset/gamus/samples", dependencies=[Depends(_session_guard)])
+def gamus_samples(split: str = "val", limit: int = 20) -> list[dict[str, object]]:
+    from depthwizard.dataset.gamus import list_samples
+    return list_samples(split=split, limit=limit)
+
+
+@app.post("/v1/dataset/gamus/load", dependencies=[Depends(_session_guard)])
+def gamus_load(request: GamusLoadRequest) -> dict[str, object]:
+    from depthwizard.dataset.gamus import download_and_extract_sample
+    try:
+        return download_and_extract_sample(sample_id=request.sample_id, split=request.split)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Failed to load GAMUS sample: {exc}") from exc
+
+
+@app.get("/v1/demo/load", dependencies=[Depends(_session_guard)])
+def load_demo() -> dict[str, object]:
+    demo_dir = Path("data/sample_project").resolve()
+    manifest_path = demo_dir / "project-manifest.json"
+    if not manifest_path.exists():
+        raise HTTPException(status_code=404, detail="Demo project manifest not found")
+    try:
+        data = json.loads(manifest_path.read_text(encoding="utf-8"))
+        return {
+            "status": "ready",
+            "project_dir": str(demo_dir),
+            "manifest_path": str(manifest_path),
+            "manifest": data,
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Failed to load demo project: {exc}") from exc
+
