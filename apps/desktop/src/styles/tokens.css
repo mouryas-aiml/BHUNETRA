@@ -33,16 +33,16 @@
   --dw-space-8: 32px;
   --dw-space-12: 48px;
 
-  --dw-topbar-height: 56px;
-  --dw-toolrail-width: 56px;
-  --dw-inspector-width: 320px;
+  --dw-topbar-height: 62px;
+  --dw-toolrail-width: 60px;
+  --dw-inspector-width: 360px;
 
-  --dw-font-xs: 11px;
-  --dw-font-sm: 12px;
-  --dw-font-md: 13px;
-  --dw-font-lg: 15px;
-  --dw-font-xl: 20px;
-  --dw-font-2xl: 28px;
+  --dw-font-xs: 13px;
+  --dw-font-sm: 14px;
+  --dw-font-md: 16px;
+  --dw-font-lg: 18px;
+  --dw-font-xl: 24px;
+  --dw-font-2xl: 34px;
 }
 
 * {

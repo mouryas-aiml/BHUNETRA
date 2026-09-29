@@ -1,0 +1,15 @@
+{
+  "dataset": "OrthoLoC held-out validation",
+  "protocol": "64-anchor held-out sparse evaluation",
+  "results": [
+    {
+      "anchor_count": 64,
+      "heldout_pixels": 842100,
+      "metrics": {
+        "rmse_m": 2.41,
+        "mae_m": 1.68,
+        "pearson_r": 0.942
+      }
+    }
+  ]
+}

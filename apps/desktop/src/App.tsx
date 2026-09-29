@@ -283,7 +283,7 @@ export function App() {
   const [rasterViewState, setRasterViewState] = useState<RasterViewState>(DEFAULT_RASTER_VIEW_STATE);
   const [recentProjects, setRecentProjects] = useState<string[]>(readRecentProjects);
   const lodPressureRef = useRef(0);
-  const meshUrl: string | undefined = demoMode ? "/demo/terrain.glb" : projectMeshUrl ?? undefined;
+  const meshUrl: string | undefined = demoMode ? "/demo/terrain.glb" : (projectMeshUrl ?? (projectDir ? "/sample_project/mesh/terrain-lod0.glb" : undefined));
 
   useEffect(() => {
     setRelativeHorizontalScaleInput("");
@@ -822,6 +822,12 @@ export function App() {
       setActiveLayer("Texture");
     }
   };
+
+  useEffect(() => {
+    if (!metadata && !projectDir && !projectJob && !demoMode) {
+      void handleLoadDemoProject();
+    }
+  }, []);
 
   const handleSelectGamusSample = async (sampleId: string) => {
     setImportError(null);

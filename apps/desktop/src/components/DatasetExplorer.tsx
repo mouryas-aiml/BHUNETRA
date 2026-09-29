@@ -180,23 +180,38 @@ export function DatasetExplorer({ isOpen, onClose, onSelectSample }: DatasetExpl
                     onClick={() => setSelectedSample(sample)}
                   >
                     <div className="bn-sample-preview-box">
-                      <div className="bn-sample-placeholder-art">
-                        <svg viewBox="0 0 100 100" className="bn-mini-raster-svg" preserveAspectRatio="none">
-                          <defs>
-                            <linearGradient id={`grad-${sample.id}`} x1="0" y1="0" x2="1" y2="1">
-                              <stop offset="0%" stopColor="#0b2447" />
-                              <stop offset="50%" stopColor="#19376d" />
-                              <stop offset="100%" stopColor="#06b6d4" />
-                            </linearGradient>
-                          </defs>
-                          <rect width="100" height="100" fill={`url(#grad-${sample.id})`} />
-                          <circle cx="35" cy="40" r="18" fill="#38bdf8" opacity="0.3" />
-                          <rect x="50" y="30" width="30" height="25" fill="#818cf8" opacity="0.4" />
-                          <path d="M10 80 Q 40 50, 70 85 T 100 70" stroke="#38bdf8" strokeWidth="2" fill="none" opacity="0.6" />
-                        </svg>
-                        <span className="bn-sample-tag">{sample.split.toUpperCase()}</span>
-                        {sample.is_cached && <span className="bn-sample-cached-tag">Cached</span>}
-                      </div>
+                      {sample.rgb_path ? (
+                        <div className="bn-sample-img-wrap" style={{ position: "relative", width: "100%", height: "100%" }}>
+                          <img
+                            src={sample.rgb_path}
+                            alt={sample.id}
+                            style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "6px" }}
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = "none";
+                            }}
+                          />
+                          <span className="bn-sample-tag">{sample.split.toUpperCase()}</span>
+                          {sample.is_cached && <span className="bn-sample-cached-tag">Cached</span>}
+                        </div>
+                      ) : (
+                        <div className="bn-sample-placeholder-art">
+                          <svg viewBox="0 0 100 100" className="bn-mini-raster-svg" preserveAspectRatio="none">
+                            <defs>
+                              <linearGradient id={`grad-${sample.id}`} x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stopColor="#0b2447" />
+                                <stop offset="50%" stopColor="#19376d" />
+                                <stop offset="100%" stopColor="#06b6d4" />
+                              </linearGradient>
+                            </defs>
+                            <rect width="100" height="100" fill={`url(#grad-${sample.id})`} />
+                            <circle cx="35" cy="40" r="18" fill="#38bdf8" opacity="0.3" />
+                            <rect x="50" y="30" width="30" height="25" fill="#818cf8" opacity="0.4" />
+                            <path d="M10 80 Q 40 50, 70 85 T 100 70" stroke="#38bdf8" strokeWidth="2" fill="none" opacity="0.6" />
+                          </svg>
+                          <span className="bn-sample-tag">{sample.split.toUpperCase()}</span>
+                          {sample.is_cached && <span className="bn-sample-cached-tag">Cached</span>}
+                        </div>
+                      )}
                     </div>
 
                     <div className="bn-sample-info">
@@ -233,6 +248,15 @@ export function DatasetExplorer({ isOpen, onClose, onSelectSample }: DatasetExpl
               <div className="bn-card">
                 <div className="bn-badge bn-badge--violet">Selected Scene</div>
                 <h3 className="bn-details-title">{selectedSample.id}</h3>
+                {selectedSample.rgb_path && (
+                  <div style={{ width: "100%", height: "140px", borderRadius: "8px", overflow: "hidden", margin: "10px 0", border: "1px solid var(--bn-border)" }}>
+                    <img
+                      src={selectedSample.rgb_path}
+                      alt={selectedSample.id}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  </div>
+                )}
                 <p className="bn-details-desc">{selectedSample.description}</p>
 
                 <div className="bn-details-table">

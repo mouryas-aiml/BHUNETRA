@@ -1,0 +1,26 @@
+{
+  "status": "success",
+  "scene": "Joshimath, Uttarakhand, India",
+  "purpose": "Mountainous terrain single-view absolute DSM engineering validation",
+  "model": "DA3MONO-LARGE",
+  "device": "CUDA/DirectML",
+  "shape": [1024, 1024],
+  "tile_count": 1,
+  "harmonized_tiles": 0,
+  "crs": "EPSG:3857",
+  "gsd_x_m": 32.925,
+  "gsd_y_m": 32.761,
+  "dsm": "/demo/dsm.tif",
+  "imagery": {
+    "source": "EOX Sentinel-2 cloudless 2024",
+    "path": "joshimath_s2cloudless_2024.tif"
+  },
+  "calibration": {
+    "method": "dem_anchor_affine",
+    "scale": 1.482,
+    "offset": 1842.5,
+    "orientation_flipped": false,
+    "anchor_correlation_before": 0.742,
+    "anchor_correlation_after": 0.918
+  }
+}

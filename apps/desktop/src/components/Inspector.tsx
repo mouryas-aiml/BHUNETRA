@@ -149,7 +149,7 @@ export function Inspector({
         ]} />
       </section>
 
-      <details className="dw-inspector-disclosure">
+      <details className="dw-inspector-disclosure" open>
         <summary>Geospatial metadata</summary>
         <section className="dw-section dw-section--nested">
           <dl className="dw-property-list">
@@ -178,6 +178,28 @@ export function Inspector({
           </dl>
         </section>
       </details>
+
+      <section className="dw-section">
+        <div className="dw-section-title">AI Terrain Intelligence</div>
+        <dl className="dw-property-list">
+          <div className="dw-property">
+            <dt>Depth Estimation</dt>
+            <dd>{modelId ?? "DA3MONO-LARGE"} · ViT</dd>
+          </div>
+          <div className="dw-property">
+            <dt>Scale Calibration</dt>
+            <dd>{calibrationReady ? "Affine Anchor Metric" : georeferenced ? "Pending Evidence" : "Relative Geometry"}</dd>
+          </div>
+          <div className="dw-property">
+            <dt>DSM Generation</dt>
+            <dd>{geometryReady ? (calibrationReady ? "Absolute Surface DSM" : "Dimensionless rDSM") : "Awaiting Ingestion"}</dd>
+          </div>
+          <div className="dw-property">
+            <dt>Terrain Reconstruction</dt>
+            <dd>{rendererReady ? `LOD ${meshLod} Mesh (${autoLod ? "Auto" : "Manual"})` : meshArtifactReady ? "LOD Pyramid Ready" : "Awaiting Mesh"}</dd>
+          </div>
+        </dl>
+      </section>
 
       {(activeTool === "Measure" || activeTool === "Profiles" || probe || analysisBusy) && (
         <AnalysisInspector

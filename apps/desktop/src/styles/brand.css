@@ -84,30 +84,30 @@ body {
 .bn-status-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 2px 7px;
+  gap: 7px;
+  padding: 4px 11px;
   border-radius: 999px;
-  font-size: 10px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   background: rgba(14, 23, 42, 0.85);
   border: 1px solid var(--bn-border-technical);
   color: var(--bn-text-secondary);
 }
 
 .bn-status-dot {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
 }
 
 .bn-status-dot--green {
   background: #10b981;
-  box-shadow: 0 0 6px #10b981;
+  box-shadow: 0 0 8px #10b981;
 }
 
 .bn-status-dot--cyan {
   background: #38bdf8;
-  box-shadow: 0 0 6px #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
 }
 
 /* Landing / Empty Canvas Hero */
@@ -144,28 +144,28 @@ body {
 }
 
 .bn-landing-headline {
-  font-size: 28px;
-  font-weight: 800;
+  font-size: 36px;
+  font-weight: 850;
   letter-spacing: -0.5px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   background: linear-gradient(135deg, #ffffff 0%, #38bdf8 50%, #818cf8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .bn-landing-tagline {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 650;
   color: var(--bn-cyan-accent);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .bn-landing-subtitle {
-  max-width: 660px;
-  font-size: 13px;
-  line-height: 1.6;
+  max-width: 680px;
+  font-size: 16px;
+  line-height: 1.65;
   color: var(--bn-text-secondary);
-  margin-bottom: 26px;
+  margin-bottom: 28px;
 }
 
 .bn-landing-actions {
@@ -182,6 +182,9 @@ body {
   border-color: rgba(56, 189, 248, 0.6) !important;
   color: #ffffff !important;
   box-shadow: 0 0 16px rgba(56, 189, 248, 0.3);
+  font-size: 16px !important;
+  padding: 0 18px !important;
+  height: 42px !important;
 }
 
 .bn-btn--hero:hover {
@@ -193,38 +196,39 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 12px 18px;
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.65);
+  gap: 10px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.75);
   border: 1px solid var(--bn-border-technical);
-  max-width: 900px;
+  max-width: 960px;
 }
 
 .bn-pipeline-step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
 }
 
 .bn-pipe-tag {
-  font-size: 9px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 750;
   color: var(--bn-cyan-accent);
   letter-spacing: 0.5px;
 }
 
 .bn-pipe-label {
-  font-size: 11px;
-  color: var(--bn-text-secondary);
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--bn-text-primary);
 }
 
 .bn-pipeline-arrow {
   color: var(--bn-violet-accent);
-  font-size: 13px;
+  font-size: 16px;
   padding: 0 4px;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
 /* Modals */
@@ -273,25 +277,25 @@ body {
 }
 
 .bn-dataset-title-group h2 {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 750;
   margin: 4px 0 2px 0;
   color: var(--bn-text-primary);
 }
 
 .bn-dataset-subtitle {
-  font-size: 12px;
+  font-size: 15px;
   color: var(--bn-text-secondary);
   margin: 0;
 }
 
 .bn-badge {
   display: inline-block;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: 2px 7px;
+  padding: 3px 8px;
   border-radius: 4px;
 }
 
@@ -309,60 +313,61 @@ body {
 
 .bn-dataset-layout {
   display: grid;
-  grid-template-columns: 270px minmax(0, 1fr) 300px;
+  grid-template-columns: 290px minmax(0, 1fr) 320px;
   flex: 1;
   min-height: 0;
 }
 
 .bn-dataset-sidebar {
-  padding: 16px;
+  padding: 18px;
   border-right: 1px solid var(--bn-border-technical);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   overflow-y: auto;
 }
 
 .bn-dataset-gallery {
-  padding: 16px;
+  padding: 18px;
   overflow-y: auto;
   min-height: 0;
 }
 
 .bn-dataset-details-pane {
-  padding: 16px;
+  padding: 18px;
   border-left: 1px solid var(--bn-border-technical);
   overflow-y: auto;
 }
 
 .bn-card {
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(15, 23, 42, 0.7);
   border: 1px solid var(--bn-border-technical);
-  border-radius: 8px;
-  padding: 14px;
+  border-radius: 10px;
+  padding: 16px;
 }
 
 .bn-card-title {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 750;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--bn-cyan-accent);
   margin-top: 0;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .bn-stat-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 11px;
-  padding: 4px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 14px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .bn-stat-val {
-  font-weight: 600;
+  font-weight: 650;
+  font-size: 15px;
   color: var(--bn-text-primary);
 }
 
@@ -621,6 +626,8 @@ body {
 
 .dw-project-title strong {
   color: #f0f4fc !important;
+  font-size: 16px !important;
+  font-weight: 650 !important;
 }
 
 .dw-toolrail {
@@ -629,8 +636,16 @@ body {
 }
 
 .dw-tool {
+  width: 44px !important;
+  height: 44px !important;
   color: #8fa0c0 !important;
   border: 1px solid transparent !important;
+}
+
+.dw-tool-icon,
+.dw-tool-icon svg {
+  width: 22px !important;
+  height: 22px !important;
 }
 
 .dw-tool:hover {
@@ -653,12 +668,17 @@ body {
 .dw-workspace-bar {
   background: rgba(10, 17, 40, 0.94) !important;
   border-bottom: 1px solid rgba(0, 229, 255, 0.18) !important;
+  min-height: 52px !important;
+  padding: 8px 14px !important;
 }
 
 .dw-workspace-status {
   background: rgba(10, 17, 40, 0.96) !important;
   border-top: 1px solid rgba(0, 229, 255, 0.18) !important;
   color: #8fa0c0 !important;
+  font-size: 14px !important;
+  height: 40px !important;
+  padding: 0 16px !important;
 }
 
 .dw-canvas {
@@ -675,136 +695,191 @@ body {
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 229, 255, 0.12) !important;
   color: #f0f4fc !important;
   backdrop-filter: blur(12px) !important;
+  padding: 32px !important;
 }
 
 .dw-empty-card h2 {
   color: #f0f4fc !important;
+  font-size: 24px !important;
+  font-weight: 750 !important;
+  margin-bottom: 12px !important;
 }
 
 .dw-empty-card p {
   color: #94a3b8 !important;
+  font-size: 16px !important;
+  line-height: 1.65 !important;
 }
 
 .dw-inspector {
   background: rgba(10, 17, 40, 0.96) !important;
   border-left: 1px solid rgba(0, 229, 255, 0.18) !important;
   color: #f0f4fc !important;
+  font-size: 15px !important;
 }
 
 .dw-inspector-header {
   background: rgba(10, 17, 40, 0.98) !important;
   border-bottom: 1px solid rgba(0, 229, 255, 0.18) !important;
   color: #f0f4fc !important;
+  padding: 16px 20px !important;
 }
 
 .dw-inspector-header h2 {
   color: #f0f4fc !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
 }
 
 .dw-inspector-header p {
   color: #8fa0c0 !important;
+  font-size: 14px !important;
+  margin-top: 4px !important;
 }
 
 .dw-section {
   border-bottom: 1px solid rgba(0, 229, 255, 0.12) !important;
+  padding: 16px 20px !important;
 }
 
 .dw-section-title {
   color: #00e5ff !important;
   letter-spacing: 0.08em;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  margin-bottom: 12px !important;
 }
 
 .dw-property {
   color: #f0f4fc !important;
+  font-size: 15px !important;
+  gap: 12px !important;
+  padding: 2px 0 !important;
 }
 
 .dw-property strong {
   color: #f0f4fc !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
 }
 
 .dw-property span {
   color: #8fa0c0 !important;
+  font-size: 14px !important;
 }
 
 .dw-validation-empty {
   background: rgba(14, 24, 52, 0.7) !important;
   border: 1px solid rgba(0, 229, 255, 0.15) !important;
   color: #f0f4fc !important;
+  padding: 14px 16px !important;
+}
+
+.dw-validation-empty strong {
+  font-size: 15px !important;
+  font-weight: 650 !important;
 }
 
 .dw-validation-empty p {
   color: #8fa0c0 !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
 }
 
 .dw-btn {
   background: rgba(18, 30, 68, 0.85) !important;
   border: 1px solid rgba(0, 229, 255, 0.22) !important;
   color: #f0f4fc !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  height: 38px !important;
+  padding: 0 14px !important;
+  border-radius: 8px !important;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .dw-btn:hover:not(:disabled) {
   background: rgba(28, 48, 100, 0.95) !important;
   border-color: #00e5ff !important;
-  box-shadow: 0 0 10px rgba(0, 229, 255, 0.25) !important;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.3) !important;
 }
 
 .dw-btn--primary {
   background: linear-gradient(135deg, #0284c7, #4f46e5) !important;
   border-color: rgba(0, 229, 255, 0.6) !important;
   color: #ffffff !important;
-  box-shadow: 0 0 15px rgba(0, 229, 255, 0.3) !important;
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.35) !important;
+  font-size: 15px !important;
+  font-weight: 650 !important;
 }
 
 .dw-btn--primary:hover:not(:disabled) {
   background: linear-gradient(135deg, #0369a1, #4338ca) !important;
-  box-shadow: 0 0 22px rgba(0, 229, 255, 0.45) !important;
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.5) !important;
 }
 
 .dw-segmented {
   background: rgba(14, 24, 52, 0.8) !important;
   border: 1px solid rgba(0, 229, 255, 0.18) !important;
+  padding: 3px !important;
+  gap: 3px !important;
 }
 
 .dw-segmented button {
   color: #8fa0c0 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  height: 32px !important;
+  padding: 0 12px !important;
+  border-radius: 6px !important;
 }
 
 .dw-segmented button[data-active="true"] {
-  background: rgba(0, 229, 255, 0.2) !important;
+  background: rgba(0, 229, 255, 0.22) !important;
   color: #00e5ff !important;
-  box-shadow: 0 0 8px rgba(0, 229, 255, 0.2) !important;
-  border: 1px solid rgba(0, 229, 255, 0.35) !important;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.25) !important;
+  border: 1px solid rgba(0, 229, 255, 0.4) !important;
 }
 
 .dw-chip {
   background: rgba(18, 30, 68, 0.8) !important;
   border: 1px solid rgba(0, 229, 255, 0.18) !important;
   color: #8fa0c0 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  height: 32px !important;
+  padding: 0 12px !important;
+  border-radius: 6px !important;
 }
 
 .dw-chip[data-active="true"] {
-  background: rgba(0, 229, 255, 0.2) !important;
+  background: rgba(0, 229, 255, 0.22) !important;
   color: #00e5ff !important;
-  border-color: rgba(0, 229, 255, 0.4) !important;
+  border-color: rgba(0, 229, 255, 0.45) !important;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.25) !important;
 }
 
 .dw-canvas-context,
 .dw-scene-badge,
 .dw-north-indicator {
-  background: rgba(10, 17, 40, 0.90) !important;
-  border: 1px solid rgba(0, 229, 255, 0.22) !important;
+  background: rgba(10, 17, 40, 0.92) !important;
+  border: 1px solid rgba(0, 229, 255, 0.25) !important;
   color: #f0f4fc !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6) !important;
 }
 
 .dw-canvas-context strong,
 .dw-scene-badge strong {
   color: #f0f4fc !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
 }
 
 .dw-canvas-context span,
 .dw-scene-badge span {
   color: #8fa0c0 !important;
+  font-size: 14px !important;
 }
 
 .dw-compact-select,
@@ -812,10 +887,14 @@ body {
   background: rgba(14, 24, 52, 0.85) !important;
   border: 1px solid rgba(0, 229, 255, 0.2) !important;
   color: #f0f4fc !important;
+  font-size: 14px !important;
+  height: 32px !important;
 }
 
 .dw-interaction-hint {
   background: rgba(10, 17, 40, 0.88) !important;
   border: 1px solid rgba(0, 229, 255, 0.2) !important;
   color: #8fa0c0 !important;
+  font-size: 14px !important;
+  padding: 6px 12px !important;
 }
