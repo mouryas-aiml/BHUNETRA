@@ -1,22 +1,42 @@
 import {
-  CompareIcon,
+  AccuracyIcon,
+  AiReconstructionIcon,
+  AnalysisIcon,
+  DashboardIcon,
+  DatasetIcon,
+  DigitalTwinIcon,
+  ElevationModelIcon,
   ExportIcon,
-  MeasureIcon,
-  ProfileIcon,
+  FlythroughIcon,
+  HeatmapIcon,
+  ImageInspectorIcon,
   ProjectIcon,
-  StructureIcon,
+  SettingsIcon,
+  TerrainIcon,
+  UploadIcon,
   ValidateIcon,
 } from "./icons";
 
-const tools = [
-  { id: "Project", label: "Navigate", icon: ProjectIcon },
-  { id: "Measure", label: "Measure", icon: MeasureIcon },
-  { id: "Structures", label: "Structures", icon: StructureIcon },
-  { id: "Profiles", label: "Profiles", icon: ProfileIcon },
-  { id: "Validation", label: "Validate", icon: ValidateIcon },
-  { id: "Compare", label: "Compare", icon: CompareIcon },
-  { id: "Export", label: "Export", icon: ExportIcon },
+export const SIDEBAR_PAGES = [
+  { id: "Dashboard", label: "Dashboard", icon: DashboardIcon },
+  { id: "Projects", label: "Projects", icon: ProjectIcon },
+  { id: "Import", label: "Import Imagery", icon: UploadIcon },
+  { id: "Dataset", label: "Dataset Explorer", icon: DatasetIcon },
+  { id: "Reconstruction", label: "AI Reconstruction", icon: AiReconstructionIcon },
+  { id: "Elevation", label: "Elevation Model", icon: ElevationModelIcon },
+  { id: "Terrain", label: "Terrain", icon: TerrainIcon },
+  { id: "Heatmap", label: "Heatmap", icon: HeatmapIcon },
+  { id: "Intelligence", label: "Terrain Intelligence", icon: AnalysisIcon },
+  { id: "DigitalTwin", label: "Geospatial Digital Twin", icon: DigitalTwinIcon },
+  { id: "Inspector", label: "Image Inspector", icon: ImageInspectorIcon },
+  { id: "Accuracy", label: "Accuracy & Error", icon: AccuracyIcon },
+  { id: "Validation", label: "Validation", icon: ValidateIcon },
+  { id: "Flythrough", label: "3D Flythrough", icon: FlythroughIcon },
+  { id: "Exports", label: "Exports", icon: ExportIcon },
+  { id: "Settings", label: "Settings", icon: SettingsIcon },
 ] as const;
+
+export type SidebarPageId = (typeof SIDEBAR_PAGES)[number]["id"];
 
 export function ToolRail({
   active,
@@ -29,21 +49,23 @@ export function ToolRail({
 }) {
   return (
     <nav className="dw-toolrail" aria-label="Workspace tools">
-      {tools.map(({ id, label, icon: ToolIcon }) => {
+      {SIDEBAR_PAGES.map(({ id, label, icon: ToolIcon }) => {
         const disabled = disabledTools?.has(id) ?? false;
         return (
           <button
             key={id}
             className="dw-tool"
             data-active={active === id}
-            title={disabled ? `${label} is unavailable until its required project evidence exists` : label}
+            title={label}
             aria-label={label}
             disabled={disabled}
             onClick={() => {
               if (!disabled) onChange(id);
             }}
           >
-            <span className="dw-tool-icon" aria-hidden="true"><ToolIcon /></span>
+            <span className="dw-tool-icon" aria-hidden="true">
+              <ToolIcon />
+            </span>
           </button>
         );
       })}
