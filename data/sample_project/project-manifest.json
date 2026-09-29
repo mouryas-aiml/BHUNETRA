@@ -1,0 +1,165 @@
+{
+  "artifacts": {
+    "provenance": {
+      "path": "M:\\SIH\\BHUNETRA\\data\\sample_project\\provenance.json",
+      "semantics": "project_processing_provenance",
+      "sha256": "e45d8b7f502bbd7aa1bab168ad71b9db42262aa7db0cdec3d55bbf41ae9af80b",
+      "units": null
+    },
+    "rdsm": {
+      "path": "M:\\SIH\\BHUNETRA\\data\\sample_project\\products\\rdsm.tif",
+      "semantics": "dimensionless_relative_surface_height",
+      "sha256": "b7a1545914a30d315029deac245541a04408cefe7e33d5a1d557724c3a6ec16a",
+      "units": "relative"
+    }
+  },
+  "created_at_utc": "2026-09-29T11:43:57.450460+00:00",
+  "errors": [],
+  "estimator": {
+    "evidence": [
+      {
+        "branch_id": "DepthWizard-V4-confidence-gated-v2",
+        "evidence_id": "potsdam-external-v2:3b1ecb2ae9b559d84cc2233af25887e05575889bdbd7b57bd2568b7e98bc7118",
+        "independently_evaluated": true,
+        "promotion_passed": false,
+        "summary": "Frozen V4 was slightly worse than independently calibrated DA3 in aggregate and violated the per-tile non-degradation criterion."
+      }
+    ],
+    "geometry_pipeline_revision": "scene-global-affine-mosaic-v2",
+    "reason": "calibrated DA3 retained because no learned branch has independently satisfied the production promotion contract",
+    "selected_model_id": "DA3MONO-LARGE",
+    "selected_path": "calibrated_da3"
+  },
+  "geometry_config_sha256": "66b0f401508b1bbd7b51f07099ad8ffa147d7e7b029d9c6631b3aaac7d6e2716",
+  "input_kind": "non_georeferenced",
+  "job_id": "9c61a9eee45c4b9b957b0ba31d008831",
+  "project_id": "88b92b01edbb4e64ac04087edff646a7",
+  "run_config_sha256": "977ea6ec9eb5c1df4f88f8ada057651c36a1780a9b1cb93e88cbb1a5af3b95d8",
+  "schema_version": 2,
+  "source_path": "M:\\SIH\\BHUNETRA\\data\\sample_image.png",
+  "source_sha256": "a92afad48e77b20fe1fb9637a72b5a2c6b9d3c00590c014f9b541a7a733f4492",
+  "stages": {
+    "calibration": {
+      "artifacts": {},
+      "completed_at_utc": "2026-09-29T11:46:20.870634+00:00",
+      "details": {
+        "metric_claim": false,
+        "reason": "non_georeferenced_input"
+      },
+      "started_at_utc": "2026-09-29T11:46:20.870634+00:00",
+      "status": "skipped",
+      "updated_at_utc": "2026-09-29T11:46:20.870634+00:00"
+    },
+    "complete": {
+      "artifacts": {},
+      "completed_at_utc": "2026-09-29T11:46:20.925502+00:00",
+      "details": {},
+      "started_at_utc": "2026-09-29T11:46:20.925502+00:00",
+      "status": "completed",
+      "updated_at_utc": "2026-09-29T11:46:20.925502+00:00"
+    },
+    "export": {
+      "artifacts": {
+        "provenance": "M:\\SIH\\BHUNETRA\\data\\sample_project\\provenance.json",
+        "rdsm": "M:\\SIH\\BHUNETRA\\data\\sample_project\\products\\rdsm.tif"
+      },
+      "completed_at_utc": "2026-09-29T11:46:20.923496+00:00",
+      "details": {
+        "elevation_units": "relative",
+        "metric_claim": false,
+        "source_files_overwritten": false
+      },
+      "started_at_utc": "2026-09-29T11:46:20.923496+00:00",
+      "status": "completed",
+      "updated_at_utc": "2026-09-29T11:46:20.923496+00:00"
+    },
+    "geometry": {
+      "artifacts": {
+        "rdsm": "M:\\SIH\\BHUNETRA\\data\\sample_project\\products\\rdsm.tif"
+      },
+      "completed_at_utc": "2026-09-29T11:46:20.867204+00:00",
+      "details": {
+        "estimator_path": "calibrated_da3",
+        "foundation_model_id": "DA3MONO-LARGE",
+        "harmonized_tiles": 0,
+        "model_id": "DA3MONO-LARGE",
+        "normalization": {
+          "high": [
+            197.0,
+            217.0,
+            167.0
+          ],
+          "high_percentile": 99.0,
+          "low": [
+            98.0,
+            118.0,
+            68.0
+          ],
+          "low_percentile": 1.0
+        },
+        "tile_count": 1,
+        "valid_pixel_fraction": 1.0
+      },
+      "elapsed_seconds": 143.36152330000186,
+      "started_at_utc": "2026-09-29T11:43:57.505439+00:00",
+      "status": "completed",
+      "updated_at_utc": "2026-09-29T11:46:20.867204+00:00"
+    },
+    "ingest": {
+      "artifacts": {},
+      "completed_at_utc": "2026-09-29T11:43:57.500232+00:00",
+      "details": {
+        "quality_assessment": {
+          "assessment_limitations": [
+            "Cloud and shadow fractions are radiometric candidates, not semantic masks",
+            "Building lean cannot be inferred reliably without sensor geometry or stereo evidence"
+          ],
+          "bright_low_chroma_candidate_fraction": 0.0,
+          "deep_shadow_candidate_fraction": 0.0,
+          "flags": [],
+          "off_nadir_degrees": null,
+          "saturation_fraction": 0.0,
+          "status": "pass",
+          "texture_gradient_score": 0.006756756756756743
+        },
+        "raster": {
+          "count": 3,
+          "crs": null,
+          "dtype": "uint8",
+          "elevation_reference": "unknown",
+          "ground_sample_distance_x": null,
+          "ground_sample_distance_y": null,
+          "height": 512,
+          "nodata": null,
+          "path": "M:\\SIH\\BHUNETRA\\data\\sample_image.png",
+          "quality": {
+            "assessment_limitations": [
+              "Cloud and shadow fractions are radiometric candidates, not semantic masks",
+              "Building lean cannot be inferred reliably without sensor geometry or stereo evidence"
+            ],
+            "bright_low_chroma_candidate_fraction": 0.0,
+            "deep_shadow_candidate_fraction": 0.0,
+            "flags": [],
+            "off_nadir_degrees": null,
+            "saturation_fraction": 0.0,
+            "status": "pass",
+            "texture_gradient_score": 0.006756756756756743
+          },
+          "transform": null,
+          "valid_data_fraction": 1.0,
+          "vertical_crs": null,
+          "vertical_datum": null,
+          "width": 512
+        }
+      },
+      "started_at_utc": "2026-09-29T11:43:57.500232+00:00",
+      "status": "completed",
+      "updated_at_utc": "2026-09-29T11:43:57.500232+00:00"
+    }
+  },
+  "status": "complete",
+  "updated_at_utc": "2026-09-29T11:46:20.927506+00:00",
+  "warnings": [
+    "selected geometry path emitted no native confidence raster; no confidence values were fabricated"
+  ]
+}

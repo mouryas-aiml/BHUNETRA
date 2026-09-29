@@ -399,31 +399,66 @@ fn forward_output<R: Read + Send + 'static>(reader: R, label: &'static str) {
     });
 }
 
+fn find_python() -> Option<PathBuf> {
+    if let Ok(path) = env::var("DEPTHWIZARD_PYTHON") {
+        let p = PathBuf::from(path);
+        if p.is_file() {
+            return Some(p);
+        }
+    }
+    let candidates = [
+        PathBuf::from(r"M:\SIH\BHUNETRA\.venv\Scripts\python.exe"),
+        PathBuf::from(r".\.venv\Scripts\python.exe"),
+        PathBuf::from(r"..\..\..\.venv\Scripts\python.exe"),
+        PathBuf::from(r"..\..\..\..\.venv\Scripts\python.exe"),
+        PathBuf::from(r".venv/bin/python"),
+    ];
+    for c in &candidates {
+        if c.is_file() {
+            return Some(c.clone());
+        }
+    }
+    None
+}
+
 fn launch_sidecar(
     app: &tauri::App,
     port: u16,
     token: &str,
     boot_nonce: &str,
 ) -> Result<Child, Box<dyn std::error::Error>> {
-    let executable = sidecar_executable(app)?;
-    let runtime_dir = executable.parent().ok_or_else(|| {
-        io::Error::new(
-            io::ErrorKind::InvalidData,
-            "DepthWizard packaged runtime executable has no parent directory",
-        )
-    })?;
-    let model_snapshot = runtime_dir.join("models").join("da3mono-large");
-    let model_checkpoint = model_snapshot.join("model.safetensors");
-    if !model_checkpoint.is_file() {
-        return Err(Box::new(io::Error::new(
-            io::ErrorKind::NotFound,
-            format!(
-                "DepthWizard packaged DA3 checkpoint is missing at {model_checkpoint:?}; \
-                 refusing to launch an offline runtime that cannot reconstruct"
-            ),
-        )));
-    }
-    let mut command = Command::new(&executable);
+    let (mut command, model_snapshot_opt) = if let Some(python_exe) = find_python() {
+        let mut cmd = Command::new(&python_exe);
+        cmd.args(["-m", "depthwizard.sidecar"]);
+        let snapshot = PathBuf::from(r"M:\SIH\BHUNETRA\models\da3mono-large");
+        let snap_opt = if snapshot.join("model.safetensors").is_file() {
+            Some(snapshot)
+        } else {
+            None
+        };
+        (cmd, snap_opt)
+    } else {
+        let executable = sidecar_executable(app)?;
+        let runtime_dir = executable.parent().ok_or_else(|| {
+            io::Error::new(
+                io::ErrorKind::InvalidData,
+                "DepthWizard packaged runtime executable has no parent directory",
+            )
+        })?;
+        let model_snapshot = runtime_dir.join("models").join("da3mono-large");
+        let model_checkpoint = model_snapshot.join("model.safetensors");
+        if !model_checkpoint.is_file() {
+            return Err(Box::new(io::Error::new(
+                io::ErrorKind::NotFound,
+                format!(
+                    "DepthWizard packaged DA3 checkpoint is missing at {model_checkpoint:?}; \
+                     refusing to launch an offline runtime that cannot reconstruct"
+                ),
+            )));
+        }
+        (Command::new(&executable), Some(model_snapshot))
+    };
+
     command
         .arg("--host")
         .arg("127.0.0.1")
@@ -434,11 +469,17 @@ fn launch_sidecar(
         .env("DEPTHWIZARD_REQUIRE_SESSION_TOKEN", "1")
         .env("DEPTHWIZARD_SESSION_TOKEN", token)
         .env("DEPTHWIZARD_REQUIRE_BOOT_NONCE", "1")
-        .env("DEPTHWIZARD_BOOT_NONCE", boot_nonce)
-        .env("DEPTHWIZARD_OFFLINE_CORE", "1")
-        .env("DEPTHWIZARD_DA3_SNAPSHOT", &model_snapshot)
-        .env("HF_HUB_OFFLINE", "1")
-        .env("TRANSFORMERS_OFFLINE", "1")
+        .env("DEPTHWIZARD_BOOT_NONCE", boot_nonce);
+
+    if let Some(snapshot) = model_snapshot_opt {
+        command
+            .env("DEPTHWIZARD_OFFLINE_CORE", "1")
+            .env("DEPTHWIZARD_DA3_SNAPSHOT", snapshot)
+            .env("HF_HUB_OFFLINE", "1")
+            .env("TRANSFORMERS_OFFLINE", "1");
+    }
+
+    command
         .env("PROJ_NETWORK", "OFF")
         .env("PYTORCH_ENABLE_MPS_FALLBACK", "1")
         .env("NO_PROXY", "127.0.0.1,localhost")
@@ -450,7 +491,7 @@ fn launch_sidecar(
     let mut child = command.spawn().map_err(|error| {
         io::Error::new(
             error.kind(),
-            format!("failed to launch DepthWizard scientific runtime {executable:?}: {error}"),
+            format!("failed to launch DepthWizard scientific runtime: {error}"),
         )
     })?;
     if let Some(stdout) = child.stdout.take() {

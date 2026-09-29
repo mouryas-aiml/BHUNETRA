@@ -796,10 +796,32 @@ export function App() {
     }
   };
 
+  const pickPath = async (
+    options: Parameters<typeof open>[0],
+    promptMessage: string,
+    defaultValue = "",
+  ): Promise<string | null> => {
+    try {
+      if ("__TAURI_INTERNALS__" in window) {
+        const res = (await open(options)) as unknown;
+        if (typeof res === "string") return res;
+        if (Array.isArray(res) && res.length > 0 && typeof res[0] === "string") return res[0];
+        return null;
+      }
+    } catch {
+      // Fall through to browser prompt when not in native Tauri shell
+    }
+    const entered = window.prompt(promptMessage, defaultValue);
+    return entered?.trim() || null;
+  };
+
   const openProject = async () => {
     try {
-      const selectedDir = await open({ multiple: false, directory: true, title: "Open DepthWizard project" });
-      if (!selectedDir || Array.isArray(selectedDir)) return;
+      const selectedDir = await pickPath(
+        { multiple: false, directory: true, title: "Open DepthWizard project" },
+        "Enter DepthWizard project directory path (e.g. M:\\SIH\\BHUNETRA\\sample_project):",
+      );
+      if (!selectedDir) return;
       await loadExistingProject(selectedDir);
     } catch (error) {
       setImportError(error instanceof Error ? error.message : "Unable to open project folder picker");
@@ -810,13 +832,16 @@ export function App() {
     setImportError(null);
     setPreviewError(null);
     try {
-      const selected = await open({
-        multiple: false,
-        directory: false,
-        title: "Import remote-sensing imagery",
-        filters: [{ name: "Remote-sensing imagery", extensions: ["png", "jpg", "jpeg", "tif", "tiff"] }],
-      });
-      if (!selected || Array.isArray(selected)) return;
+      const selected = await pickPath(
+        {
+          multiple: false,
+          directory: false,
+          title: "Import remote-sensing imagery",
+          filters: [{ name: "Remote-sensing imagery", extensions: ["png", "jpg", "jpeg", "tif", "tiff"] }],
+        },
+        "Enter full path to remote-sensing image (PNG, JPG, or GeoTIFF):",
+      );
+      if (!selected) return;
       setImporting(true);
       const nextMetadata = await inspectRaster(selected);
       revokePreview();
@@ -845,8 +870,13 @@ export function App() {
     if (!metadata) return;
     setImportError(null);
     try {
-      const selectedDir = await open({ multiple: false, directory: true, title: "Choose DepthWizard project folder" });
-      if (!selectedDir || Array.isArray(selectedDir)) return;
+      const defaultOut = metadata.path.replace(/\.[^.]+$/, "") + "_project";
+      const selectedDir = await pickPath(
+        { multiple: false, directory: true, title: "Choose DepthWizard project folder" },
+        "Enter output directory for project reconstruction:",
+        defaultOut,
+      );
+      if (!selectedDir) return;
       setSubmittingProject(true);
       const next = await submitProject({
         source: metadata.path,
@@ -900,13 +930,16 @@ export function App() {
     if (!metadata || !projectDir) return;
     setImportError(null);
     try {
-      const dem = await open({
-        multiple: false,
-        directory: false,
-        title: "Add metric DEM evidence",
-        filters: [{ name: "Metric DEM", extensions: ["tif", "tiff"] }],
-      });
-      if (!dem || Array.isArray(dem)) return;
+      const dem = await pickPath(
+        {
+          multiple: false,
+          directory: false,
+          title: "Add metric DEM evidence",
+          filters: [{ name: "Metric DEM", extensions: ["tif", "tiff"] }],
+        },
+        "Enter full path to metric DEM (GeoTIFF):",
+      );
+      if (!dem) return;
       setSubmittingProject(true);
       const next = await submitProject({ source: metadata.path, output_dir: projectDir, dem_path: dem, requested_output: "dsm" });
       setGcpEvidence(null);
@@ -924,13 +957,16 @@ export function App() {
     if (!metadata || !projectDir) return;
     setImportError(null);
     try {
-      const gcpPath = await open({
-        multiple: false,
-        directory: false,
-        title: "Add sparse GCP evidence",
-        filters: [{ name: "Ground control points", extensions: ["csv"] }],
-      });
-      if (!gcpPath || Array.isArray(gcpPath)) return;
+      const gcpPath = await pickPath(
+        {
+          multiple: false,
+          directory: false,
+          title: "Add sparse GCP evidence",
+          filters: [{ name: "Ground control points", extensions: ["csv"] }],
+        },
+        "Enter full path to GCP CSV file:",
+      );
+      if (!gcpPath) return;
       setSubmittingProject(true);
       const report = await inspectGroundControlPoints(gcpPath);
       const next = await submitProject({
@@ -955,20 +991,26 @@ export function App() {
     if (!metadata || !projectDir) return;
     setImportError(null);
     try {
-      const dem = await open({
-        multiple: false,
-        directory: false,
-        title: "Add metric DEM evidence",
-        filters: [{ name: "Metric DEM", extensions: ["tif", "tiff"] }],
-      });
-      if (!dem || Array.isArray(dem)) return;
-      const gcpPath = await open({
-        multiple: false,
-        directory: false,
-        title: "Add sparse GCP evidence",
-        filters: [{ name: "Ground control points", extensions: ["csv"] }],
-      });
-      if (!gcpPath || Array.isArray(gcpPath)) return;
+      const dem = await pickPath(
+        {
+          multiple: false,
+          directory: false,
+          title: "Add metric DEM evidence",
+          filters: [{ name: "Metric DEM", extensions: ["tif", "tiff"] }],
+        },
+        "Enter full path to metric DEM (GeoTIFF):",
+      );
+      if (!dem) return;
+      const gcpPath = await pickPath(
+        {
+          multiple: false,
+          directory: false,
+          title: "Add sparse GCP evidence",
+          filters: [{ name: "Ground control points", extensions: ["csv"] }],
+        },
+        "Enter full path to GCP CSV file:",
+      );
+      if (!gcpPath) return;
       setSubmittingProject(true);
       const report = await inspectGroundControlPoints(gcpPath);
       const next = await submitProject({
@@ -994,13 +1036,16 @@ export function App() {
     if (!projectDir || !calibrationReady || projectValidation) return;
     setImportError(null);
     try {
-      const reference = await open({
-        multiple: false,
-        directory: false,
-        title: "Load independent reference DSM",
-        filters: [{ name: "Reference DSM", extensions: ["tif", "tiff"] }],
-      });
-      if (!reference || Array.isArray(reference)) return;
+      const reference = await pickPath(
+        {
+          multiple: false,
+          directory: false,
+          title: "Load independent reference DSM",
+          filters: [{ name: "Reference DSM", extensions: ["tif", "tiff"] }],
+        },
+        "Enter full path to independent reference DSM (GeoTIFF):",
+      );
+      if (!reference) return;
       setValidatingReference(true);
       const report = await validateProjectReference(projectDir, reference);
       const manifest = await getProjectManifest(projectDir);
