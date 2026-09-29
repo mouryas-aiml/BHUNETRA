@@ -1,0 +1,251 @@
+from pathlib import Path
+
+import numpy as np
+import pytest
+import rasterio
+from pyproj import Geod, Transformer
+from rasterio.transform import from_origin
+
+from depthwizard.io.raster import (
+    ground_sample_distance_m,
+    inspect_raster,
+    reproject_to_match,
+    write_float_geotiff,
+)
+
+
+def _write(
+    path: Path,
+    data: np.ndarray,
+    *,
+    transform,
+    crs: str | None = "EPSG:32643",
+) -> None:
+    with rasterio.open(
+        path,
+        "w",
+        driver="GTiff",
+        height=data.shape[0],
+        width=data.shape[1],
+        count=1,
+        dtype="float32",
+        crs=crs,
+        transform=transform,
+        nodata=-9999.0,
+    ) as dst:
+        dst.write(data.astype(np.float32), 1)
+
+
+def test_reproject_to_match_and_export(tmp_path: Path) -> None:
+    reference = tmp_path / "reference.tif"
+    target = tmp_path / "target.tif"
+    _write(reference, np.arange(16).reshape(4, 4), transform=from_origin(0, 4, 1, 1))
+    _write(target, np.ones((8, 8)), transform=from_origin(0, 4, 0.5, 0.5))
+
+    aligned, valid = reproject_to_match(reference, target)
+    assert aligned.shape == (8, 8)
+    assert valid.all()
+
+    output = tmp_path / "output.tif"
+    write_float_geotiff(output, aligned, template_path=target, description="test")
+    with rasterio.open(output) as src:
+        assert src.crs.to_string() == "EPSG:32643"
+        assert src.transform == from_origin(0, 4, 0.5, 0.5)
+        assert src.dtypes[0] == "float32"
+        assert src.descriptions[0] == "test"
+
+
+def test_crs_free_exact_grid_alignment_is_allowed_without_guessing(tmp_path: Path) -> None:
+    reference = tmp_path / "reference_no_crs.tif"
+    target = tmp_path / "target_no_crs.tif"
+    transform = from_origin(1000.0, 2000.0, 0.25, 0.25)
+    values = np.arange(64, dtype=np.float32).reshape(8, 8)
+    _write(reference, values, transform=transform, crs=None)
+    _write(target, np.ones((8, 8), dtype=np.float32), transform=transform, crs=None)
+
+    aligned, valid = reproject_to_match(reference, target)
+
+    assert valid.all()
+    np.testing.assert_allclose(aligned, values)
+
+
+def test_crs_free_alignment_rejects_transform_mismatch(tmp_path: Path) -> None:
+    reference = tmp_path / "reference_no_crs.tif"
+    target = tmp_path / "target_no_crs.tif"
+    _write(
+        reference,
+        np.ones((8, 8), dtype=np.float32),
+        transform=from_origin(1000.0, 2000.0, 0.25, 0.25),
+        crs=None,
+    )
+    _write(
+        target,
+        np.ones((8, 8), dtype=np.float32),
+        transform=from_origin(1000.5, 2000.0, 0.25, 0.25),
+        crs=None,
+    )
+
+    with pytest.raises(ValueError, match="dimensions and affine transforms"):
+        reproject_to_match(reference, target)
+
+
+def test_ground_sample_distance_is_metric_for_projected_crs(tmp_path: Path) -> None:
+    path = tmp_path / "projected.tif"
+    _write(path, np.ones((8, 8)), transform=from_origin(500000, 1500000, 10, 10))
+
+    gsd = ground_sample_distance_m(path)
+    assert gsd is not None
+    assert abs(gsd[0] - 10.0) < 0.05
+    assert abs(gsd[1] - 10.0) < 0.05
+
+    metadata = inspect_raster(path)
+    assert metadata.ground_sample_distance_x is not None
+    assert abs(metadata.ground_sample_distance_x - 10.0) < 0.05
+
+
+def test_raster_quality_flags_saturation_low_texture_and_off_nadir(tmp_path: Path) -> None:
+    path = tmp_path / "flat_off_nadir.tif"
+    data = np.zeros((3, 32, 32), dtype=np.uint8)
+    with rasterio.open(
+        path,
+        "w",
+        driver="GTiff",
+        height=32,
+        width=32,
+        count=3,
+        dtype="uint8",
+        crs="EPSG:32643",
+        transform=from_origin(500000, 1500000, 1, 1),
+    ) as dst:
+        dst.write(data)
+        dst.update_tags(OFF_NADIR_ANGLE="27.5")
+
+    quality = inspect_raster(path).quality
+
+    assert quality.status == "warning"
+    assert quality.saturation_fraction == 1.0
+    assert quality.off_nadir_degrees == 27.5
+    assert "high_saturation_fraction" in quality.flags
+    assert "insufficient_dynamic_range_for_radiometric_quality_assessment" in quality.flags
+    assert "off_nadir_building_lean_risk" in quality.flags
+
+
+def test_web_mercator_gsd_is_true_ground_spacing_not_map_metres(tmp_path: Path) -> None:
+    path = tmp_path / "joshimath_webmercator.tif"
+    to_map = Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
+    to_geo = Transformer.from_crs("EPSG:3857", "EPSG:4326", always_xy=True)
+    lon, lat = 79.64, 30.61
+    x, y = to_map.transform(lon, lat)
+    map_pixel = 38.219
+    transform = from_origin(x - 4 * map_pixel, y + 4 * map_pixel, map_pixel, map_pixel)
+    _write(
+        path,
+        np.ones((8, 8), dtype=np.float32),
+        transform=transform,
+        crs="EPSG:3857",
+    )
+
+    gsd = ground_sample_distance_m(path)
+    assert gsd is not None
+
+    col = (8 - 1) / 2.0
+    row = (8 - 1) / 2.0
+    x0, y0 = transform * (col + 0.5, row + 0.5)
+    x1, y1 = transform * (col + 1.5, row + 0.5)
+    x2, y2 = transform * (col + 0.5, row + 1.5)
+    lon0, lat0 = to_geo.transform(x0, y0)
+    lon1, lat1 = to_geo.transform(x1, y1)
+    lon2, lat2 = to_geo.transform(x2, y2)
+    geod = Geod(ellps="WGS84")
+    _, _, expected_x = geod.inv(lon0, lat0, lon1, lat1)
+    _, _, expected_y = geod.inv(lon0, lat0, lon2, lat2)
+
+    assert abs(gsd[0] - abs(expected_x)) < 1e-4
+    assert abs(gsd[1] - abs(expected_y)) < 1e-4
+    assert gsd[0] < map_pixel * 0.9
+    assert 32.0 < gsd[0] < 34.0
+
+
+def test_ground_sample_distance_rejects_projected_extent_outside_crs_area(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "dataset_local_but_epsg_tagged.tif"
+    _write(
+        path,
+        np.ones((8, 8), dtype=np.float32),
+        transform=from_origin(100_000_000.0, 100_000_000.0, 1.0, 1.0),
+        crs="EPSG:32632",
+    )
+
+    assert ground_sample_distance_m(path) is None
+    metadata = inspect_raster(path)
+    assert metadata.crs == "EPSG:32632"
+    assert metadata.ground_sample_distance_x is None
+    assert metadata.ground_sample_distance_y is None
+
+
+def test_ground_sample_distance_converts_geographic_degrees_to_metres(tmp_path: Path) -> None:
+    path = tmp_path / "geographic.tif"
+    _write(
+        path,
+        np.ones((8, 8)),
+        transform=from_origin(77.0, 13.0, 0.0001, 0.0001),
+        crs="EPSG:4326",
+    )
+
+    gsd = ground_sample_distance_m(path)
+    assert gsd is not None
+    assert 10.0 < gsd[0] < 11.5
+    assert 10.5 < gsd[1] < 11.5
+
+
+def test_crs_free_metric_affine_requires_explicit_ortholoc_opt_in(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    path = tmp_path / "ortholoc_unpacked.tif"
+    _write(
+        path,
+        np.ones((8, 8), dtype=np.float32),
+        transform=from_origin(500.0, 600.0, 0.2, 0.3),
+        crs=None,
+    )
+
+    monkeypatch.delenv("DEPTHWIZARD_ORTHOLOC_METRIC_AFFINE", raising=False)
+    assert ground_sample_distance_m(path) is None
+
+    monkeypatch.setenv("DEPTHWIZARD_ORTHOLOC_METRIC_AFFINE", "1")
+    gsd = ground_sample_distance_m(path)
+    assert gsd is not None
+    assert abs(gsd[0] - 0.2) < 1e-6
+    assert abs(gsd[1] - 0.3) < 1e-6
+
+
+def test_crs_bearing_ortholoc_override_precedes_global_crs_interpretation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    path = tmp_path / "ortholoc_raw_crs_tagged.tif"
+    _write(
+        path,
+        np.ones((8, 8), dtype=np.float32),
+        transform=from_origin(11.0, 48.0, 0.18, 0.22),
+        crs="EPSG:4326",
+    )
+
+    monkeypatch.delenv("DEPTHWIZARD_ORTHOLOC_METRIC_AFFINE", raising=False)
+    ordinary = ground_sample_distance_m(path)
+    assert ordinary is not None
+    assert ordinary[0] > 10_000.0
+    assert ordinary[1] > 10_000.0
+
+    monkeypatch.setenv("DEPTHWIZARD_ORTHOLOC_METRIC_AFFINE", "1")
+    local_metric = ground_sample_distance_m(path)
+    assert local_metric is not None
+    assert abs(local_metric[0] - 0.18) < 1e-6
+    assert abs(local_metric[1] - 0.22) < 1e-6
+
+    metadata = inspect_raster(path)
+    assert metadata.crs == "EPSG:4326"
+    assert metadata.ground_sample_distance_x is not None
+    assert abs(metadata.ground_sample_distance_x - 0.18) < 1e-6

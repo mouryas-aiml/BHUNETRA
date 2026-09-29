@@ -1,0 +1,307 @@
+from __future__ import annotations
+
+import argparse
+import importlib
+import json
+import os
+from collections.abc import Sequence
+from pathlib import Path
+from typing import Any
+
+from depthwizard.geometry_prior.da3_runtime_contract import (
+    DA3_RUNTIME_DEPENDENCY_MODULES,
+    verify_da3_runtime_dependencies,
+)
+
+_LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
+_DA3_PRODUCTION_RUNTIME_MODULES = (
+    "depth_anything_3.api",
+    "depth_anything_3.model.da3",
+    "depth_anything_3.model.dinov2.dinov2",
+    "depth_anything_3.model.dpt",
+)
+
+
+def _startup_trace(phase: str, **details: object) -> None:
+    """Best-effort startup tracing for packaged-runtime diagnostics.
+
+    The trace is disabled during normal launches unless DEPTHWIZARD_STARTUP_TRACE is set. It never
+    records the session token, boot nonce, or other secrets, and tracing failures must never block
+    the sidecar.
+    """
+    raw_path = os.environ.get("DEPTHWIZARD_STARTUP_TRACE")
+    if not raw_path:
+        return
+    payload = {"phase": phase, "pid": os.getpid(), **details}
+    try:
+        path = Path(raw_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(payload, sort_keys=True) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+    except (OSError, TypeError, ValueError):
+        return
+
+
+def _parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="depthwizard-core",
+        description="DepthWizard packaged local scientific sidecar",
+    )
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", type=int)
+    parser.add_argument("--log-level", default="warning")
+    parser.add_argument(
+        "--self-check",
+        action="store_true",
+        help="validate the frozen geospatial runtime wiring, then exit",
+    )
+    parser.add_argument(
+        "--self-check-da3",
+        action="store_true",
+        help=(
+            "validate the complete frozen DA3 monocular import closure and geometry helper after "
+            "the geospatial self-check; final RT5 acceptance still requires real offline inference"
+        ),
+    )
+    return parser
+
+
+def _is_256_bit_hex(value: str) -> bool:
+    return len(value) == 64 and all(character in "0123456789abcdefABCDEF" for character in value)
+
+
+def validate_launch_environment(*, host: str, port: int) -> None:
+    """Fail closed for packaged standalone launches before starting the HTTP server."""
+    if host not in _LOOPBACK_HOSTS:
+        raise ValueError("DepthWizard packaged core may bind only to loopback")
+    if not 1 <= port <= 65535:
+        raise ValueError("DepthWizard packaged core port must be between 1 and 65535")
+    if os.environ.get("DEPTHWIZARD_REQUIRE_SESSION_TOKEN") == "1":
+        token = os.environ.get("DEPTHWIZARD_SESSION_TOKEN", "")
+        if not _is_256_bit_hex(token):
+            raise RuntimeError(
+                "DepthWizard standalone launch requires a 256-bit hexadecimal per-session "
+                "authentication token"
+            )
+    if os.environ.get("DEPTHWIZARD_REQUIRE_BOOT_NONCE") == "1":
+        nonce = os.environ.get("DEPTHWIZARD_BOOT_NONCE", "")
+        if not _is_256_bit_hex(nonce):
+            raise RuntimeError(
+                "DepthWizard standalone launch requires a 256-bit hexadecimal per-process boot "
+                "identity nonce"
+            )
+
+
+def packaged_geospatial_self_check(*, require_da3: bool = False) -> dict[str, object]:
+    """Exercise the frozen geospatial runtime and, when requested, the DA3 import closure.
+
+    The lightweight self-check proves Rasterio/GDAL/PROJ correctness and exact frozen-process
+    startup. ``require_da3=True`` additionally imports the complete curated DA3 monocular dependency
+    closure, the pinned DA3 production modules and the audited geometry helper without loading model
+    weights. Standalone packaging uses that stronger import-only probe before staging the runtime;
+    final RT5 acceptance remains the stronger scientific gate because it performs real offline DA3
+    reconstruction before validation, mesh generation, export and lifecycle acceptance.
+    """
+    _startup_trace("self_check_import_start")
+
+    _startup_trace("self_check_numpy_import_start")
+    import numpy as np
+
+    _startup_trace("self_check_numpy_import_complete")
+    _startup_trace("self_check_pyproj_import_start")
+    import pyproj
+
+    _startup_trace("self_check_pyproj_import_complete")
+    _startup_trace("self_check_rasterio_import_start")
+    import rasterio
+
+    _startup_trace("self_check_rasterio_import_complete")
+    _startup_trace("self_check_rasterio_serde_import_start")
+    import rasterio.serde as rasterio_serde
+
+    _startup_trace("self_check_rasterio_serde_import_complete")
+    _startup_trace("self_check_rasterio_io_import_start")
+    from rasterio.io import MemoryFile
+    from rasterio.transform import from_origin
+
+    _startup_trace("self_check_rasterio_io_import_complete")
+    _startup_trace("self_check_import_complete")
+
+    _startup_trace("self_check_pyproj_epsg_start")
+    pyproj_crs = pyproj.CRS.from_epsg(32643)
+    if pyproj_crs.to_epsg() != 32643:
+        raise RuntimeError("PyProj failed to resolve EPSG:32643 from bundled PROJ data")
+    _startup_trace("self_check_pyproj_epsg_complete")
+
+    _startup_trace("self_check_rasterio_roundtrip_start")
+    data = np.zeros((1, 2, 2), dtype=np.uint8)
+    with MemoryFile() as memory_file:
+        with memory_file.open(
+            driver="GTiff",
+            width=2,
+            height=2,
+            count=1,
+            dtype="uint8",
+            crs="EPSG:32643",
+            transform=from_origin(500000, 1400000, 1.0, 1.0),
+        ) as dataset:
+            dataset.write(data)
+        with memory_file.open() as dataset:
+            rasterio_epsg = dataset.crs.to_epsg() if dataset.crs is not None else None
+            if rasterio_epsg != 32643:
+                raise RuntimeError(
+                    "Rasterio/GDAL failed to round-trip EPSG:32643 from bundled geospatial data"
+                )
+    _startup_trace("self_check_rasterio_roundtrip_complete")
+
+    da3_dependency_modules_imported: list[str] = []
+    da3_api_imported = False
+    da3_runtime_modules_imported: list[str] = []
+    da3_geometry_imported = False
+    da3_affine_inverse_probe = "DEFERRED_TO_RT5_FULL_PACKAGED_INFERENCE"
+    torch_version: str | None = None
+    if require_da3:
+        _startup_trace("self_check_da3_dependency_closure_start")
+        da3_dependency_modules_imported = list(verify_da3_runtime_dependencies())
+        _startup_trace(
+            "self_check_da3_dependency_closure_complete",
+            module_count=len(da3_dependency_modules_imported),
+        )
+
+        _startup_trace("self_check_da3_api_import_start")
+        try:
+            for module_name in _DA3_PRODUCTION_RUNTIME_MODULES:
+                _startup_trace("self_check_da3_module_import_start", module=module_name)
+                importlib.import_module(module_name)
+                da3_runtime_modules_imported.append(module_name)
+                _startup_trace("self_check_da3_module_import_complete", module=module_name)
+            da3_api: Any = importlib.import_module("depth_anything_3.api")
+        except ImportError as exc:
+            missing = getattr(exc, "name", None)
+            raise RuntimeError(
+                "Frozen DA3 production module closure is incomplete: "
+                f"{type(exc).__name__}: {exc}; missing_module={missing!r}"
+            ) from exc
+        if getattr(da3_api, "DepthAnything3", None) is None:
+            raise RuntimeError("Frozen depth_anything_3.api does not expose DepthAnything3")
+        da3_api_imported = True
+        _startup_trace("self_check_da3_api_import_complete")
+        _startup_trace(
+            "self_check_da3_runtime_closure_complete",
+            module_count=len(da3_runtime_modules_imported),
+        )
+
+        _startup_trace("self_check_da3_geometry_import_start")
+        import torch
+
+        geometry_module: Any = importlib.import_module("depth_anything_3.utils.geometry")
+        affine_inverse = geometry_module.affine_inverse
+        _startup_trace("self_check_da3_geometry_import_complete")
+        _startup_trace("self_check_da3_geometry_probe_start")
+        transform = torch.eye(4, dtype=torch.float32)
+        transform[:3, 3] = torch.tensor([3.0, -2.0, 5.0], dtype=torch.float32)
+        actual_inverse = affine_inverse(transform)
+        expected_inverse = torch.linalg.inv(transform)
+        if not torch.allclose(actual_inverse, expected_inverse, atol=1e-6, rtol=1e-6):
+            raise RuntimeError(
+                "DA3 affine_inverse frozen-runtime probe disagrees with torch.linalg.inv"
+            )
+        _startup_trace("self_check_da3_geometry_probe_complete")
+        da3_geometry_imported = True
+        da3_affine_inverse_probe = "PASS"
+        torch_version = torch.__version__
+
+    report = {
+        "schema_version": 5,
+        "status": "PASS_PACKAGED_GEOSPATIAL_SELF_CHECK",
+        "rasterio_version": rasterio.__version__,
+        "gdal_version": rasterio.__gdal_version__,
+        "pyproj_version": pyproj.__version__,
+        "torch_version": torch_version,
+        "rasterio_serde_imported": rasterio_serde.__name__ == "rasterio.serde",
+        "epsg_roundtrip": 32643,
+        "da3_probe_required": require_da3,
+        "da3_dependency_modules_required": list(DA3_RUNTIME_DEPENDENCY_MODULES),
+        "da3_dependency_modules_imported": da3_dependency_modules_imported,
+        "da3_api_imported": da3_api_imported,
+        "da3_runtime_modules_required": list(_DA3_PRODUCTION_RUNTIME_MODULES),
+        "da3_runtime_modules_imported": da3_runtime_modules_imported,
+        "da3_geometry_imported": da3_geometry_imported,
+        "da3_affine_inverse_probe": da3_affine_inverse_probe,
+        "da3_runtime_execution_gate": "release_train_5_full_acceptance",
+        "network_used": False,
+        "model_loaded": False,
+        "model_weights_loaded": False,
+    }
+    _startup_trace("self_check_complete", status=report["status"])
+    return report
+
+
+def main(argv: Sequence[str] | None = None) -> None:
+    """Run the packaged local core without requiring a user-visible terminal."""
+    _startup_trace("python_entry")
+    parser = _parser()
+    args = parser.parse_args(argv)
+    _startup_trace(
+        "arguments_parsed",
+        self_check=bool(args.self_check),
+        self_check_da3=bool(args.self_check_da3),
+    )
+
+    if args.self_check or args.self_check_da3:
+        report = packaged_geospatial_self_check(require_da3=bool(args.self_check_da3))
+        print(json.dumps(report, sort_keys=True), flush=True)
+        return
+
+    if args.port is None:
+        parser.error("--port is required unless --self-check is used")
+
+    validate_launch_environment(host=args.host, port=args.port)
+    _startup_trace("launch_environment_validated", port=args.port)
+
+    if os.environ.get("DEPTHWIZARD_OFFLINE_CORE") == "1":
+        os.environ.setdefault("HF_HUB_OFFLINE", "1")
+        os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
+        os.environ.setdefault("PROJ_NETWORK", "OFF")
+        from depthwizard.network_guard import install_strict_offline_network_guard
+
+        install_strict_offline_network_guard()
+        _startup_trace("offline_network_guard_installed")
+
+    _startup_trace("uvicorn_import_start")
+    import uvicorn
+
+    _startup_trace("uvicorn_import_complete")
+    _startup_trace("service_import_start")
+    from depthwizard.service import app
+
+    _startup_trace("service_import_complete")
+
+    boot_nonce = os.environ.get("DEPTHWIZARD_BOOT_NONCE")
+    if boot_nonce:
+
+        def _boot_identity() -> dict[str, str]:
+            return {"boot_nonce": boot_nonce}
+
+        app.add_api_route(
+            "/_depthwizard/boot",
+            _boot_identity,
+            methods=["GET"],
+            include_in_schema=False,
+        )
+        _startup_trace("boot_identity_route_registered")
+
+    _startup_trace("server_start")
+    uvicorn.run(
+        app,
+        host=args.host,
+        port=args.port,
+        log_level=args.log_level,
+        access_log=False,
+    )
+
+
+if __name__ == "__main__":
+    main()

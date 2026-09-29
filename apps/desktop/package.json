@@ -1,0 +1,30 @@
+{
+  "name": "@depthwizard/desktop",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "test": "vitest run",
+    "tauri": "bash scripts/tauri-with-macos-icon.sh"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "2.11.1",
+    "@tauri-apps/plugin-dialog": "2.7.2",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.11.4",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "@types/three": "0.180.0",
+    "@vitejs/plugin-react": "6.1.0",
+    "esbuild": "0.28.2",
+    "typescript": "5.8.3",
+    "vite": "8.2.2",
+    "vitest": "3.2.4"
+  }
+}

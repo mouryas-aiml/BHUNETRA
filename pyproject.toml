@@ -1,0 +1,96 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "depthwizard"
+version = "0.2.0"
+description = "ISRO SIH26175 DepthWizard final-system engineering repository"
+requires-python = ">=3.12"
+dependencies = [
+  "numpy>=1.26,<2",
+  "scipy>=1.14",
+  "rasterio>=1.4",
+  "pyproj>=3.7",
+  "pydantic>=2.10",
+  "typer>=0.15",
+  "rich>=13.9",
+  "PyYAML>=6.0",
+  "fastapi>=0.128",
+  "uvicorn>=0.48",
+  "Pillow>=12.0",
+  "trimesh>=4.11",
+]
+
+[project.optional-dependencies]
+# Complete runtime closure for the pinned DA3 monocular path used by DepthWizard. Keep export-only
+# native stacks (pycolmap/open3d/xformers/moviepy/pillow-heif/plyfile) out of the production macOS
+# environment: setup_da3_macos.sh intentionally applies the same narrowed monocular contract.
+ml = [
+  "torch>=2.6",
+  "torchvision>=0.21",
+  "opencv-python>=4.10,<4.12",
+  "addict>=2.4,<3",
+  "einops>=0.8",
+  "huggingface-hub>=0.34",
+  "imageio>=2.37",
+  "omegaconf>=2.3",
+  "requests>=2.32",
+  "safetensors>=0.5",
+  "tqdm>=4.67",
+  "evo>=1.31",
+  "e3nn>=0.5",
+]
+dev = [
+  "pytest>=8.3",
+  "httpx2>=2.0,<3",
+  "ruff>=0.9",
+  "pyright>=1.1.390",
+]
+standalone = [
+  "pyinstaller>=6.16,<7",
+]
+
+[project.scripts]
+depthwizard = "depthwizard.cli:app"
+depthwizard-core = "depthwizard.sidecar:main"
+
+[project.entry-points.pyinstaller40]
+hook-dirs = "depthwizard.__pyinstaller:get_hook_dirs"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/depthwizard"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = [
+  "ignore:Dataset has no geotransform.*:rasterio.errors.NotGeoreferencedWarning",
+]
+
+[tool.pyright]
+# rdah_model.py is a deliberately minimal checkpoint-compatibility port of the published
+# RDAH-Net graph. Preserve its upstream module/buffer structure rather than rewriting the
+# baseline solely to satisfy third-party torch typing stubs. DepthWizard-owned baseline glue,
+# evaluation code, tests, and the rest of src remain type-checked.
+# PyInstaller hook files are loaded only in the optional standalone packaging environment, where
+# PyInstaller is installed; source CI intentionally does not install that optional dependency.
+ignore = [
+  "src/depthwizard/baselines/rdah_model.py",
+  "src/depthwizard/_pyinstaller_hooks/hook-imageio.py",
+  "src/depthwizard/_pyinstaller_hooks/hook-safetensors.py",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint.per-file-ignores]
+# These files intentionally preserve small pieces of upstream RDAH-Net structure/typing
+# so published checkpoints remain reproducible without installing the legacy environment.
+"src/depthwizard/baselines/rdah_model.py" = ["PLR0402"]
+"src/depthwizard/baselines/rdah.py" = ["TRY004"]
+"scripts/setup_rdah_baseline.py" = ["TRY004"]
+# PyInstaller requires hook filenames to be `hook-{import-name}.py`; the hyphen is intentional.
+"src/depthwizard/_pyinstaller_hooks/hook-imageio.py" = ["N999"]
+"src/depthwizard/_pyinstaller_hooks/hook-safetensors.py" = ["N999"]
