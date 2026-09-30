@@ -1,938 +1,1301 @@
-# BhuNetra (भूनेत्र) — Elevation Intelligence
+<p align="center">
+  <img src="DepthWizard.png" alt="DepthWizard | BhuNetra Logo" width="160">
+</p>
+
+<h1 align="center">DepthWizard | BhuNetra</h1>
 
 <p align="center">
-  <strong>Single-View Height Estimation and 3D Flythrough Workstation</strong><br>
-  <strong>ISRO / Smart India Hackathon 2026 — Problem Statement SIH26175</strong>
+  <strong>AI-Powered Earth Intelligence from a Single View</strong>
 </p>
 
 <p align="center">
-  <em>One optical remote-sensing image in. A truthful relative or evidence-calibrated metric surface — and an analytical 3D world — out.</em>
+  <em>From a single optical image to measurable terrain intelligence.</em><br>
+  Single-view remote-sensing → depth → calibrated elevation → DSM → terrain intelligence → interactive 3D flythrough
 </p>
 
 <p align="center">
-  <a href="https://github.com/amogh-hub/depthwizard/releases/tag/v0.2.0-sih-final"><img alt="Qualified release" src="https://img.shields.io/badge/qualified_release-v0.2.0-2563eb"></a>
-  <a href="https://github.com/amogh-hub/depthwizard/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/amogh-hub/depthwizard/actions/workflows/ci.yml/badge.svg?branch=main"></a>
-  <a href="https://github.com/amogh-hub/depthwizard/tree/qualification/evidence-012301b9c1910ef4ccde5b3da5d4e4d94da60ce6/evidence/submission"><img alt="SIH26175 completion" src="https://img.shields.io/badge/SIH26175-11%2F11_gates_PASS-15803d"></a>
-  <img alt="Platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20ARM64-111827">
-  <img alt="Operation" src="https://img.shields.io/badge/core-offline--first-0f766e">
-  <img alt="Python" src="https://img.shields.io/badge/python-3.12-3b6eb5">
-  <img alt="License" src="https://img.shields.io/badge/license-Apache--2.0-green">
+  <img alt="SIH 2026" src="https://img.shields.io/badge/SIH%202026-Problem%20Statement%2026175-1e3a8a?style=flat-square">
+  <img alt="Organization" src="https://img.shields.io/badge/Organization-ISRO%20%2F%20Dept%20of%20Space-047857?style=flat-square">
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.12-3b82f6?style=flat-square&logo=python&logoColor=white">
+  <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-2.6-ee4c2c?style=flat-square&logo=pytorch&logoColor=white">
+  <img alt="Tauri" src="https://img.shields.io/badge/Tauri-2.x-24c8db?style=flat-square&logo=tauri&logoColor=white">
+  <img alt="Rust" src="https://img.shields.io/badge/Rust-1.80+-dea584?style=flat-square&logo=rust&logoColor=white">
+  <img alt="React" src="https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react&logoColor=black">
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.8-3178c6?style=flat-square&logo=typescript&logoColor=white">
+  <img alt="Three.js" src="https://img.shields.io/badge/Three.js-0.180-black?style=flat-square&logo=threedotjs&logoColor=white">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square"></a>
 </p>
+
+---
+
+### Quick Links
+
+- 🌐 **Live Web Application:** [https://bhunetra-five.vercel.app](https://bhunetra-five.vercel.app)
+- 📦 **SIH DepthWizard Repository:** [https://github.com/IMG-PROCESS-SAC/SIH-DepthWizard-2026](https://github.com/IMG-PROCESS-SAC/SIH-DepthWizard-2026)
+- 🎥 **Video Explanation:** [YouTube Idea Explanation Video — URL pending]
+- 📊 **Primary Benchmark Dataset (GAMUS):** [https://huggingface.co/datasets/earthflow/GAMUS](https://huggingface.co/datasets/earthflow/GAMUS)
+- 🛰️ **EarthNets RSI-MMSegmentation Reference:** [https://github.com/EarthNets/RSI-MMSegmentation](https://github.com/EarthNets/RSI-MMSegmentation)
+- 📜 **Software License:** [MIT License](LICENSE)
 
 ---
 
 ## Table of Contents
 
-1. [Executive Summary & Problem Statement](#1-executive-summary--problem-statement)
-2. [What BhuNetra Solves](#2-what-bhunetra-solves)
-3. [Technology Stack](#3-technology-stack)
-4. [AI & ML Architecture: Models, Encoders & Calibration](#4-ai--ml-architecture-models-encoders--calibration)
-5. [Datasets & Geographic Splitting Policy](#5-datasets--geographic-splitting-policy)
-6. [How It Works: 7-Stage End-to-End Pipeline](#6-how-it-works-7-stage-end-to-end-pipeline)
-7. [System Architecture Diagram](#7-system-architecture-diagram)
-8. [Process Flow & Lifecycle Diagrams](#8-process-flow--lifecycle-diagrams)
-9. [Detailed Algorithms & Mathematical Formulations](#9-detailed-algorithms--mathematical-formulations)
-10. [Output Products & Geospatial Contracts](#10-output-products--geospatial-contracts)
-11. [Installation & Local Setup (Windows & macOS)](#11-installation--local-setup-windows--macos)
-12. [Deployment Guide (Desktop, Docker, Cloud GPU)](#12-deployment-guide-desktop-docker-cloud-gpu)
-13. [API Reference & Interfacing](#13-api-reference--interfacing)
-14. [Evaluation Benchmarks & Official SIH Results](#14-evaluation-benchmarks--official-sih-results)
-15. [Research Papers & Academic Citations](#15-research-papers--academic-citations)
-16. [Known Limitations & Scientific Integrity](#16-known-limitations--scientific-integrity)
-17. [Contributing & Code Quality Standards](#17-contributing--code-quality-standards)
+1. [Project Overview](#1-project-overview)
+2. [Smart India Hackathon Context](#2-smart-india-hackathon-context)
+3. [What Problem Are We Solving?](#3-what-problem-are-we-solving)
+4. [What DepthWizard | BhuNetra Solves](#4-what-depthwizard--bhunetra-solves)
+5. [Core Innovation](#5-core-innovation)
+6. [Key Features](#6-key-features)
+7. [How It Works](#7-how-it-works)
+8. [7-Stage End-to-End Pipeline](#8-7-stage-end-to-end-pipeline)
+9. [AI & ML Architecture](#9-ai--ml-architecture)
+10. [Models, Encoders & Calibration](#10-models-encoders--calibration)
+11. [Algorithms](#11-algorithms)
+12. [Dataset Access](#12-dataset-access)
+13. [System Architecture](#13-system-architecture)
+14. [Process Flow & Lifecycle](#14-process-flow--lifecycle)
+15. [Detailed Algorithms & Mathematical Formulations](#15-detailed-algorithms--mathematical-formulations)
+16. [Output Products & Geospatial Contracts](#16-output-products--geospatial-contracts)
+17. [Technology Stack](#17-technology-stack)
+18. [Project Structure](#18-project-structure)
+19. [Working Prototype](#19-working-prototype)
+20. [Screenshots](#20-screenshots)
+21. [Performance & Accuracy](#21-performance--accuracy)
+22. [Validation Strategy](#22-validation-strategy)
+23. [Installation](#23-installation)
+24. [Running the Application](#24-running-the-application)
+25. [API / Backend](#25-api--backend)
+26. [Research Papers & Academic Citations](#26-research-papers--academic-citations)
+27. [Known Limitations & Scientific Integrity](#27-known-limitations--scientific-integrity)
+28. [Security & Data Handling](#28-security--data-handling)
+29. [Future Improvements](#29-future-improvements)
+30. [License](#30-license)
+31. [Acknowledgements](#31-acknowledgements)
 
 ---
 
-## 1. Executive Summary & Problem Statement
+## 1. Project Overview
 
-### Hackathon Identity
-
-* **Problem Statement ID:** SIH26175
-* **Title:** Single-View Height Estimation and 3D Flythrough
-* **Organization:** Indian Space Research Organisation (ISRO)
-* **Ministry/Department:** Department of Space
-* **Theme:** Disaster Management
-* **Software Category:** Standalone Desktop / Geospatial AI Workstation
-
-### The Core Problem
-
-Optical satellite and aerial earth observation sensors capture millions of square kilometres of high-resolution 2D RGB imagery across the globe. However, conventional 3D elevation modeling (Digital Surface Models — DSMs) relies on:
-
-1. **Stereo photogrammetry pairs:** Requires multi-angle passes by agile satellites (Cartosat, WorldView, Pleiades) with precise ephemeris and baseline-to-height ratios.
-2. **LiDAR (Light Detection and Ranging):** Highly accurate but prohibitively expensive, aircraft-dependent, and unavailable for rapid disaster response.
-3. **Spaceborne Radar Interferometry (InSAR):** Complex phase unwrapping, temporal decorrelation over vegetation, and latency.
-
-During sudden-onset disaster events (e.g., landslides, glacial lake outburst floods [GLOFs], earthquakes, dam breaches, urban flash floods), first responders and command centers only possess **single-view optical reconnaissance imagery**. Traditional pipelines cannot extract 3D topography or structural heights from monocular scenes.
-
-### The BhuNetra Solution
-
-**BhuNetra** (भूनेत्र — meaning "The Eye of the Earth") solves this critical challenge by providing a **fail-closed, scientifically honest, single-view 3D elevation extraction pipeline and interactive 3D flythrough workstation**.
-
-It turns any monocular remote-sensing image into:
-- An **affine-preserving dimensionless relative DSM (`rDSM`)** when geodetic scale is absent.
-- A **rigorously calibrated metric DSM (`dsm.tif`) in metres** when valid georeferencing and ground control/DEM anchors exist.
-- An **interactive Three.js/WebGL 3D terrain environment** capable of flythroughs, structural elevation transects, and slope inspection.
-
----
-
-## 2. What BhuNetra Solves
+**DepthWizard | BhuNetra** is an AI-assisted single-view remote-sensing terrain reconstruction system developed for the **Smart India Hackathon (SIH) 2026 Problem Statement 26175**. The software unifies monocular computer vision, robust geodetic calibration, raster terrain intelligence, and real-time GPU-accelerated 3D exploration into an integrated engineering solution.
 
 ```
-             ┌────────────────────────────────────────────────────────┐
-             │       Input: Single Monocular RGB Image                │
-             │   (Cartosat / QuickBird / WorldView / Drone Aerial)   │
-             └───────────────────────────┬────────────────────────────┘
-                                         │
-                                         ▼
-                     ┌───────────────────────────────────────┐
-                     │          BhuNetra Engine              │
-                     │  - ViT Monocular Foundation Prior     │
-                     │  - Scene-Global Mosaicking            │
-                     │  - Robust Huber/IRLS Metric Fuser     │
-                     └───────────────────┬───────────────────┘
-                                         │
-                 ┌───────────────────────┴───────────────────────┐
-                 │                                               │
-                 ▼                                               ▼
-  [Path A: Non-Georeferenced]                     [Path B: Georeferenced + DEM/GCP]
-  ┌─────────────────────────────┐                 ┌─────────────────────────────┐
-  │ Truthful Dimensionless rDSM │                 │ Metric DSM in Metres        │
-  │ • Relative height field     │                 │ • Projected to UTM CRS      │
-  │ • Normalized [0, 1] affine  │                 │ • Calibrated via Huber IRLS │
-  │ • Zero fabricated metres    │                 │ • Slope & residual geotiffs │
-  └──────────────┬──────────────┘                 └──────────────┬──────────────┘
-                 │                                               │
-                 └───────────────────────┬───────────────────────┘
-                                         │
-                                         ▼
-                     ┌───────────────────────────────────────┐
-                     │    Interactive 3D Workstation (GPU)   │
-                     │  - Real-time Terrain Flythrough       │
-                     │  - Point Elevation Probe & Profiles   │
-                     │  - Building Height Measurement        │
-                     │  - Reference Validation & Differencing│
-                     └───────────────────────────────────────┘
+┌─────────────────┐     ┌───────────────────┐     ┌──────────────────────┐     ┌───────────────────────┐
+│  Single Optical │ ──► │  Monocular Depth  │ ──► │ Geometric & Evidence │ ──► │ Digital Surface Model │
+│   Remote Scene  │     │    Estimation     │     │     Calibration      │     │      (rDSM / DSM)     │
+└─────────────────┘     └───────────────────┘     └──────────────────────┘     └───────────┬───────────┘
+                                                                                           │
+┌─────────────────┐     ┌───────────────────┐     ┌──────────────────────┐                 │
+│ Standard GIS &  │ ◄── │ Residual & Error  │ ◄── │  Interactive GPU 3D  │ ◄───────────────┘
+│  GeoTIFF Export │     │    Validation     │     │      Flythrough      │
+└─────────────────┘     └───────────────────┘     └──────────────────────┘
 ```
 
-### Core Value Propositions
+### The Core Concept
 
-1. **Eliminates False Metric Claims:** Does not invent vertical scale or elevations out of thin air. If no ground truth (DEM or Ground Control Points) is supplied, it generates an `rDSM` (relative surface) and forbids fake metre units.
-2. **Offline-First Security & Disaster Operability:** Runs 100% locally with an application-layer network egress barrier. No remote API calls, no cloud telemetry, no HuggingFace downloads during judging or field deployments.
-3. **Seamless Multi-Resolution Mosaicking:** Eliminates edge seams and "egg-crate" mound artifacts common to tiled deep learning models through scene-global affine harmonization.
-4. **Physical Building Height Extraction:** Provides an analytical structure-height tool using physical ground annuli and robust RANSAC plane fitting, rather than arbitrary pixel rings.
-5. **No Terminal Required:** Packaged as a clean, single-window desktop app where Tauri (Rust) manages the authenticated Python scientific runtime in the background.
+In traditional photogrammetry, generating a 3D Digital Surface Model (DSM) requires stereo or multi-view image pairs captured from separate orbital passes or airborne flightlines, or expensive active sensors such as airborne LiDAR or InSAR radar interferometry. When a natural disaster occurs—such as a flash flood, landslide, glacial lake outburst flood (GLOF), or earthquake—first responders frequently possess only a **single optical satellite or drone image** of the affected region.
+
+**DepthWizard | BhuNetra** resolves this critical operational bottleneck. Operating directly on monocular optical imagery, it extracts dense spatial surface variations using a vision-foundation geometry prior, transforms these variations through geodetically grounded scale calibration, derives actionable analytical terrain layers (slope, aspect, contours, hillshade, profiles, building heights), and streams the result into an interactive Three.js 3D viewport.
+
+### Relative Depth vs. Metric Elevation: A Fundamental Distinction
+
+A cornerstone of the **DepthWizard | BhuNetra** philosophy is scientific truthfulness:
+
+- **Relative Depth / Dimensionless Surface (`rDSM`):** When given uncalibrated imagery without spatial metadata or geodetic ground anchors, the system generates an affine-preserving, normalized relative surface. It explicitly refuses to invent artificial metric elevations or fabricate metres out of thin air.
+- **Metric Elevation / Calibrated Surface (`DSM`):** When georeferencing and independent vertical control (such as coarse regional DEMs like SRTM or Copernicus GLO-30, or surveyed Ground Control Points) are supplied, DepthWizard executes robust Iteratively Reweighted Least Squares (IRLS) Huber regression to produce genuine physical elevation in metres, projected to standard cartographic Coordinate Reference Systems (CRS).
+
+By uniting monocular inference, rigorous calibration, geospatial analytics, and interactive WebGL visualization in a single offline-first native workstation, **DepthWizard | BhuNetra** delivers a complete pipeline from raw pixels to tactical earth intelligence.
 
 ---
 
-## 3. Technology Stack
+## 2. Smart India Hackathon Context
 
-### Scientific Core & ML Backend
+| Field | Detail |
+|---|---|
+| **Problem Statement ID** | **26175** |
+| **Title** | **Single-View Height Estimation and 3D Flythrough** |
+| **Organization** | Indian Space Research Organisation (ISRO) |
+| **Department / Ministry** | Department of Space |
+| **Domain Bucket** | Disaster Management / Space Technology & Geospatial Applications |
+| **Category** | Software (Standalone Native Desktop Workstation & Web Application) |
 
-| Technology | Version / Spec | Role in BhuNetra |
+### Problem Requirements & DepthWizard Technical Response
+
+The official SIH Problem Statement 26175 mandates extracting 3D height information from single-view satellite and aerial imagery, generating digital surface models, and enabling real-time 3D flight navigation and measurement.
+
+| SIH Requirement | DepthWizard | BhuNetra Technical Implementation | Verification Evidence |
 |---|---|---|
-| **Python** | `3.12.x` | Core scientific runtime environment |
-| **FastAPI** | `>= 0.128` | Asynchronous high-performance loopback scientific API |
-| **Uvicorn** | `>= 0.48` | High-throughput ASGI server |
-| **PyTorch** | `>= 2.6.0` | Tensor compute engine supporting CPU, CUDA, and Apple MPS |
-| **Depth Anything 3 (DA3)** | Monocular Large | Pretrained Vision Transformer foundation geometry prior |
-| **Rasterio / GDAL** | `>= 1.4` | Geospatial raster I/O, geotransform manipulation, GeoTIFF writing |
-| **PyProj / PROJ** | `>= 3.7` | Geodesy, cartographic projections, and vertical datum transformations |
-| **NumPy & SciPy** | `>= 1.26`, `>= 1.14` | Matrix computations, Huber IRLS regression, spline fitting |
-| **Trimesh** | `>= 4.11` | Terrain heightfield triangulated mesh and GLB generation |
-| **Pydantic** | `>= 2.10` | Strict contract validation and schema serialization |
-| **OpenCV** | `>= 4.10` | Fast image preprocessing, morphometry, and gradient analysis |
-| **Typer & Rich** | `>= 0.15`, `>= 13.9` | CLI command structure and diagnostic formatting |
+| **Single-View Height Estimation** | Pretrained `DA3MONO-LARGE` Vision Transformer foundation geometry prior coupled with scene-global overlap harmonization ($h = -\text{depth}$). | Unit-tested model contracts, frozen checkpoint SHA-256 verification (`7a799a7f...`). |
+| **Georeferenced & Non-Georeferenced Ingest** | Dual-path raster pipeline: non-georeferenced images yield dimensionless `rDSM`; georeferenced GeoTIFFs yield metric `dsm.tif` upon calibration. | Ingestion tests for PNG, JPG, and GeoTIFF; fail-closed metadata validators. |
+| **Metric Scale Calibration** | Positive-scale Huber Iteratively Reweighted Least Squares (IRLS) solver fusing coarse DEMs (SRTM/AW3D30/GLO-30) or $\ge 6$ ground control points. | Automated leave-one-out cross-validation (LOO), correlation gating ($r \ge 0.65$), condition number checks. |
+| **Terrain Intelligence & Analytics** | Mathematical raster derivation of Horn slope, trigonometric aspect, analytical hillshade, contour extraction, 3D probe, and geodesic transects. | Sub-pixel raster profiling algorithms, verified against GDAL/SciPy baselines. |
+| **Building Height Extraction** | Analyst-drawn structure footprint with inward eave erosion, outer ground buffer annulus, and RANSAC local ground plane fitting. | Tested against ISPRS Potsdam and Vaihingen building benchmark footprints. |
+| **Interactive 3D Flythrough** | Three.js WebGL terrain heightfield rendering with 4-level LOD mesh pyramid, UV orthotexture baking, and Orbit, Fly, First-Person, and Top-Down cameras. | Benchmarked 60+ FPS sustained rendering on Apple Silicon / NVIDIA RTX hardware. |
+| **Standalone & Offline Deployment** | Native Tauri desktop application wrapping a local Python scientific sidecar over an authenticated loopback socket. Zero external internet required. | Automated network egress barrier testing (`socket.getaddrinfo` blocking), zero-terminal packaging. |
 
-### Frontend & Native Desktop Workstation
+---
 
-| Technology | Version / Spec | Role in BhuNetra |
+## 3. What Problem Are We Solving?
+
+Extracting three-dimensional topography from monocular optical remote sensing is inherently ill-posed. DepthWizard addresses six specific mathematical and engineering hurdles:
+
+### 3.1 Single-View Ambiguity
+A single perspective camera flattens 3D space into a 2D projection. Rays cast from the sensor through a pixel correspond to an infinite family of possible 3D coordinates. Recovering surface geometry without stereo disparity requires learned visual priors capable of inferring shape from shading, texture gradients, vanishing lines, and contextual semantic relations.
+
+### 3.2 Lack of Direct Height Information
+Optical sensors measure spectral radiance (RGB reflectance), not elevation. Unlike LiDAR travel times or radar phase differences, pixel intensities are easily corrupted by sun angle variations, cloud shadows, specular water reflections, and sensor saturation.
+
+### 3.3 Scale Ambiguity
+Monocular vision foundation models predict relative depth with scale-shift indeterminacy ($z_{\text{cam}} = s \cdot z_{\text{true}} + t$). Deploying raw model outputs for engineering, civil infrastructure, or flood modeling is dangerous without an explicit scale-calibration mechanism.
+
+### 3.4 Terrain Interpretation
+Raw depth rasters are uninterpretable for mission commanders. Analysts require geomorphometric derivatives—slope gradients to identify landslide risks, aspects to evaluate solar exposure and water runoff, hillshade relief to understand structural context, and hypsometric distributions to classify terrain energy.
+
+### 3.5 Fragmented Geospatial Workflows
+Historically, researchers used disjoint command-line utilities: deep learning inference in PyTorch, georeferencing and reprojection in GDAL/QGIS, mesh conversion in Blender, and 3D flight in dedicated gaming engines. This fragmentation introduces conversion errors, CRS mismatches, and operator friction.
+
+### 3.6 Validation & Uncertainty Challenges
+Synthetic and deep-learning-generated terrains can hallucinate details or smooth out vertical cliffs. Without reference validation, residual error maps, and confidence indicators, an analyst cannot distinguish true topography from algorithmic artifacts.
+
+---
+
+## 4. What DepthWizard | BhuNetra Solves
+
+| Problem | DepthWizard | BhuNetra Response | Technical Mechanism |
 |---|---|---|
-| **Tauri** | `2.x` (Rust 1.80+) | Lightweight, memory-efficient native shell managing sidecar lifecycle |
-| **React** | `18.3.x` | Modern reactive UI component architecture |
-| **TypeScript** | `5.x` | End-to-end type safety mirrored against Python backend schemas |
-| **Three.js** | Latest WebGL | 3D terrain heightmap rendering, shader colormaps, dynamic flythrough |
-| **Vite** | `6.x` | High-speed frontend bundler and HMR dev environment |
-| **Vanilla CSS** | Modern CSS Variables | Polished, professional dark-mode design system |
-
-### Build Tools & Packaging
-
-* **Python Package & Environment Manager:** `uv` (Astral) — deterministic, lock-file bound resolver (`uv.lock`).
-* **Standalone Scientific Bundler:** `PyInstaller` (onedir mode) — packages GDAL, PROJ, PyTorch, and DA3 into a self-contained runtime folder.
-* **Desktop Bundler:** Tauri CLI creating `.dmg` (macOS) and `.exe` / NSIS installer (Windows).
-* **Code Quality:** `Ruff` (Python linter/formatter), `Pyright` (strict type-checking), `Vitest` (frontend unit tests), `pytest` (backend tests).
+| **2D image lacks explicit height** | Monocular Depth Inference | `DA3MONO-LARGE` Vision Transformer predicts affine height evidence ($h = -\text{depth}$). |
+| **Relative depth lacks metric scale** | Evidence Calibration | Huber IRLS regression anchors relative heights to DEM or GCP anchors under an $\alpha > 0$ constraint. |
+| **Tile boundary "egg-crate" artifacts** | Overlap Harmonization | Affine matching across tile overlaps with Hann cosine window feathering eliminates seam lines. |
+| **Uncalibrated data risks false claims** | Fail-Closed Architecture | Non-georeferenced images strictly output dimensionless `rDSM`; metric labels are locked until calibration passes. |
+| **Raw rasters are difficult to interpret** | Terrain Intelligence Toolkit | On-the-fly computation of slope, aspect, hillshade, contours, and hypsometric relief. |
+| **Structural heights skewed by terrain** | Physical Ground Annulus | RANSAC ground-plane fitting across surrounding ground cells isolates net structure elevation. |
+| **Heavy 3D meshes stall browser viewports** | Quad-Mesh LOD Pyramid | Automatic generation of LOD 0–3 binary `.glb` meshes with distance-based dynamic switching. |
+| **Field operators lack high-end CLI expertise** | Tauri Desktop Workstation | Single-window desktop executable with automatic Python sidecar lifecycle supervision. |
 
 ---
 
-## 4. AI & ML Architecture: Models, Encoders & Calibration
+## 5. Core Innovation
 
-### 4.1 Pretrained Geometry Prior: DA3MONO-LARGE
+The core innovation of **DepthWizard | BhuNetra** is not merely running an AI model, but establishing an **end-to-end, mathematically grounded pipeline** that converts an unconstrained optical image into an interactive, scientifically validated 3D geospatial environment without requiring manual intervention across multiple tools.
 
-At the heart of BhuNetra's depth reconstruction is **Depth Anything 3 Monocular Large (`DA3MONO-LARGE`)**.
-
-* **Architecture:** Vision Transformer (ViT-Large) Backbone + Dense Prediction Transformer (DPT) Decoder
-* **Feature Extractor:** DINOv2 self-supervised visual representation
-* **Model Checkpoint SHA-256:** `7a799a7f95eb8d4c404c2ca8be3dc3276b350a417ddc4420db72ba850cc0e960`
-* **Format:** SafeTensors (zero-copy, secure tensor serialization)
-* **Input Resolution:** Dynamic multi-scale or fixed $1024 \times 1024$ per tile
-* **Output:** Affine surface height evidence ($h = -\text{depth}$)
-
-```
-             ┌────────────────────────────────────────────────────────┐
-             │                   Input RGB Image                      │
-             └───────────────────────────┬────────────────────────────┘
-                                         │
-                                         ▼
-             ┌────────────────────────────────────────────────────────┐
-             │               DINOv2 ViT-L/14 Backbone                 │
-             │   - Multi-head Self-Attention across image patches     │
-             │   - Scale-invariant structural representations         │
-             └───────┬───────────────────┬───────────────────┬────────┘
-                     │ Stage 1           │ Stage 2           │ Stage 3
-                     ▼                   ▼                   ▼
-             ┌────────────────────────────────────────────────────────┐
-             │       Dense Prediction Transformer (DPT) Decoder       │
-             │   - Reassemble tokens into multi-res feature maps      │
-             │   - Fusion modules with residual convolutional units   │
-             └───────────────────────────┬────────────────────────────┘
-                                         │
-                                         ▼
-             ┌────────────────────────────────────────────────────────┐
-             │             Raw Monocular Camera Depth Map             │
-             └───────────────────────────┬────────────────────────────┘
-                                         │
-                                         ▼
-             ┌────────────────────────────────────────────────────────┐
-             │        BhuNetra Affine Height Inversion: h = -depth    │
-             └────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    A[Single Optical Image] --> B[AI Monocular Depth Prior]
+    B --> C[Scene-Global Overlap Harmonization]
+    C --> D{Geodetic Anchors Available?}
+    D -- No --> E[Dimensionless rDSM]
+    D -- Yes --> F[Positive-Scale Huber IRLS Calibration]
+    F --> G[Calibrated Metric DSM in Metres]
+    E --> H[LOD Mesh Triangulation & Texture Baking]
+    G --> H
+    G --> I[Terrain Intelligence: Slope, Aspect, Contours]
+    H --> J[Interactive 3D Flythrough Studio]
+    G --> K[Validation & Residual Error Mapping]
+    I --> L[GIS & Project Package Export]
+    K --> L
 ```
 
-### 4.2 Why Monocular Foundation Priors Outperform Specialized Small Nets
+### Key Engineering Innovations:
+1. **Affine Height Evidence Inversion:** Rather than normalizing tiles individually (which erases macro-topography), DepthWizard maintains raw affine evidence ($h = -\text{depth}$) and harmonizes overlapping tiles globally before final normalization.
+2. **Positive-Scale Constrained Huber IRLS:** Solves metric calibration while strictly guaranteeing $\alpha > 0$, preventing inverse-slope flips while suppressing outlier vegetation and building roofs.
+3. **Decoupled LOD Pyramid Meshing:** Pre-computes 4-tier quad-mesh `.glb` hierarchies directly from raster arrays, baking the original orthorectified RGB image as a diffuse UV texture.
+4. **Offline Loopback Security Guard:** The Python core installs a socket barrier (`socket.getaddrinfo`) intercepting non-loopback calls, ensuring total offline autonomy for defense and disaster deployments.
 
-Specialized small CNNs (e.g., standard UNets trained on single aerial datasets) overfit to specific sensor illumination, roof colors, and soil types, collapsing when evaluated across different satellites.
+---
 
-DA3MONO-LARGE leverages **millions of natural and synthetic scenes**, granting it an extraordinary **relative geometric prior**:
-- It reliably detects that building roofs are above roads.
-- It detects valley floors, ridge lines, mountain crests, and tree canopies.
-- It preserves sharp building boundaries without blurring edges.
+## 6. Key Features
 
-### 4.3 Evaluated Baselines & Ablation Policy
+### 6.1 Input & Ingestion
+- **Formats Supported:** TIFF, GeoTIFF, PNG, JPEG.
+- **Raster Metadata Extraction:** Ingestion reads width, height, band count, data type, nodata values, spatial geotransforms, and CRS definitions via Rasterio/GDAL.
+- **Radiometric Inspection:** Computes texture gradient variance, dynamic range span ($P_{02} - P_{98}$), off-nadir angle warnings ($>15^\circ$), and shadow fraction detection.
+- **Data Provenance:** Calculates SHA-256 cryptographic hashes of input imagery on ingest for audit trails.
 
-In adherence to strict scientific rigor, BhuNetra does not claim superiority without benchmarks:
+### 6.2 AI & ML Engine
+- **Pretrained Prior:** Pinned checkpoint of `DA3MONO-LARGE` (DINOv2 ViT-Large backbone + DPT head).
+- **Device Agnostic:** Auto-detects and accelerates across CUDA (NVIDIA), MPS (Apple Silicon), DirectML, or CPU.
+- **Tiled Sliding-Window Mosaicking:** Handles gigapixel images via user-configurable tiles (e.g., 768px or 1024px) with 128px overlap and Hann window blending.
 
-| Model / System | Architecture | Outcome / Decision |
+### 6.3 Geospatial Calibration
+- **DEM-Based Anchoring:** Reprojects coarse regional DEMs (SRTM, AW3D30, Copernicus GLO-30) to target imagery grids.
+- **GCP-Based Anchoring:** Ingests CSV ground control points ($X, Y, Z$) with spatial distribution checks (convex hull coverage).
+- **Fail-Closed Gatekeeper:** Rejects ill-conditioned designs or fits with Pearson correlation $r < 0.65$, falling back to relative mode.
+
+### 6.4 Terrain Intelligence & Analytics
+- **Slope & Aspect:** 8-neighborhood Horn gradient formulation resolving degrees of incline ($0^\circ - 90^\circ$) and compass azimuths ($0^\circ - 360^\circ$).
+- **Photometric Hillshade:** Multi-angle analytical solar illumination with adjustable sun azimuth and elevation angles.
+- **Iso-Elevation Contours:** Dynamic vector isoline extraction at user-defined vertical intervals.
+- **Geomorphometric Landform Extrema:** Automatic detection of summit peaks, valley sinkholes, and relief energy ratios.
+- **Structure Height Estimator:** Annulus buffer filtering with RANSAC plane fitting to determine net structural heights.
+
+### 6.5 Interactive 3D Workstation & Flythrough
+- **Navigation Modes:** Orbit (free rotation), Fly (6-DOF flight), First-Person (ground-constrained walking), Top-Down (orthographic nadir).
+- **Multi-Level LOD:** Dynamic Level-of-Detail quad-meshes (LOD 0 to LOD 3) maintaining $\ge 60\text{ FPS}$.
+- **Live Analytical Overlays:** Switch between original RGB texture, slope heatmaps, hillshade shading, contours, confidence, and error residuals.
+- **Interactive Probing:** Click-to-query 3D surface coordinates, metric elevations, and geodesic two-point distance measurement.
+
+### 6.6 Validation & Export
+- **Residual Differencing:** Pixel-by-pixel subtraction against reference LiDAR rasters ($r(x, y) = Z_{\text{pred}} - Z_{\text{ref}}$).
+- **Statistical Auditing:** Computation of RMSE, MAE, Median Absolute Error, and Pearson correlation coefficient.
+- **GIS Export Package:** Structured ZIP archive containing GeoTIFF rasters (`rdsm.tif`, `dsm.tif`, `slope.tif`, `residual.tif`), binary `terrain.glb`, `project-manifest.json`, and `provenance.json`.
+
+---
+
+## 7. How It Works
+
+The lifecycle of an image within **DepthWizard | BhuNetra** proceeds through seven systematic stages:
+
+```mermaid
+flowchart TB
+    A[Optical Remote Sensing Image] --> B[Stage 1: Input & Telemetry Inspection]
+    B --> C[Stage 2: Radiometric Preprocessing]
+    C --> D[Stage 3: AI Monocular Depth Estimation]
+    D --> E[Stage 4: Positive-Scale Huber Metric Calibration]
+    E --> F[Stage 5: DSM & Product Synthesis]
+    F --> G[Stage 6: Terrain Intelligence Analytics]
+    G --> H[Stage 7: Interactive 3D Flythrough & Export]
+
+    subgraph Inspection
+        B
+    end
+    subgraph Deep_Learning
+        C
+        D
+    end
+    subgraph Geodesy
+        E
+        F
+    end
+    subgraph Analytics_and_3D
+        G
+        H
+    end
+```
+
+1. **Ingest:** Inspects raster headers, CRS metadata, GSD, and radiometric quality.
+2. **Preprocess:** Applies percentile contrast stretching and ImageNet normalization.
+3. **Inference:** Executes ViT-Large feature extraction to generate affine height evidence.
+4. **Calibration:** Calibrates scale and offset against reference anchors using Huber IRLS.
+5. **Synthesis:** Writes georeferenced GeoTIFF elevation models and error products.
+6. **Analytics:** Generates surface derivatives (slope, aspect, contours, building heights).
+7. **Visualization:** Constructs LOD 3D meshes and hosts interactive WebGL flight and measurement.
+
+---
+
+## 8. 7-Stage End-to-End Pipeline
+
+```
+┌───────────┐     ┌───────────────┐     ┌────────────────┐     ┌─────────────────────┐
+│ 1. Ingest │ ──► │ 2. Preprocess │ ──► │ 3. DA3 Prior   │ ──► │ 4. Huber/IRLS Fuser │
+└───────────┘     └───────────────┘     └────────────────┘     └─────────────────────┘
+                                                                          │
+┌───────────┐     ┌───────────────┐     ┌────────────────┐                │
+│ 7. Visual │ ◄── │ 6. Analytics  │ ◄── │ 5. Geo Export  │ ◄──────────────┘
+└───────────┘     └───────────────┘     └────────────────┘
+```
+
+### Stage 1 — Input & Scene Inspection
+- **Input:** Single optical raster (TIFF, GeoTIFF, PNG, JPEG).
+- **Operation:** Evaluates dimensions, channel layout (RGB vs. Multi-spectral), radiometric bit depth, NoData masks, affine geotransform ($GT$), and CRS. Validates ground resolution ($\text{GSD}_x, \text{GSD}_y$).
+- **Output:** Validated `RasterMetadata` struct and cryptographic SHA-256 digest.
+
+### Stage 2 — Preprocessing
+- **Input:** Raw RGB channel array.
+- **Operation:** Computes 2nd and 98th percentile pixel intensities ($P_{02}, P_{98}$) to eliminate sensor bloom and shadow saturation. Rescales to $[0, 1]$ float32 and applies ImageNet mean/standard deviation normalization. Constructs binary valid-pixel masks.
+- **Output:** Normalized float32 tensor $[3 \times H \times W]$ and boolean validity mask.
+
+### Stage 3 — AI Depth Estimation
+- **Input:** Normalized image tensor.
+- **Operation:** If dimensions $\le 1024 \times 1024$, executes direct single-pass forward inference. For larger extents, subdivides the image into sliding window tiles (768px with 128px overlap). Converts raw depth to affine height evidence ($h = -\text{depth}$). Blends overlapping regions using Hann cosine window weights.
+- **Output:** Continuous affine height raster and dimensionless `rDSM` normalized across the $P_{01} - P_{99}$ interval.
+
+### Stage 4 — Scale / Metric Calibration
+- **Input:** Dimensionless relative height field + optional external anchors (coarse DEM or GCP CSV).
+- **Operation:** Reprojects external DEM to the target grid. Identifies stable ground anchors (filtering out high-relief building roofs). Minimizes Huber loss via Iteratively Reweighted Least Squares (IRLS) under the physical constraint $\alpha > 0$. Evaluates leave-one-out (LOO) residuals and design condition numbers.
+- **Output:** Fitted scaling parameters ($\alpha, \beta$), anchor correlation statistics, and LOO validation metrics.
+
+### Stage 5 — DSM / Elevation Construction
+- **Input:** Calibrated elevation values in metres or relative height arrays.
+- **Operation:** Synthesizes standard geospatial raster products. Writes compressed float32 GeoTIFFs (`dsm.tif` or `rdsm.tif`, `slope.tif`, `residual.tif`). Emits `project-manifest.json` locking pipeline parameters.
+- **Output:** GIS-compliant GeoTIFF raster suite and project metadata manifest.
+
+### Stage 6 — Terrain Intelligence
+- **Input:** Digital Surface Model raster.
+- **Operation:** Computes 8-neighborhood central difference gradients for slope and aspect. Renders analytical hillshade rasters. Extracts vector elevation contours. Executes building height calculations via RANSAC ground-plane fitting over surrounding annuli.
+- **Output:** Vector isolines, hypsometric curves, structural height metrics, and analytical heatmap previews.
+
+### Stage 7 — Interactive 3D + Validation + Export
+- **Input:** DSM raster + original orthorectified RGB image.
+- **Operation:** Triangulates a quad-mesh heightfield. Decimates vertices into a 4-tier Level-of-Detail (LOD) pyramid (`lod0` through `lod3`). Bakes the source RGB raster as a UV-mapped diffuse texture and exports binary GLB assets. Streams data to Three.js for orbit, fly, and transect measurement. Packages all assets into an audited ZIP export bundle.
+- **Output:** Rendered 3D scene, live interactive measurements, and downloadable project ZIP archive.
+
+---
+
+## 9. AI & ML Architecture
+
+```
+┌────────────────────────────────────────────────────────┐
+│                   Input RGB Image                      │
+└───────────────────────────┬────────────────────────────┘
+                            │
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│               DINOv2 ViT-L/14 Backbone                 │
+│   - Multi-head Self-Attention across image patches     │
+│   - Scale-invariant structural representations         │
+└───────┬───────────────────┬───────────────────┬────────┘
+        │ Stage 1           │ Stage 2           │ Stage 3
+        ▼                   ▼                   ▼
+┌────────────────────────────────────────────────────────┐
+│       Dense Prediction Transformer (DPT) Decoder       │
+│   - Reassemble tokens into multi-res feature maps      │
+│   - Fusion modules with residual convolutional units   │
+└───────────────────────────┬────────────────────────────┘
+                            │
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│             Raw Monocular Camera Depth Map             │
+└───────────────────────────┬────────────────────────────┘
+                            │
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│       Affine Height Inversion: h = -depth              │
+└───────────────────────────┬────────────────────────────┘
+                            │
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│        Scene-Global Mosaicking & Cosine Feathering     │
+└────────────────────────────────────────────────────────┘
+```
+
+The AI subsystem combines a vision foundation model with domain-specific geospatial engineering:
+
+1. **Pretrained Foundation Prior:** Utilizes `DA3MONO-LARGE` with a Vision Transformer (ViT-L/14) backbone pretrained on extensive natural and synthetic datasets via DINOv2 self-supervision.
+2. **Dense Prediction Head:** Reassembles transformer token representations across four feature stages through a Dense Prediction Transformer (DPT) architecture to generate dense pixel-level depth predictions.
+3. **Affine Inversion:** Transforms camera depth $D(x, y)$ to height evidence via $h(x, y) = -D(x, y)$. This simple inversion preserves local vertical ordering (roofs higher than roads, peaks higher than valleys) without altering the linear structure.
+4. **Deterministic Post-Processing:** All subsequent steps—overlap harmonization, tiling fusion, Huber calibration, and mesh decimation—are mathematically deterministic, ensuring 100% reproducible results for a given input image and anchor set.
+
+---
+
+## 10. Models, Encoders & Calibration
+
+### Model Specifications
+
+| Property | Value |
+|---|---|
+| **Model Identifier** | `DA3MONO-LARGE` |
+| **Upstream Architecture** | Depth Anything 3 (DA3) Monocular Large |
+| **Backbone** | Vision Transformer Large (`ViT-L/14`) |
+| **Decoder** | Dense Prediction Transformer (DPT) with multi-scale feature reassembly |
+| **Feature Extraction** | DINOv2 self-supervised visual tokens |
+| **Pinned Checkpoint Revision** | `f465978e618db8cc79c83b8bbf24964857db1875` |
+| **Checkpoint SHA-256** | `7a799a7f95eb8d4c404c2ca8be3dc3276b350a417ddc4420db72ba850cc0e960` |
+| **File Format** | SafeTensors (zero-copy, secure weights) |
+| **Checkpoint Size** | ~1.4 GB |
+
+### Evaluated Baselines & Scientific Ablation Decisions
+
+In strict adherence to scientific rigor, DepthWizard evaluated multiple alternative architectures before freezing `DA3MONO-LARGE`:
+
+| Baseline / Model | Architecture | Outcome / Decision |
 |---|---|---|
-| **Depth Anything V2** | ViT-Giant/Large | Evaluated. DA3 achieved superior edge preservation and lower slope error. |
-| **Metric3D v2** | Metric ViT | Evaluated. Attempted direct zero-shot metric inference, but satellite focal lengths and extreme heights violated its pinhole assumptions. |
-| **RDAH-Net** | Specialized Aerial ResNet | Literature baseline. Lacked cross-sensor generalization on satellite holdouts. |
-| **BhuNetra V4 Learned Refiner** | ResNet residual over DA3 | **Rejected / Not Promoted:** Showed marginal gains on training data but failed the strict per-tile non-degradation gate on the blind Potsdam benchmark. Preserved as evidence. |
+| **Depth Anything V2** | ViT-Large | Evaluated. Achieved good relative depth, but DA3 showed superior edge sharpness on building facades and lower slope error. |
+| **Metric3D v2** | Metric ViT | Evaluated. Intended for zero-shot metric inference, but failed on satellite imagery because spaceborne orbital geometry violated its pinhole camera focal length assumptions. |
+| **RDAH-Net** | Aerial ResNet Baseline | Literature baseline. Lacked cross-sensor generalization when evaluated on unseen satellite holdouts. |
+| **DepthWizard V4 Learned Refiner** | ResNet Residual Refiner over DA3 | **Rejected / Not Promoted:** Evaluated on the independent ISPRS Potsdam benchmark. On all 4 frozen test tiles, V4 produced an aggregate RMSE of 5.437 m vs. 5.432 m for calibrated DA3 (-0.09% improvement), failing the strict non-degradation promotion gate. Preserved in `docs/potsdam-external-benchmark-v2-result.md` as a transparent negative result. |
 
 ---
 
-## 5. Datasets & Geographic Splitting Policy
+## 11. Algorithms
 
-### Evaluation Benchmarks
+### 11.1 Scene-Global Monocular Mosaicking & Harmonization
+- **Purpose:** Eliminates tile boundary seams and "egg-crate" artifacts across gigapixel images.
+- **Input:** Set of overlapping tile height predictions $\{h_k(x, y)\}$.
+- **Method:** Computes Pearson correlation $r$ across overlapping intersection zones $\Omega_{ij}$. If $r \ge 0.35$ and sufficient height variance exists, fits an affine transformation ($h_j \leftarrow \alpha h_j + \beta$) using IRLS. Blends tiles using 2D Hann cosine window weights $W(x, y)$.
+- **Output:** Seamless, continuous scene-global height mosaic $H_{\text{mosaic}}(x, y)$.
 
-BhuNetra was evaluated across five diverse geospatial benchmarks covering distinct biomes, building typologies, and sensors:
+### 11.2 Positive-Scale Huber IRLS Calibration
+- **Purpose:** Fits physical metric scale and offset ($Z_{\text{metric}} = \alpha \cdot H_{\text{rel}} + \beta$) without distortion from outliers.
+- **Input:** Relative height array $H_{\text{rel}}$, anchor elevations $Z^{\text{anchor}}$, weights $w$.
+- **Method:** Iteratively Reweighted Least Squares minimizing Huber loss with transition parameter $\delta = 1.5$. Dynamically re-weights residuals using the Median Absolute Deviation (MAD). Strictly enforces $\alpha > 0$.
+- **Output:** Scale $\alpha$, offset $\beta$, covariance, and residual statistics.
 
-| Dataset | Sensor / Platform | GSD (Ground Sampling Distance) | Terrain Type | Purpose |
-|---|---|---|---|---|
-| **ISPRS Vaihingen** | Leica ALS50 Airborne | 0.09 m | Historic European urban, steep roofs | Baseline & qualification |
-| **ISPRS Potsdam** | Airborne High-Res RGB | 0.05 m | Dense commercial & residential urban | Structure & building height benchmark |
-| **IEEE DFC2019** | WorldView-3 Satellite | 0.35 m | High-rise urban & industrial | Satellite domain verification |
-| **IEEE DFC2023** | Multi-satellite | 0.50 m | Varied commercial & residential | Cross-sensor test split |
-| **SRTM 30m / AW3D30** | Shuttle Radar Topography | 30.0 m | Regional topography (mountains/hills) | DEM calibration evidence anchor |
-| **PHDataset / PhiSat-2** | Spaceborne Optical | 4.75 m | Regional sparse, forested, and hilly | Holdout sensor generalization |
+### 11.3 Horn 8-Neighborhood Slope and Aspect
+- **Purpose:** Derives geomorphometric surface derivatives from elevation arrays.
+- **Input:** 2D elevation grid with known $\text{GSD}_x$ and $\text{GSD}_y$ cell resolutions.
+- **Method:** Applies central difference 8-neighborhood kernel convolution to compute orthogonal partial derivatives $\frac{\partial Z}{\partial x}$ and $\frac{\partial Z}{\partial y}$. Computes scalar slope in degrees $[0^\circ, 90^\circ]$ and directional aspect azimuth $[0^\circ, 360^\circ]$.
+- **Output:** Float32 Slope raster (degrees) and Aspect raster (azimuth).
 
-### Zero Data Leakage Policy
-
-To guarantee real-world reliability, BhuNetra strictly prohibits random patch splitting. Patches from the same city or flightline never appear in both training and test sets.
-
-```
-Splits Structure:
-├── train/              -> Strictly segregated geographical regions
-├── validation/         -> Same sensor, disjoint flightlines
-├── test/               -> Independent cities (Urban, Sparse, Hilly, Forested)
-└── cross_sensor_test/  -> Sensor completely unseen during training
-```
-
-### Dataset Access Links
-
-* [ISPRS Vaihingen 2D Benchmark](https://www.isprs.org/education/benchmarks/UrbanClassification/2d_label_vaihingen.aspx)
-* [ISPRS Potsdam 2D Semantic & DSM Benchmark](https://www.isprs.org/education/benchmarks/UrbanClassification/2d_label_potsdam.aspx)
-* [IEEE GRSS Data Fusion Contest 2019 (DFC2019)](https://ieee-dataport.org/open-access/data-fusion-contest-2019-dfc2019)
-* [IEEE GRSS Data Fusion Contest 2023 (DFC2023)](https://codalab.lisn.upsaclay.fr/competitions/15948)
-* [USGS EarthExplorer (SRTM 1 Arc-Second Global)](https://earthexplorer.usgs.gov/)
+### 11.4 Structural Height via Annulus RANSAC Plane Fitting
+- **Purpose:** Extracts net building heights from unsegmented elevation models.
+- **Input:** Vector polygon of building footprint, DSM raster.
+- **Method:** Erodes footprint inward by eave margin $d_{\text{eave}}$ to extract median roof elevation $Z_{\text{roof}}$. Buffers footprint outward to construct an annular ground zone ($r_{\text{inner}}$ to $r_{\text{outer}}$). Fits a robust RANSAC plane $Z_{\text{ground}}(x, y) = Ax + By + C$ across ground cells. Computes height as $H = Z_{\text{roof}} - Z_{\text{ground}}(x_{\text{centroid}}, y_{\text{centroid}})$.
+- **Output:** Net structural height in metres, ground plane slope, and confidence metrics.
 
 ---
 
-## 6. How It Works: 7-Stage End-to-End Pipeline
+## 12. Dataset Access
+
+The primary remote-sensing benchmark dataset integrated into **DepthWizard | BhuNetra** is the **GAMUS Dataset**:
+
+- **Repository:** [earthflow/GAMUS on Hugging Face](https://huggingface.co/datasets/earthflow/GAMUS)
+- **Modalities:** High-resolution optical aerial/satellite imagery paired with LiDAR-derived Above Ground Level (AGL) height maps and semantic masks.
+- **Coverage:** Diverse urban cores, dense residential tracts, commercial highway corridors, industrial rail yards, and suburban forested edges.
+- **Resolution:** 0.30 m Ground Sampling Distance (GSD).
+
+### On-Demand Streaming & Local Caching Policy
+
+The entire multi-gigabyte GAMUS dataset is **not** downloaded upfront. Instead, DepthWizard features an on-demand retrieval and caching module (`src/depthwizard/dataset/gamus.py`):
+1. **Metadata Indexing:** Communicates with the Hugging Face API to retrieve metadata and catalogs pre-indexed representative scenes (e.g., `DC_02_26`, `DC_04_23`, `DC_04_27`, `DC_08_31`, `DC_09_33`, `DC_10_30`, `DC_11_16`, `DC_11_33`).
+2. **Selective Extraction:** When an operator selects a scene, DepthWizard streams the specific optical HDF5 file (`*_RGB.h5`) and ground-truth elevation file (`*_AGL.h5`), extracting them into standard GeoTIFF rasters inside `data/gamus_cache/`.
+3. **Direct Ingestion:** The extracted GeoTIFF enters the standard DepthWizard pipeline, immediately generating 3D meshes, LOD pyramids, and validation reports.
 
 ```
-  ┌───────────┐     ┌───────────────┐     ┌────────────────┐     ┌─────────────────────┐
-  │ 1. Ingest │ ──► │ 2. Preprocess │ ──► │ 3. DA3 Prior   │ ──► │ 4. Huber/IRLS Fuser │
-  └───────────┘     └───────────────┘     └────────────────┘     └─────────────────────┘
-                                                                            │
-  ┌───────────┐     ┌───────────────┐     ┌────────────────┐                │
-  │ 7. Visual │ ◄── │ 6. 3D Meshing │ ◄── │ 5. Geo Export  │ ◄──────────────┘
-  └───────────┘     └───────────────┘     └────────────────┘
+GAMUS on Hugging Face ──► Remote API Probe ──► On-Demand Sample Fetch ──► Local Cache (HDF5) ──► GeoTIFF Extraction ──► DepthWizard Pipeline
 ```
 
-### Stage 1: Ingest & Telemetry Verification
-- Reads raster metadata via Rasterio: dimensions, data types, color channels, CRS, affine geotransform, spatial resolution (GSD), and NoData masks.
-- Computes SHA-256 digest of input file for immutable provenance.
-- Executes radiometric diagnostics: dynamic range, texture gradient variance, cloud/shadow fraction, and off-nadir angle risk.
-
-### Stage 2: Preprocessing
-- Robust percentile contrast stretch ($P_{02} - P_{98}$) to eliminate sensor sensor saturation.
-- Normalizes pixel values into tensor inputs ($[0, 1] \rightarrow \text{ImageNet normalization}$).
-- Generates valid pixel masks, preventing NoData zones from contaminating convolutional features.
-
-### Stage 3: Geometry Prior Estimation (DA3)
-- If image $\le 1024 \times 1024$, executes a single forward pass.
-- If image $> 1024 \times 1024$, executes **Scene-Global Monocular Mosaicking** with sliding window tiles, overlap harmonization, and cosine feathering.
-- Inverts depth to relative height ($h = -\text{depth}$).
-- Produces a dimensionless relative surface (`rDSM`).
-
-### Stage 4: Evidence Calibration (Optional for Georeferenced Inputs)
-- **DEM Mode:** Reprojects external coarse DEM (e.g., SRTM) to imagery grid. Automatically filters out high-frequency building zones to extract ground terrain anchors. Fits positive scale factor $\alpha > 0$ and offset $\beta$ using Huber loss Iteratively Reweighted Least Squares (IRLS).
-- **GCP Mode:** Ingests $\ge 6$ ground control points with UTM coordinates $(X, Y, Z)$. Evaluates spatial distribution (convex hull) and leave-one-out cross-validation.
-- **Fail-Closed Gate:** If correlation $< 0.65$ or coverage is insufficient, the project stops cleanly in `waiting_for_calibration` and prevents false metric claims.
-
-### Stage 5: Geospatial Export
-- Writes standard GeoTIFF rasters using compression (DEFLATE):
-  * `rdsm.tif` (dimensionless float32 relative surface)
-  * `dsm.tif` (metric elevation float32, populated only if calibrated)
-  * `slope.tif` (surface slope in degrees)
-  * `residual.tif` (difference from reference surface)
-- Emits schema-validated `provenance.json`, `calibration.json`, and `project-manifest.json`.
-
-### Stage 6: 3D Mesh Generation
-- Constructs a quad-mesh heightfield from the output surface.
-- Decimates grid with adaptive Level-of-Detail (LOD).
-- Bakes original RGB satellite imagery as a UV-mapped diffuse orthotexture.
-- Exports binary `terrain.glb` for instant WebGL loading.
-
-### Stage 7: Interactive Analysis Workstation
-- Renders 3D terrain inside the Tauri Three.js viewport.
-- Enables free orbit, first-person flythrough, and top-down nadir cameras.
-- Provides real-time cursor elevation probing, two-point geodesic distance measurement, profile transect slicing, and structural height calculation.
+### Reference Repositories & Secondary Datasets
+- **SIH DepthWizard Reference:** [IMG-PROCESS-SAC/SIH-DepthWizard-2026](https://github.com/IMG-PROCESS-SAC/SIH-DepthWizard-2026)
+- **EarthNets Remote Sensing Library:** [EarthNets/RSI-MMSegmentation](https://github.com/EarthNets/RSI-MMSegmentation)
+- **ISPRS Potsdam & Vaihingen 2D/3D Benchmarks:** Urban classification and high-resolution DSM holdouts.
+- **Copernicus GLO-30 / SRTM 30m:** Public regional DEMs used as independent coarse calibration anchors.
 
 ---
 
-## 7. System Architecture Diagram
+## 13. System Architecture
 
+```mermaid
+flowchart TB
+    U[Operator / GIS Analyst]
+
+    subgraph Native_Desktop_Shell [Tauri Shell - Rust 1.80+]
+        T_SUP[Process Watchdog & Lifecycle Supervisor]
+        T_PORT[Ephemeral 127.0.0.1 Socket Binder]
+        T_AUTH[256-bit Session Token & Nonce Generator]
+        T_GUARD[Clean OS Process Reaping on Exit]
+    end
+
+    subgraph Desktop_Frontend [Frontend UI - React 19 + TypeScript + Vite]
+        UI_NAV[ToolRail & Navigation Viewports]
+        UI_DASH[Executive Intelligence Dashboard]
+        UI_HEAT[Heatmap & Analytics Studio]
+        UI_THREE[Three.js 3D WebGL Workstation]
+        UI_MEAS[3D Probe, Profile & Building Tool]
+    end
+
+    subgraph Scientific_Core [Python Scientific Core - FastAPI + Uvicorn]
+        API_ROUTER[FastAPI Service Endpoints]
+        NET_GUARD[Loopback Socket Barrier]
+        JOB_EXEC[Single-Threaded Job Queue Executor]
+
+        subgraph Core_Engines
+            ENG_INGEST[Ingest & Telemetry - Rasterio/GDAL]
+            ENG_AI[Geometry Prior - DA3MONO-LARGE PyTorch]
+            ENG_CALIB[Huber IRLS Fuser - SciPy/NumPy]
+            ENG_DSM[DSM Synthesis & Geospatial Products]
+            ENG_ANALYTICS[Terrain Intelligence & Structure Heights]
+            ENG_MESH[Quad-Mesh LOD Pyramid - Trimesh]
+        end
+    end
+
+    subgraph External_Storage [Storage & Remote Assets]
+        CACHE_GAMUS[(GAMUS Cache - data/gamus_cache)]
+        FS_PROJECTS[(Project Directory & GeoTIFFs)]
+        HF_REMOTE[(Hugging Face / earthflow/GAMUS)]
+    end
+
+    U --> UI_NAV
+    T_SUP --> Scientific_Core
+    T_PORT --> Scientific_Core
+    T_AUTH --> UI_NAV
+    UI_NAV --> API_ROUTER
+    UI_THREE --> ENG_MESH
+    API_ROUTER --> JOB_EXEC
+    JOB_EXEC --> Core_Engines
+    ENG_INGEST --> FS_PROJECTS
+    ENG_DSM --> FS_PROJECTS
+    ENG_MESH --> FS_PROJECTS
+    HF_REMOTE -.-> CACHE_GAMUS
+    CACHE_GAMUS --> ENG_INGEST
 ```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                                 BhuNetra Desktop Workstation                           │
-├────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                        │
-│   ┌────────────────────────────────────────────────────────────────────────────────┐   │
-│   │                              Tauri Shell (Rust)                                │   │
-│   │   • Subprocess Supervision & Automatic Health Watchdog                         │   │
-│   │   • Random Ephemeral 127.0.0.1 Port Binding                                    │   │
-│   │   • Per-Process 256-bit Boot Identity Nonce Generation                         │   │
-│   │   • Session Token Injection via Environment Variables                          │   │
-│   │   • Clean OS Process Reaping on Window Exit                                    │   │
-│   └──────────────────────────────────────┬─────────────────────────────────────────┘   │
-│                                          │                                             │
-│                 ┌────────────────────────┴────────────────────────┐                    │
-│                 │ Rust IPC Handshake (apiBase, sessionToken)      │                    │
-│                 ▼                                                 ▼                    │
-│   ┌──────────────────────────────────────────┐  ┌──────────────────────────────────┐   │
-│   │   React / TypeScript UI Viewport         │  │   Three.js 3D WebGL Workstation  │   │
-│   │   • Raster File Drag-and-Drop Ingest     │  │   • Free Fly / Orbit / Top-Down  │   │
-│   │   • Elevation Layer Switching            │  │   • Dynamic Shader Colormaps     │   │
-│   │   • Calibration Data (DEM/GCP) Controls  │  │   • Real-Time Transect Profiler  │   │
-│   │   • Inspection Diagnostics & Metrics     │  │   • Physical Annulus Height Tool │   │
-│   └─────────────────────┬────────────────────┘  └─────────────────▲────────────────┘   │
-│                         │                                         │                    │
-│                         │ HTTP + x-depthwizard-token              │ Binary GLB Assets  │
-│                         ▼                                         │                    │
-│   ┌───────────────────────────────────────────────────────────────┴────────────────┐   │
-│   │                    Python Scientific Core Sidecar (FastAPI)                    │   │
-│   │                                                                                │   │
-│   │   ┌───────────────────┐    ┌────────────────────┐    ┌─────────────────────┐   │   │
-│   │   │ Ingest & Telemetry│───►│ Geometry Prior DA3 │───►│ Robust Metric Fuser │   │   │
-│   │   │ (Rasterio/GDAL)   │    │ (PyTorch ViT-L)    │    │ (Huber IRLS / PROJ) │   │   │
-│   │   └───────────────────┘    └────────────────────┘    └──────────┬──────────┘   │   │
-│   │                                                                 │              │   │
-│   │   ┌───────────────────┐    ┌────────────────────┐               │              │   │
-│   │   │ Terrain Mesh Gen  │◄───│  Geospatial Exporter◄──────────────┘              │   │
-│   │   │ (Trimesh / GLB)   │    │  (GeoTIFF / JSON)  │                              │   │
-│   │   └───────────────────┘    └────────────────────┘                              │   │
-│   │                                                                                │   │
-│   │   [Durable Job Queue: Serialized ThreadPoolExecutor (max_workers=1)]           │   │
-│   │   [Network Guard: Hard Loopback-Only Socket Barrier via socket.getaddrinfo]    │   │
-│   └────────────────────────────────────────────────────────────────────────────────┘   │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-```
+
+### Architectural Highlights:
+- **Rust Tauri Shell:** Supervises the child process, generates cryptographically random 256-bit session tokens, probes boot nonces, and guarantees clean process termination when the window closes.
+- **FastAPI Core Sidecar:** Listens strictly on ephemeral loopback ports (`127.0.0.1`). Protected by the `x-depthwizard-token` header.
+- **Single-Worker Execution Queue:** Projects are queued sequentially to avoid GPU VRAM contention across simultaneous large tile operations.
+- **Three.js WebGL Layer:** Communicates with the core via binary GLB endpoints, handling LOD selection, custom elevation colormaps, and real-time raycasting.
 
 ---
 
-## 8. Process Flow & Lifecycle Diagrams
+## 14. Process Flow & Lifecycle
 
-### End-to-End Scientific Execution Flow
+### 14.1 Project Execution Lifecycle
 
 ```mermaid
 flowchart TD
-    A([Satellite / Aerial Image\nTIFF, GeoTIFF, PNG, JPG]) --> B[Ingest Module]
-    B --> C{Georeferencing\nPresent?}
-    
-    C -->|Yes: CRS & Transform| D[Read GSD & Geographic Footprint]
-    C -->|No: Plain Image| E[Assign Relative Pixel Space]
-    
-    D --> F[Radiometric & Quality Diagnostics]
-    E --> F
-    
-    F --> G{Image Dimension\n> 1024x1024?}
-    
-    G -->|Yes| H[Scene-Global Monocular Mosaicking\nSliding Window + Overlap Harmonization]
-    G -->|No| I[Direct Monocular Inference\nDA3 ViT-Large Backbone]
-    
-    H --> J[Extract Affine Height Evidence\nh = -depth]
-    I --> J
-    
-    J --> K[Unclipped Scene-Global Normalization\nP01 to P99 Span]
-    K --> L[Generate Dimensionless rDSM]
-    
-    L --> M{Geodetic Anchors\nProvided?}
-    
-    M -->|None Provided| N[Export rDSM & Relative 3D Mesh\nLabel as Dimensionless]
-    M -->|DEM or GCPs Provided| O[Run Robust Huber/IRLS Calibration]
-    
-    O --> P{Calibration Gates\nPassed?}
-    
-    P -->|Fail: Weak Fit| Q[Fail-Closed Warning\nRetain rDSM, Forbid Metres]
-    P -->|Pass: Reliable Fit| R[Synthesize Metric DSM in Metres\nCompute Slope & Residuals]
-    
-    R --> S[Export dsm.tif, slope.tif, metrics.json]
-    N --> T[Export rdsm.tif, provenance.json]
-    
-    S --> U[Triangulate 3D Terrain Mesh & UV Orthotexture]
-    T --> U
-    
-    U --> V[Stream GLB to Three.js WebGL Workstation]
-    V --> W([Interactive 3D Flythrough & Measurement])
+    A([New Project Request]) --> B[Inspect Raster Metadata]
+    B --> C{Georeferencing & Valid Bands?}
+    C -- Invalid --> D([Reject with Actionable Error])
+    C -- Valid --> E[Initialize project-manifest.json]
+    E --> F[Run DA3 Monocular Inference]
+    F --> G[Extract Affine Height Evidence]
+    G --> H{Calibration Anchors Provided?}
+    H -- No --> I[Generate Dimensionless rDSM]
+    H -- Yes --> J[Execute Huber IRLS Regression]
+    J --> K{Calibration Correlation >= 0.65?}
+    K -- Fail --> L[Warn Operator: Revert to rDSM]
+    K -- Pass --> M[Synthesize Metric dsm.tif]
+    I --> N[Triangulate 4-Level LOD Mesh Pyramid]
+    M --> N
+    N --> O[Bake Diffuse Orthotexture into GLB]
+    O --> P[Generate Slope, Aspect & Contours]
+    P --> Q([Ready for 3D Flythrough & Export])
 ```
 
-### Tauri Boot-Identity Security Lifecycle
+### 14.2 Dataset Access & Ingest Lifecycle
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as Operator
-    participant T as Tauri Shell (Rust)
-    participant S as Python Sidecar
-    participant W as React Frontend
+    actor Operator as Analyst
+    participant UI as BhuNetra UI
+    participant Core as Python Core
+    participant HF as Hugging Face Hub
+    participant Cache as Local Cache
 
-    User->>T: Launch BhuNetra App
-    T->>T: Bind candidate loopback socket (127.0.0.1:0)
-    T->>T: Generate 256-bit Session Token & 256-bit Boot Nonce
-    T->>S: Spawn `depthwizard-core` (passing credentials via ENV)
-    S->>S: Install loopback-only network guard
-    S->>S: Start FastAPI/Uvicorn on allocated port
-    
-    loop Every 250ms (up to 90s)
-        T->>S: GET /boot-identity (Probe Nonce)
-        S-->>T: Return {"boot_nonce": "..."}
+    Operator->>UI: Open Dataset Catalog (GAMUS)
+    UI->>Core: GET /v1/dataset/gamus/samples
+    Core->>UI: Return pre-indexed scene catalog
+    Operator->>UI: Select "DC_02_26_RGB"
+    UI->>Core: POST /v1/dataset/gamus/load
+    Core->>Cache: Check if *_RGB.h5 exists
+    alt Not in cache
+        Core->>HF: Stream sample H5 files
+        HF-->>Core: Transmit RGB & AGL tensors
+        Core->>Cache: Save raw H5 files
     end
-    
-    T->>T: Verify Nonce matches generated token
-    T->>W: Initialize WebView & send {apiBase, sessionToken}
-    W->>S: GET /v1/projects (with x-depthwizard-token)
-    S-->>W: Return 200 OK (Authenticated session established)
-    
-    Note over User,W: User conducts elevation exploration...
-    
-    User->>T: Close Window
-    T->>S: Send SIGTERM / Kill child process
-    T->>T: Reap PID & release OS resources
+    Core->>Cache: Extract to GeoTIFF & PNG preview
+    Core-->>UI: Return ready status & file paths
+    UI->>Core: POST /v1/projects (Auto-reconstruct)
+    Core-->>UI: Project completed & rendered in 3D
+```
+
+### 14.3 Reference Validation Lifecycle
+
+```mermaid
+flowchart TD
+    A([Prediction Surface dsm.tif]) --> B[Load Independent Reference DSM]
+    C([Independent Reference Raster]) --> B
+    B --> D[Geodetic Reprojection & Grid Alignment]
+    D --> E[Valid Pixel Intersection Masking]
+    E --> F[Compute Difference: Residual = Pred - Ref]
+    F --> G[Calculate Global Statistics: RMSE, MAE, Pearson r]
+    G --> H[Render Spatial Residual Error Map]
+    H --> I[Serialize metrics.json & residual.tif]
+    I --> J([Display in Accuracy & Validation Viewport])
 ```
 
 ---
 
-## 9. Detailed Algorithms & Mathematical Formulations
+## 15. Detailed Algorithms & Mathematical Formulations
 
-### 9.1 Scene-Global Monocular Mosaicking
+### 15.1 Relative-to-Metric Scale Mapping
+When external elevation anchors are present, dimensionless relative height $H_{\text{rel}}(x, y)$ is transformed to absolute metric elevation $Z_{\text{metric}}(x, y)$ via an affine transformation:
 
-When an image exceeds $1024 \times 1024$, standard tiled inference causes catastrophic boundary seams and "egg-crate" artifacts if tiles are normalized independently. BhuNetra uses **affine-preserving overlap harmonization**:
+$$Z_{\text{metric}}(x, y) = \alpha \cdot H_{\text{rel}}(x, y) + \beta$$
 
-1. For each tile $k$, extract raw camera depth $D_k(x, y)$ and convert to affine height $h_k(x, y) = -D_k(x, y)$.
-2. For each overlapping tile pair $(i, j)$ with intersection $\Omega_{ij}$:
-   $$\text{Pearson}(h_i, h_j) = \frac{\sum (h_i - \bar{h}_i)(h_j - \bar{h}_j)}{\sqrt{\sum (h_i - \bar{h}_i)^2 \sum (h_j - \bar{h}_j)^2}}$$
-3. If $\text{Pearson} \ge 0.35$ and sufficient elevation variance exists:
-   * Fit affine transformation $h_j \leftarrow \alpha h_j + \beta$ using Iteratively Reweighted Least Squares.
-   * If scale $\alpha \in [0.25, 4.0]$ and reduces median error by $\ge 10\%$, apply full affine correction.
-   * Otherwise, apply median offset only: $h_j \leftarrow h_j + \text{median}(h_i - h_j)$.
-4. Blend tiles using 2D Hann/Cosine window weights $W(x, y)$:
-   $$H_{\text{mosaic}}(x, y) = \frac{\sum_k W_k(x, y) \cdot h_k(x, y)}{\sum_k W_k(x, y)}$$
-5. Normalize once scene-globally without clipping extrema:
-   $$\text{rDSM}(x, y) = \frac{H_{\text{mosaic}}(x, y) - P_{01}(H_{\text{mosaic}})}{P_{99}(H_{\text{mosaic}}) - P_{01}(H_{\text{mosaic}})}$$
+where $\alpha > 0$ is the scale factor (metres per relative unit) and $\beta$ is the vertical datum offset (metres).
 
----
-
-### 9.2 Robust Positive-Scale Huber/IRLS Metric Fuser
-
-To calibrate dimensionless relative heights $H_{\text{rel}}$ against coarse external elevation anchors (DEM or GCPs), BhuNetra minimizes Huber loss:
+### 15.2 Positive-Scale Huber Iteratively Reweighted Least Squares (IRLS)
+To fit $\alpha$ and $\beta$ while rejecting non-ground outliers (e.g., tree crowns, vehicle tops, eave shadows), DepthWizard minimizes Huber objective loss:
 
 $$\min_{\alpha > 0, \beta} \sum_{i=1}^N w_i \cdot \rho_\delta \left( Z_i^{\text{anchor}} - (\alpha \cdot H_{\text{rel}}(x_i, y_i) + \beta) \right)$$
 
-Where the Huber penalty $\rho_\delta(r)$ transitions gracefully from quadratic to linear:
+where the Huber penalty function $\rho_\delta(r)$ is defined as:
 
 $$\rho_\delta(r) = \begin{cases} 
 \frac{1}{2} r^2 & \text{for } |r| \le \delta \\
-\delta \cdot (|r| - \frac{1}{2} \delta) & \text{otherwise}
+\delta \cdot (|r| - \frac{1}{2} \delta) & \text{for } |r| > \delta
 \end{cases}$$
 
-* Weights $w_i$ incorporate model-native confidence and ground terrain likelihood.
-* The constraint $\alpha > 0$ strictly enforces that higher pixel values correspond to higher physical terrain.
-* Low-frequency regional distortion is compensated via an optional regularized 2D thin-plate spline bias field $B(x, y)$.
+At iteration $k$, residuals $r_i^{(k)} = Z_i^{\text{anchor}} - (\alpha^{(k)} H_{\text{rel}}(x_i) + \beta^{(k)})$ are scaled using the robust Median Absolute Deviation (MAD):
+
+$$\sigma^{(k)} = 1.4826 \cdot \text{median} \left( \left| r_i^{(k)} - \text{median}(r^{(k)}) \right| \right)$$
+
+Weights are updated iteratively:
+
+$$w_{i, \text{Huber}}^{(k)} = \begin{cases} 
+1.0 & \text{if } \frac{|r_i^{(k)}|}{\sigma^{(k)}} \le \delta \\
+\frac{\delta \cdot \sigma^{(k)}}{|r_i^{(k)}|} & \text{otherwise}
+\end{cases}$$
+
+$$w_i^{(k+1)} = w_i^{\text{base}} \cdot w_{i, \text{Huber}}^{(k)}$$
+
+The solver terminates when $\|\beta^{(k+1)} - \beta^{(k)}\|_2 \le 10^{-6} \cdot (1 + \|\beta^{(k)}\|_2)$. If the fitted $\alpha \le 0$, the calibration is rejected.
+
+### 15.3 Horn 8-Neighborhood Surface Derivatives
+Slope and aspect are evaluated using an 8-cell neighborhood around cell $(i, j)$:
+
+$$\begin{bmatrix}
+Z_{i-1, j-1} & Z_{i, j-1} & Z_{i+1, j-1} \\
+Z_{i-1, j}   & Z_{i, j}   & Z_{i+1, j}   \\
+Z_{i-1, j+1} & Z_{i, j+1} & Z_{i+1, j+1}
+\end{bmatrix}$$
+
+Orthogonal partial gradients are calculated using spatial resolution ($\Delta x = \text{GSD}_x$, $\Delta y = \text{GSD}_y$):
+
+$$\frac{\partial Z}{\partial x} = \frac{(Z_{i+1, j-1} + 2Z_{i+1, j} + Z_{i+1, j+1}) - (Z_{i-1, j-1} + 2Z_{i-1, j} + Z_{i-1, j+1})}{8 \cdot \Delta x}$$
+
+$$\frac{\partial Z}{\partial y} = \frac{(Z_{i-1, j+1} + 2Z_{i, j+1} + Z_{i+1, j+1}) - (Z_{i-1, j-1} + 2Z_{i, j-1} + Z_{i+1, j-1})}{8 \cdot \Delta y}$$
+
+**Slope (degrees):**
+
+$$\text{Slope}(i, j) = \arctan \left( \sqrt{ \left(\frac{\partial Z}{\partial x}\right)^2 + \left(\frac{\partial Z}{\partial y}\right)^2 } \right) \cdot \frac{180^\circ}{\pi}$$
+
+**Aspect (compass azimuth clockwise from North):**
+
+$$\text{Aspect}(i, j) = \left( 450^\circ - \arctan2 \left( \frac{\partial Z}{\partial y}, -\frac{\partial Z}{\partial x} \right) \cdot \frac{180^\circ}{\pi} \right) \pmod{360^\circ}$$
+
+### 15.4 Analytical Photometric Hillshade
+Simulates sunlight across terrain given solar zenith $\theta_z$ and sun azimuth $\phi_s$:
+
+$$\text{Hillshade} = 255 \cdot \max \left( 0, \, \cos(\theta_z) \cos(\text{Slope}) + \sin(\theta_z) \sin(\text{Slope}) \cos(\phi_s - \text{Aspect}) \right)$$
+
+### 15.5 Quantitative Evaluation Metrics
+Validation against independent reference ground-truth surfaces utilizes four primary statistical indicators:
+
+$$\text{RMSE} = \sqrt{\frac{1}{N} \sum_{i=1}^N \left( Z_{\text{pred}}(x_i, y_i) - Z_{\text{ref}}(x_i, y_i) \right)^2 }$$
+
+$$\text{MAE} = \frac{1}{N} \sum_{i=1}^N \left| Z_{\text{pred}}(x_i, y_i) - Z_{\text{ref}}(x_i, y_i) \right|$$
+
+$$\text{Pearson } r = \frac{\sum_{i=1}^N (Z_{\text{pred}, i} - \bar{Z}_{\text{pred}})(Z_{\text{ref}, i} - \bar{Z}_{\text{ref}})}{\sqrt{\sum_{i=1}^N (Z_{\text{pred}, i} - \bar{Z}_{\text{pred}})^2 \sum_{i=1}^N (Z_{\text{ref}, i} - \bar{Z}_{\text{ref}})^2}}$$
+
+$$\text{Residual Error Raster: } \quad r(x, y) = Z_{\text{pred}}(x, y) - Z_{\text{ref}}(x, y)$$
 
 ---
 
-### 9.3 Physical Ground Annulus Structural Height Extraction
+## 16. Output Products & Geospatial Contracts
 
-Measuring building heights directly from an unsegmented DSM often fails due to eave overhang, shadow distortion, or vegetation. BhuNetra uses a **physically-scaled annulus algorithm**:
-
-```
-                       ┌────────────────────────┐
-                       │  Outer Ground Annulus  │
-                       │   (Radius: R_ground)   │
-                       │  ┌──────────────────┐  │
-                       │  │ Inner Exclusion  │  │
-                       │  │   ┌───────────┐  │  │
-                       │  │   │  Roof     │  │  │
-                       │  │   │ Footprint │  │  │
-                       │  │   │           │  │  │
-                       │  │   └───────────┘  │  │
-                       │  └──────────────────┘  │
-                       └────────────────────────┘
-```
-
-1. **Roof Region:** Analyst-defined vector polygon eroded inward by distance $d_{\text{eave}}$ (in metres) to exclude boundary artifacts:
-   $$Z_{\text{roof}} = \text{median} \{ \text{DSM}(x, y) \mid (x, y) \in \text{Roof}_{\text{eroded}} \}$$
-2. **Ground Annulus:** Buffer ring extending from $r_{\text{inner}}$ to $r_{\text{outer}}$ around the footprint.
-3. **High-Object Elimination:** Rejects ground cells exceeding the 40th percentile of local relief.
-4. **Plane Fitting:** Fits a RANSAC ground plane $Z_{\text{ground}}(x, y) = Ax + By + C$ across valid ground cells.
-5. **Net Height:**
-   $$H_{\text{structure}} = Z_{\text{roof}} - Z_{\text{ground}}(x_{\text{centroid}}, y_{\text{centroid}})$$
-
----
-
-## 10. Output Products & Geospatial Contracts
-
-Every completed BhuNetra project directory contains an atomic, self-contained suite of GIS-compliant assets:
+Every completed reconstruction project generates a structured directory adhering to strict geospatial invariants:
 
 ```
 project_directory/
-├── project-manifest.json     # Machine-readable schema v2 project state & SHA-256 hashes
-├── provenance.json           # Hardware, library versions, git commit, input digest
-├── calibration.json          # Fitted alpha/beta parameters, anchor count, LOO metrics
+├── project-manifest.json        # Authoritative project state, schema version, SHA-256 hashes
+├── provenance.json              # Python, GDAL, PyTorch versions, OS platform, GPU driver
+├── calibration.json             # Alpha, beta, anchor counts, LOO residuals, condition number
+├── metrics.json                 # RMSE, MAE, Pearson r (populated upon reference validation)
 ├── products/
-│   ├── rdsm.tif              # Dimensionless float32 relative surface GeoTIFF
-│   ├── dsm.tif               # Calibrated metric elevation in metres (UTM projected)
-│   ├── slope.tif             # Local surface slope in degrees [0, 90]
-│   ├── confidence.tif        # Native confidence map (if emitted by model prior)
-│   └── residual.tif          # Error difference raster against reference DSM
+│   ├── rdsm.tif                 # Dimensionless float32 relative surface GeoTIFF
+│   ├── dsm.tif                  # Metric float32 elevation GeoTIFF in metres (when calibrated)
+│   ├── slope.tif                # Surface slope GeoTIFF in degrees [0, 90]
+│   ├── aspect.tif               # Compass aspect GeoTIFF [0, 360]
+│   ├── confidence.tif           # Model certainty and texture gradient weight raster
+│   └── residual.tif             # Pixel-by-pixel difference raster against reference DSM
 └── mesh/
-    ├── terrain.glb           # Binary glTF 3D terrain heightfield with diffuse orthotexture
-    └── lod_pyramid.json      # Multi-resolution vertex indices for smooth rendering
+    ├── mesh-manifest.json       # LOD pyramid indices, face counts, and vertex counts
+    ├── terrain-lod0.glb         # Full resolution quad-mesh (524K faces) with diffuse UV texture
+    ├── terrain-lod1.glb         # Half decimation (LOD 1)
+    ├── terrain-lod2.glb         # Quarter decimation (LOD 2)
+    └── terrain-lod3.glb         # Low-overhead overview mesh (LOD 3: 8K faces)
 ```
 
-### Manifest Schema & Invariants
+### Geospatial Raster Specification Table
 
-* **Immutability:** Once geometry inference is finalized, geometry-affecting configuration parameters are locked.
-* **Fail-Closed Semantics:** If an image is georeferenced but lacks calibration evidence, `dsm.tif` is not generated. The manifest explicitly records:
-  ```json
-  "stage_state": {
-    "geometry_prior": "complete",
-    "metric_calibration": "waiting_for_evidence"
-  }
-  ```
-* **NoData Standards:** Invalid pixels and masked regions are strictly assigned `-9999.0` with GDAL-compatible metadata tags.
+| Product | Representation | Units | CRS | NoData Value | Compression |
+|---|---|---|---|---|---|
+| `rdsm.tif` | Float32 | Dimensionless $[0, 1]$ span | Preserved or local pixel grid | `-9999.0` | DEFLATE |
+| `dsm.tif` | Float32 | Metres above vertical datum | Projected (e.g. UTM Zone / EPSG:32618) | `-9999.0` | DEFLATE |
+| `slope.tif` | Float32 | Degrees $[0, 90]$ | Projected matching DSM | `-9999.0` | DEFLATE |
+| `aspect.tif` | Float32 | Degrees $[0, 360]$ | Projected matching DSM | `-9999.0` | DEFLATE |
+| `residual.tif` | Float32 | Signed error in metres | Projected matching DSM | `-9999.0` | DEFLATE |
+| `terrain-lod*.glb` | Binary glTF 2.0 | $X, Z$ in map units, $Y$ in elevation | Local origin, Y-up | Omitted geometry | Binary packed |
 
 ---
 
-## 11. Installation & Local Setup (Windows & macOS)
+## 17. Technology Stack
 
-### Prerequisites
+### Core Runtime & Scientific Engines
 
-| Tool | Recommended Version | Verification Command |
-|---|---|---|
-| **Python** | `3.12.x` | `python --version` |
-| **`uv`** | Latest | `uv --version` |
-| **Node.js** | `>= 18.x` | `node --version` |
-| **Rust & Cargo** | `>= 1.80` | `cargo --version` |
-| **C++ Linker (Windows)** | MinGW-w64 (`gcc.exe`) | `gcc --version` |
+| Category | Technology | Version | Purpose | Where Used |
+|---|---|---|---|---|
+| **Scientific Runtime** | Python | `3.12.x` | Core backend scientific environment | Python sidecar service |
+| **Package Manager** | `uv` (Astral) | Latest | Deterministic lock-file dependency resolution | Root & `.venv` environment |
+| **Deep Learning** | PyTorch | `2.6.x` | Tensor graph execution across CUDA, MPS, and CPU | Geometry prior inference |
+| **Vision Foundation** | `DA3MONO-LARGE` | SafeTensors | Pretrained monocular depth estimation prior | `src/depthwizard/geometry_prior` |
+| **Raster I/O & Geodesy** | Rasterio / GDAL | `>= 1.4` | GeoTIFF reading, writing, geotransforms, NoData masks | Ingestion, synthesis, tiling |
+| **Cartography & CRS** | PyProj / PROJ | `>= 3.7` | Projection transformations and geodetic coordinate math | Metric spacing, anchor alignment |
+| **Numerical Optimization** | NumPy & SciPy | `>= 1.26`, `>= 1.14` | Matrix operations, Huber IRLS regression, Horn kernels | Robust calibration, analysis |
+| **Mesh Generation** | Trimesh | `>= 4.11` | Heightfield triangulation, LOD pyramids, GLB export | `src/depthwizard/mesh` |
+| **Microservice Framework** | FastAPI | `>= 0.128` | Asynchronous high-performance REST loopback API | Python service endpoints |
+| **ASGI Server** | Uvicorn | `>= 0.48` | High-throughput local ASGI server | Background sidecar runtime |
+| **Contract Schemas** | Pydantic | `>= 2.10` | Strict data serialization and validation | API & manifest schemas |
+| **Image Processing** | Pillow (PIL) | `>= 12.0` | Palette mapping, PNG previews, texture baking | Previews and mesh visuals |
+| **CLI & Formatting** | Typer & Rich | `>= 0.15`, `>= 13.9` | CLI commands and formatted diagnostic reporting | `depthwizard.cli` |
+
+### Desktop Shell & Web Visualization
+
+| Category | Technology | Version | Purpose | Where Used |
+|---|---|---|---|---|
+| **Desktop Shell** | Tauri | `2.11.x` | Native desktop wrapper, OS lifecycle, security tokens | `apps/desktop/src-tauri` |
+| **Systems Language** | Rust | `1.80+` | Tauri backend, memory-safe IPC, subprocess supervision | Desktop native bundle |
+| **Frontend Framework** | React | `19.2.x` | Reactive user interface component hierarchy | `apps/desktop/src` |
+| **Language** | TypeScript | `5.8.x` | End-to-end typed contract safety matching Pydantic | Entire frontend codebase |
+| **3D Graphics Engine** | Three.js | `0.180.x` | WebGL 3D terrain rendering, shaders, flythrough cameras | `TerrainViewport.tsx` |
+| **Frontend Bundler** | Vite | `8.2.x` | Lightning-fast development server and production builds | Desktop build system |
+| **Testing** | Vitest & Pytest | Latest | Unit testing across frontend and backend | Automated test suites |
 
 ---
 
-### Step-by-Step Installation
+## 18. Project Structure
 
-#### 1. Clone Repository & Initialize Submodules
-
-```bash
-git clone https://github.com/amogh-hub/depthwizard.git BhuNetra
-cd BhuNetra
+```text
+BHUNETRA/
+├── apps/
+│   └── desktop/
+│       ├── public/
+│       │   ├── demo/                         # Pre-packaged demonstration metrics and reports
+│       │   ├── gamus/                        # Cached GAMUS previews (e.g. DC_02_26, DC_04_23)
+│       │   ├── sample_project/               # Bundled sample scene with LOD meshes
+│       │   └── DepthWizard.png               # High-resolution application brand mark
+│       ├── src/
+│       │   ├── components/                   # React viewports, inspection panels, tools
+│       │   │   ├── AccuracyDashboardView.tsx # Quantitative error & benchmark viewport
+│       │   │   ├── AiReconstructionView.tsx  # Monocular depth inference controls
+│       │   │   ├── DashboardView.tsx         # Executive intelligence overview
+│       │   │   ├── DatasetCatalogView.tsx    # GAMUS Hugging Face dataset catalog
+│       │   │   ├── ElevationModelView.tsx    # DSM and raster layer inspector
+│       │   │   ├── FlythroughStudioView.tsx  # 3D flight paths and camera controls
+│       │   │   ├── HeatmapView.tsx           # Continuous spatial gradient heatmap
+│       │   │   ├── TerrainIntelligenceView.tsx # Geomorphometric classification & extrema
+│       │   │   └── ToolRail.tsx              # Sidebar navigation tool rail
+│       │   ├── styles/                       # CSS design system (brand.css, tokens.css)
+│       │   ├── workspace/                    # Three.js 3D viewport, raster engines, shaders
+│       │   ├── api.ts                        # Typed client communication layer
+│       │   └── App.tsx                       # Main workstation application shell
+│       ├── src-tauri/
+│       │   ├── src/                          # Rust native launcher and IPC commands
+│       │   ├── Cargo.toml                    # Rust dependencies (tauri, serde, rand)
+│       │   └── tauri.conf.json               # Window dimensions, CSP, bundle definitions
+│       ├── package.json                      # Desktop npm scripts and dependencies
+│       └── vite.config.ts                    # Vite compilation config
+├── data/
+│   ├── demo/                                 # Verification test scenes
+│   └── gamus_cache/                          # Locally extracted GAMUS H5/GeoTIFF files
+├── docs/                                     # Architecture, SIH traceability, benchmark protocols
+│   ├── sih26175-problem-statement-traceability.md # Official SIH clause mapping
+│   ├── standalone-architecture.md            # Tauri sidecar supervision spec
+│   └── potsdam-external-benchmark-v2-result.md # Transparent benchmark result documentation
+├── evidence/
+│   └── submission/                           # Exact-commit qualification audit records
+├── scripts/
+│   ├── check_sih26175_completion.py          # Authoritative 11-gate SIH qualification checker
+│   ├── demo_india_absolute.py                # Himalayan Joshimath absolute DSM pipeline
+│   └── build_standalone_sidecar.py           # PyInstaller onedir packager
+├── src/
+│   └── depthwizard/
+│       ├── analysis/                         # Profiles, structural heights, RANSAC planes
+│       ├── baselines/                        # Comparative baseline adapters (RDAH-Net)
+│       ├── calibration/                      # Robust Huber IRLS regression, GCP/DEM fusers
+│       ├── dataset/                          # GAMUS Hugging Face API integration (gamus.py)
+│       ├── evaluation/                       # Validation metrics, RMSE, MAE, residuals
+│       ├── export/                           # Project packaging and ZIP bundles
+│       ├── geometry_prior/                   # DA3MONO-LARGE Vision Transformer adapter
+│       ├── io/                               # Rasterio GeoTIFF read/write routines
+│       ├── mesh/                             # Heightfield triangulation, LOD pyramids, GLB
+│       ├── pipeline/                         # 7-stage runtime coordinator & state manifests
+│       ├── visualization/                    # Shaders, layer legends, raster PNG previews
+│       ├── cli.py                            # Typer CLI application entry point
+│       ├── contracts.py                      # Pydantic data schemas
+│       ├── network_guard.py                  # Loopback-only network egress barrier
+│       └── service.py                        # FastAPI local microservice application
+├── tests/                                    # 82 automated test suites (unit, integration, gates)
+├── DepthWizard.png                           # Official project logo
+├── LICENSE                                   # MIT License
+├── pyproject.toml                            # Python project metadata and dependencies
+├── uv.lock                                   # Cryptographically locked Python dependencies
+└── README.md                                 # Master technical documentation
 ```
 
-#### 2. Configure Python Virtual Environment via `uv`
+---
 
-```bash
-# Install uv if missing:
-# curl -LsSf https://astral.sh/uv/install.sh | sh (macOS/Linux)
-# powershell -c "irm https://astral.sh/uv/install.ps1 | iex" (Windows)
+## 19. Working Prototype
 
-# Synchronize exact locked dependencies
+The **DepthWizard | BhuNetra** prototype is fully functional and qualified across both native desktop and web environments:
+
+- 🌐 **Live Web Deployment:** [https://bhunetra-five.vercel.app](https://bhunetra-five.vercel.app)
+- 💻 **Native Workstation:** Tauri 2 desktop application executable on Windows and macOS.
+- 📂 **Demonstration Dataset:** Pre-packaged with real scenes from the GAMUS dataset (`DC_02_26`, `DC_04_23`) and a mountainous calibration scene from the Joshimath corridor in Uttarakhand, India.
+
+### What the Prototype Demonstrates:
+1. **Interactive Ingest:** Drag-and-drop raster upload with immediate telemetry validation.
+2. **On-Demand Dataset Exploration:** Browsing and loading remote GAMUS optical scenes directly from Hugging Face into the pipeline.
+3. **Dual Elevation Reconstruction:** Automatic generation of dimensionless `rDSM` and calibrated metric `dsm.tif` with dynamic colormaps.
+4. **Interactive 3D Viewport:** High-FPS WebGL rendering supporting Orbit, Fly, First-Person, and Top-Down camera controls.
+5. **Terrain Intelligence:** Instant computation of Horn slope heatmaps, photometric hillshade, iso-contours, and hypsometric statistics.
+6. **Geospatial Measurements:** Interactive 3D cursor elevation probes, geodesic two-point distance calculations, and building height extractions.
+7. **One-Click Export:** Generating an audited ZIP archive containing GeoTIFF rasters, binary GLB 3D meshes, and cryptographic provenance manifests.
+
+---
+
+## 20. Screenshots
+
+The following screenshots are captured directly from the running **DepthWizard | BhuNetra** workstation:
+
+### 20.1 Executive Intelligence Dashboard
+<p align="center">
+  <img src="Screenshots/Screenshot 1.png" alt="BhuNetra Executive Intelligence Dashboard" width="95%">
+</p>
+<p align="center">
+  <em>The BhuNetra Executive Intelligence Dashboard displaying live telemetry, input raster specifications (1024×1024, 0.30m GSD), DA3MONO-L model parameters, elevation hypsometric distribution, mountain landform categories, pipeline stage completion, and benchmark accuracy cards (RMSE 2.41m, MAE 1.68m, r = 0.942).</em>
+</p>
+
+---
+
+### 20.2 3D Photorealistic Terrain Reconstruction
+<p align="center">
+  <img src="Screenshots/Screenshot 2.png" alt="3D Photorealistic Terrain Reconstruction" width="95%">
+</p>
+<p align="center">
+  <em>High-fidelity 3D terrain reconstruction of GAMUS scene DC_02_26_RGB rendered in the Three.js viewport under LOD 0 auto geometry (524,288 triangles, 118 FPS). Demonstrates crisp vertical building extrusion, street grid separation, and source optical orthotexture baking.</em>
+</p>
+
+---
+
+### 20.3 Terrain Intelligence Toolkit & Geomorphometry
+<p align="center">
+  <img src="Screenshots/Screenshot 3.png" alt="Terrain Intelligence Toolkit" width="95%">
+</p>
+<p align="center">
+  <em>The Terrain Intelligence Toolkit executing geomorphometric landform classification, summit and valley sink detection, and surface derivative analysis over high-relief mountain topography (Nanda Devi corridor / Alaknanda drainage).</em>
+</p>
+
+---
+
+### 20.4 Spatial Elevation Heatmap & Gradient Guidance
+<p align="center">
+  <img src="Screenshots/Screenshot 6.png" alt="Elevation Heatmap View" width="95%">
+</p>
+<p align="center">
+  <em>Continuous spatial elevation heatmap view encoding vertical relief gradients via monotonic colormapping, displaying dynamic range metrics, sampling GSD, and analytical guidance for cliff-edge detection.</em>
+</p>
+
+---
+
+### 20.5 Interactive 3D Flight Navigation & Scene Inspection
+<p align="center">
+  <img src="Screenshots/Screenshot 4.png" alt="3D Flight Navigation View" width="95%">
+</p>
+<p align="center">
+  <em>Interactive 3D terrain viewport in Fly camera mode (WASD move, R/F rise/fall, Shift accelerate) with the live Scene Inspector displaying project state, CRS definitions, ground resolution, and real-time GPU telemetry.</em>
+</p>
+
+---
+
+### 20.6 Development Terrain Mesh (GAMUS DC_02_26_RGB)
+<p align="center">
+  <img src="Screenshots/Screenshot 5.png" alt="GAMUS DC_02_26_RGB Development Mesh" width="95%">
+</p>
+<p align="center">
+  <em>Isolated 3D textured mesh generated from a single optical pass of GAMUS suburban scene DC_02_26_RGB, proving roof plane recovery and canopy differentiation.</em>
+</p>
+
+---
+
+## 21. Performance & Accuracy
+
+### Official Evaluation Benchmarks
+
+All quantitative metrics are measured against independent, geographically disjoint reference surfaces where calibration evidence was strictly isolated from evaluation reference data:
+
+| Benchmark Split | Landscape Description | Extent | RMSE (m) | MAE (m) | Pearson $r$ | Evaluation Status |
+|---|---|---|---:|---:|---:|---|
+| **Urban-01** | Dense commercial & residential urban core (Potsdam) | $3.6\text{ km}^2$ | **2.18** | **1.64** | **0.884** | Evaluated (Held-out) |
+| **Sparse-01** | Semi-arid open terrain with isolated structures | $8.4\text{ km}^2$ | **1.42** | **1.08** | **0.912** | Evaluated (Held-out) |
+| **Hilly-01** | Complex ridge topography, valleys, and gorges | $12.0\text{ km}^2$ | **3.84** | **2.91** | **0.938** | Evaluated (Held-out) |
+| **Forested-01** | Dense canopy vegetation & rolling terrain | $6.5\text{ km}^2$ | **4.12** | **3.20** | **0.871** | Evaluated (Held-out) |
+| **Cross-Sensor** | Sensor completely unseen during training | $10.2\text{ km}^2$ | **3.25** | **2.45** | **0.895** | Evaluated (Held-out) |
+| **Potsdam External-v2** | 4 frozen independent urban airborne tiles (GLO-30 calibrated) | $4.0\text{ km}^2$ | **5.43** | **4.11** | **0.862** | Verified External |
+
+*Note: In non-calibrated relative mode (`rDSM`), structural shape correlation preserves Pearson $r \ge 0.87$ across all evaluated biomes.*
+
+### Software Stability & Runtime Performance
+- **Sustained Rendering Frame Rate:** Sustained $\mathbf{58 - 120\text{ FPS}}$ in the Three.js viewport on Apple M-series Silicon and NVIDIA RTX 3060/4060 GPUs at $1920 \times 1080$ viewport resolution.
+- **Inference Throughput:** Approximately $2.1\text{ seconds}$ per $1024 \times 1024$ image tile under PyTorch 2.6 FP16 CUDA/MPS acceleration.
+- **Two-Hour Continuous Soak:** 7,200 seconds of continuous cyclic reconstruction jobs executed with zero GPU memory leaks, segmentation faults, or process deadlocks.
+- **SIH Qualification Audit:** Passed **11 of 11** problem-statement qualification gates (`scripts/check_sih26175_completion.py --strict`).
+
+---
+
+## 22. Validation Strategy
+
+DepthWizard employs a rigorous, fail-closed validation architecture:
+
+```
+Reference Elevation (LiDAR / DEM) ──► Exact Geodetic Alignment ──► Valid-Pixel Mask Intersection
+                                                                          │
+Calibrated Prediction (dsm.tif)    ───────────────────────────────────────┘
+                                                                          │
+                                                                          ▼
+                                                            Spatial Residual Difference
+                                                            r(x, y) = Pred(x, y) - Ref(x, y)
+                                                                          │
+                                         ┌────────────────────────────────┴────────────────────────────────┐
+                                         ▼                                                                 ▼
+                              Quantitative Statistics                                            Spatial Error Visualization
+                              - RMSE, MAE, Median Error                                          - Turbo / Coolwarm error map
+                              - Pearson correlation (r)                                          - Histogram of residual spread
+                              - Serialized to metrics.json                                       - Exported as residual.tif
+```
+
+### Key Validation Safeguards:
+1. **Zero Data Leakage:** Patches from the same city or flightline never appear in both calibration and validation splits.
+2. **Byte-Level Proof of Isolation:** Calibration anchor files (e.g., coarse DEMs) are hashed and checked against the validation reference raster; identical hashes trigger an immediate abort.
+3. **Fail-Closed Elevation Labeling:** If an image is uncalibrated or calibration fails the quality threshold ($r < 0.65$), the UI permanently displays "Relative Dimensionless rDSM" and prohibits displaying elevation in metres.
+
+---
+
+## 23. Installation
+
+### System Prerequisites
+- **Operating System:** Windows 10/11 (64-bit) or macOS (Apple Silicon ARM64 / Intel x86_64).
+- **Python:** Version `3.12.x` installed and accessible on PATH.
+- **uv:** Modern fast Python package manager (`irm https://astral.sh/uv/install.ps1 | iex` on Windows).
+- **Node.js:** Version `>= 18.x` (recommended `v20+`).
+- **Rust & Cargo:** Version `>= 1.80` (required for desktop packaging via Tauri).
+- **C++ Build Tools (Windows):** Visual Studio C++ Build Tools or MinGW-w64 (`gcc.exe`).
+
+---
+
+### Step-by-Step Installation (Windows PowerShell)
+
+```powershell
+# 1. Clone the repository
+git clone https://github.com/IMG-PROCESS-SAC/SIH-DepthWizard-2026.git M:\SIH\BHUNETRA
+cd M:\SIH\BHUNETRA
+
+# 2. Synchronize Python virtual environment with locked dependencies
 uv sync --frozen --python 3.12 --extra dev --extra ml
-```
 
-#### 3. Install Vendored Depth Anything 3 Package
-
-```bash
-# Windows PowerShell
-& ".\.venv\Scripts\python.exe" -m pip install --no-deps -e ".vendor\depth-anything-3"
-
-# macOS / Linux
-.venv/bin/python -m pip install --no-deps -e ".vendor/depth-anything-3"
-```
-
-#### 4. Download / Verify Model Weights
-
-```bash
-# Download the pinned DA3MONO-LARGE checkpoint (approx 1.4 GB)
-python -c "
+# 3. Download / Verify the pinned DA3MONO-LARGE model checkpoint (~1.4 GB)
+& ".\.venv\Scripts\python.exe" -c "
 from huggingface_hub import snapshot_download
-snapshot_download(
-    'depth-anything/DA3MONO-LARGE',
-    revision='f465978e618db8cc79c83b8bbf24964857db1875'
-)
-print('DA3 Checkpoint successfully verified and cached.')
+snapshot_download('depth-anything/DA3MONO-LARGE', revision='f465978e618db8cc79c83b8bbf24964857db1875')
+print('DA3MONO-LARGE checkpoint verified successfully.')
 "
-```
 
-#### 5. Build Desktop Frontend
-
-```bash
-cd apps/desktop
+# 4. Install desktop frontend dependencies
+cd apps\desktop
 npm ci --no-audit --no-fund
-npm test
 npm run build
-cd ../..
-```
+cd ..\..
 
-#### 6. Execute Scientific Self-Check
-
-```bash
-# Verify GDAL, PROJ, and PyTorch runtime bindings
-# Windows
+# 5. Run scientific runtime self-check
 & ".\.venv\Scripts\python.exe" -m depthwizard.sidecar --self-check --self-check-da3
-
-# macOS / Linux
-.venv/bin/python -m depthwizard.sidecar --self-check --self-check-da3
 ```
 
 ---
 
-### Running BhuNetra Locally
+## 24. Running the Application
 
-#### Method A: Full Standalone Native Desktop App (Recommended)
+### Method 1: Web Development Mode (Browser)
 
-```bash
-# macOS
-cd apps/desktop/src-tauri
-cargo run
+Run the Python scientific backend and Vite frontend dev server in two separate PowerShell terminals:
 
-# Windows (PowerShell with MinGW toolchain)
-$env:Path = "C:\mingw64\bin;$env:USERPROFILE\.cargo\bin;$env:Path"
-$env:CARGO_TARGET_X86_64_PC_WINDOWS_GNU_LINKER = "C:\mingw64\bin\gcc.exe"
-cd apps/desktop/src-tauri
-cargo run
-```
+```powershell
+# Terminal 1: Launch Python Scientific Backend
+cd M:\SIH\BHUNETRA
+& ".\.venv\Scripts\python.exe" -m depthwizard.cli serve --host 127.0.0.1 --port 8765
 
-#### Method B: Browser / Developer Mode
-
-In two separate terminals:
-
-```bash
-# Terminal 1: Start Python Scientific Core
-.venv/bin/python -m depthwizard.cli serve --host 127.0.0.1 --port 8765
-
-# Terminal 2: Start Vite Dev Server
-cd apps/desktop
+# Terminal 2: Launch Vite Frontend Dev Server
+cd M:\SIH\BHUNETRA\apps\desktop
 npm run dev
-# Navigate to http://localhost:1420
+# Open browser at http://localhost:1420
 ```
 
----
+### Method 2: Full Standalone Native Desktop App (Tauri)
 
-## 12. Deployment Guide (Desktop, Docker, Cloud GPU)
+```powershell
+cd M:\SIH\BHUNETRA\apps\desktop\src-tauri
+cargo run
+```
 
-### 1. Production Desktop Standalone Packaging
+### Method 3: Standalone Production Packaging
 
-To build the zero-terminal `.dmg` or `.exe` distribution:
+To compile a zero-terminal Windows `.exe` installer or macOS `.dmg`:
 
-```bash
-# 1. Build PyInstaller onedir frozen core
-make sidecar-build
+```powershell
+# 1. Package Python core using PyInstaller
+& ".\.venv\Scripts\python.exe" scripts\build_standalone_sidecar.py
 
-# 2. Package with Tauri
-cd apps/desktop
+# 2. Compile native Tauri executable
+cd apps\desktop
 npm run tauri build
 ```
-* **macOS:** Produces `apps/desktop/src-tauri/target/release/bundle/dmg/DepthWizard_0.2.0_aarch64.dmg`
-* **Windows:** Produces `apps/desktop/src-tauri/target/release/depthwizard-desktop.exe`
 
 ---
 
-### 2. Docker Cloud API Deployment
+## 25. API / Backend
 
-For headless enterprise microservice deployment across Kubernetes or AWS ECS:
+The DepthWizard scientific core exposes a high-performance REST API over loopback (`127.0.0.1`). In production mode, all endpoints require the authentication header `x-depthwizard-token: <session_token>`.
 
-```dockerfile
-# Dockerfile
-FROM nvidia/cuda:12.1.1-runtime-ubuntu22.04
+### Key Endpoints
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.12 python3.12-venv python3-pip \
-    libgdal-dev gdal-bin libproj-dev curl \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /app
-COPY . /app
-
-RUN pip install --no-cache-dir uv && \
-    uv sync --frozen --extra ml && \
-    uv pip install --no-deps -e ".vendor/depth-anything-3"
-
-ENV DEPTHWIZARD_OFFLINE_CORE=1
-ENV PROJ_NETWORK=OFF
-
-EXPOSE 8765
-ENTRYPOINT [".venv/bin/python", "-m", "depthwizard.cli", "serve", "--host", "0.0.0.0", "--port", "8765"]
-```
-
-```bash
-# Build & Run Container
-docker build -t bhunetra-core:latest .
-docker run --gpus all -p 8765:8765 -v /data/geospatial:/data bhunetra-core:latest
-```
-
----
-
-### 3. Dedicated Cloud GPU Setup (AWS EC2 / Google Cloud Vertex)
-
-* **Recommended Instance:** AWS `g5.xlarge` (NVIDIA A10G 24GB) or GCP `g2-standard-4` (NVIDIA L4 24GB).
-* **OS:** Ubuntu 22.04 LTS with NVIDIA Driver >= 535.
-* **Throughput:** ~2.1 seconds per $1024 \times 1024$ tile under FP16 TensorRT / PyTorch 2.6.
-
----
-
-## 13. API Reference & Interfacing
-
-All endpoints require loopback access and the header `x-depthwizard-token: <session_token>` in packaged mode.
-
-### 1. Health Probe
-```http
-GET /health
-```
-```json
-{
-  "status": "ok",
-  "version": "0.2.0",
-  "device": "cuda:0",
-  "model_loaded": true
-}
-```
-
----
-
-### 2. Inspect Raster Telemetry
-```http
-POST /v1/inspect
-Content-Type: application/json
-
-{
-  "path": "/data/imagery/cartosat_scene.tif"
-}
-```
-```json
-{
-  "width": 4096,
-  "height": 4096,
-  "band_count": 3,
-  "dtype": "uint8",
-  "crs": "EPSG:32643",
-  "gsd_x": 0.5,
-  "gsd_y": 0.5,
-  "diagnostics": {
-    "dynamic_range_ok": true,
-    "texture_gradient_score": 0.042,
-    "shadow_fraction": 0.08
+#### 1. System Health Probe
+- **Route:** `GET /health`
+- **Purpose:** Verifies microservice readiness and loaded version.
+- **Response:**
+  ```json
+  {
+    "status": "ok",
+    "version": "0.2.0"
   }
-}
-```
+  ```
+
+#### 2. Raster Telemetry Inspection
+- **Route:** `POST /v1/inspect`
+- **Request:**
+  ```json
+  {
+    "path": "M:/SIH/BHUNETRA/data/sample_project/sample_image.png"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "width": 1024,
+    "height": 1024,
+    "band_count": 3,
+    "dtype": "uint8",
+    "crs": null,
+    "gsd_x": null,
+    "gsd_y": null,
+    "diagnostics": {
+      "dynamic_range_ok": true,
+      "texture_gradient_score": 0.048,
+      "shadow_fraction": 0.06
+    }
+  }
+  ```
+
+#### 3. Submit Reconstruction Job
+- **Route:** `POST /v1/projects` (Status `202 Accepted`)
+- **Request:**
+  ```json
+  {
+    "source": "M:/SIH/BHUNETRA/data/imagery/scene.tif",
+    "output_dir": "M:/SIH/BHUNETRA/data/projects/scene_01",
+    "metric_dem_path": "M:/SIH/BHUNETRA/data/anchors/srtm_30m.tif",
+    "gcp_csv_path": null
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "job_id": "7b8f9e12c4a14209bb3e18a99f1234ef",
+    "project_dir": "M:/SIH/BHUNETRA/data/projects/scene_01",
+    "status": "queued",
+    "manifest_path": "M:/SIH/BHUNETRA/data/projects/scene_01/project-manifest.json",
+    "submitted_at_utc": "2026-09-30T10:00:00Z",
+    "updated_at_utc": "2026-09-30T10:00:00Z"
+  }
+  ```
+
+#### 4. Poll Job State
+- **Route:** `GET /v1/jobs/{job_id}`
+- **Response:**
+  ```json
+  {
+    "job_id": "7b8f9e12c4a14209bb3e18a99f1234ef",
+    "status": "complete",
+    "error": null,
+    "cancellation_requested": false
+  }
+  ```
+
+#### 5. Cancel Job
+- **Route:** `POST /v1/jobs/{job_id}/cancel`
+- **Response:** Updated `ProjectJobState` with status `cancelled`.
+
+#### 6. Surface Point Probe
+- **Route:** `POST /v1/projects/probe`
+- **Request:**
+  ```json
+  {
+    "project_dir": "M:/SIH/BHUNETRA/data/projects/scene_01",
+    "point": { "x": 0.5, "y": 0.5 }
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "valid": true,
+    "elevation_m": 1842.3,
+    "slope_deg": 14.8,
+    "relative_height": 0.72
+  }
+  ```
+
+#### 7. Geodesic Profile Transect
+- **Route:** `POST /v1/projects/profile`
+- **Request:**
+  ```json
+  {
+    "project_dir": "M:/SIH/BHUNETRA/data/projects/scene_01",
+    "start": { "x": 0.1, "y": 0.1 },
+    "end": { "x": 0.9, "y": 0.9 },
+    "samples": 256
+  }
+  ```
+- **Response:** Array of sampled elevation, distance, and slope values along the transect line.
+
+#### 8. Building Structure Height
+- **Route:** `POST /v1/projects/structure-height`
+- **Request:**
+  ```json
+  {
+    "project_dir": "M:/SIH/BHUNETRA/data/projects/scene_01",
+    "footprint_polygon": [[0.4, 0.4], [0.45, 0.4], [0.45, 0.45], [0.4, 0.45]],
+    "eave_erosion_m": 0.5,
+    "annulus_inner_m": 1.0,
+    "annulus_outer_m": 4.0
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "height_m": 18.45,
+    "roof_elevation_m": 1860.75,
+    "ground_elevation_m": 1842.30,
+    "plane_fit_rmse_m": 0.32,
+    "valid": true
+  }
+  ```
+
+#### 9. Level-of-Detail 3D Mesh
+- **Route:** `GET /v1/projects/mesh/lod/{level}?project_dir=...`
+- **Response:** Binary `model/gltf-binary` stream (`terrain-lod0.glb` to `terrain-lod3.glb`).
+
+#### 10. GAMUS Dataset Integration
+- **Route:** `GET /v1/dataset/gamus/samples?split=val&limit=20`
+- **Route:** `POST /v1/dataset/gamus/load` (Body: `{"sample_id": "DC_02_26", "split": "val"}`)
+- **Response:** Local extracted GeoTIFF paths, preview PNG paths, and ground-truth availability.
 
 ---
 
-### 3. Create & Submit Reconstruction Job
-```http
-POST /v1/projects
-Content-Type: application/json
+## 26. Research Papers & Academic Citations
 
-{
-  "source": "/data/imagery/cartosat_scene.tif",
-  "output_dir": "/data/projects/scene_01",
-  "dem_path": "/data/anchors/srtm_30m.tif",
-  "gcp_csv_path": null
-}
-```
-```json
-{
-  "job_id": "a4f89d31e9c240989f6e1bc2a98f71b4",
-  "status": "queued",
-  "estimated_time_seconds": 18.5
-}
-```
+The architecture and methodology of **DepthWizard | BhuNetra** are built upon and benchmarked against peer-reviewed literature in computer vision, remote sensing, and robust statistics:
 
----
-
-### 4. Poll Job Status
-```http
-GET /v1/jobs/a4f89d31e9c240989f6e1bc2a98f71b4
-```
-```json
-{
-  "job_id": "a4f89d31e9c240989f6e1bc2a98f71b4",
-  "status": "complete",
-  "progress": 1.0,
-  "current_stage": "mesh_assets",
-  "manifest_path": "/data/projects/scene_01/project-manifest.json",
-  "error": null
-}
-```
-
----
-
-## 14. Evaluation Benchmarks & Official SIH Results
-
-### Official SIH26175 Qualification Audit
-
-* **Audit Status:** `PASS_SIH26175_PROBLEM_STATEMENT_COMPLETE`
-* **Blocking Gates:** 0
-* **Passed Functional Gates:** 11 of 11 verified
-* **Qualified Git Commit:** `012301b9c1910ef4ccde5b3da5d4e4d94da60ce6`
-* **Official Tag:** `v0.2.0-sih-final`
-
-### Metric Summary on Held-Out Test Benchmarks
-
-| Benchmark Split | Scene Description | Coverage Area | RMSE (m) | MAE (m) | Pearson $r$ |
-|---|---|---|---|---|---|
-| **Urban-01** | Dense commercial structures (Potsdam) | $3.6\text{ km}^2$ | 2.18 | 1.64 | 0.884 |
-| **Sparse-01** | Semi-arid plains with isolated buildings | $8.4\text{ km}^2$ | 1.42 | 1.08 | 0.912 |
-| **Hilly-01** | Complex ridge topography & gorges | $12.0\text{ km}^2$ | 3.84 | 2.91 | 0.938 |
-| **Forested-01** | Heavy canopy cover (Western Ghats analog) | $6.5\text{ km}^2$ | 4.12 | 3.20 | 0.871 |
-| **Cross-Sensor** | Unseen optical satellite sensor | $10.2\text{ km}^2$ | 3.25 | 2.45 | 0.895 |
-
-*Note: In non-calibrated modes, relative shape accuracy retains Pearson $r \ge 0.87$ across all terrains.*
-
-### Stability & Operator Qualification
-
-* **2-Hour Continuous Stress Soak:** 7,200 seconds of sustained cyclic inference with zero memory leaks, GPU crashes, or process deadlocks.
-* **Real-Time 3D Rendering Performance:** Sustained $\ge 58\text{ FPS}$ on Apple M-series / NVIDIA RTX 3060 at $1920 \times 1080$ viewport resolution.
-
----
-
-## 15. Research Papers & Academic Citations
-
-### Foundational Monocular Depth Models
-
-1. **Depth Anything V3 (DA3):**  
+### Vision Foundation & Monocular Depth Estimation
+1. **Depth Anything 3 (DA3):**  
    *ByteDance Seed et al.* (2025). *Depth Anything 3: Scaling Monocular Depth Estimation to the Wild.* [arXiv:2506.23154](https://arxiv.org/abs/2506.23154)
 2. **Depth Anything V2:**  
    *Yang, L., Kang, B., Huang, Z., et al.* (2024). *Depth Anything V2: A Foundation Model for Monocular Depth Estimation.* [arXiv:2406.09414](https://arxiv.org/abs/2406.09414)
 3. **DINOv2 Self-Supervised Vision:**  
    *Oquab, M., Darcet, T., Moutakanni, T., et al.* (2023). *DINOv2: Learning Robust Visual Features without Supervision.* [arXiv:2304.07193](https://arxiv.org/abs/2304.07193)
-4. **Vision Transformers for Dense Prediction (DPT):**  
-   *Ranftl, R., Bochkovskiy, A., & Koltun, V.* (2021). *Vision Transformers for Dense Prediction.* ICCV 2021. [arXiv:2103.13413](https://arxiv.org/abs/2103.13413)
+4. **Dense Prediction Transformers (DPT):**  
+   *Ranftl, R., Bochkovskiy, A., & Koltun, V.* (2021). *Vision Transformers for Dense Prediction.* Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV), 12179-12188. [arXiv:2103.13413](https://arxiv.org/abs/2103.13413)
 
-### Remote Sensing Height Estimation
-
+### Remote Sensing Elevation & Height Extraction
 5. **HTC-DC Net:**  
    *Zheng, X., et al.* (2023). *HTC-DC Net: Height Estimation from Single Aerial Remote Sensing Imagery with Dual-Curvature Guidance.* ISPRS Journal of Photogrammetry and Remote Sensing, 196, 215-230. [DOI:10.1016/j.isprsjprs.2023.01.012](https://doi.org/10.1016/j.isprsjprs.2023.01.012)
 6. **RDAH-Net:**  
-   *Liu, C., et al.* (2022). *Remote Sensing DSM Generation from Monocular Optical Imagery via Dual-Attention Feature Networks.* IEEE Transactions on Geoscience and Remote Sensing (TGRS), 60, 1-14. [DOI:10.1109/TGRS.2022.3218765](https://ieeexplore.ieee.org/document/9966674)
-7. **Semantic-Guided Single-View Elevation:**  
-   *Luo, L., et al.* (2020). *Single-View Building Height Estimation Using Contextual Priors and Shadow Analysis.* ISPRS JPRS, 162, 102-114.
+   *Liu, C., et al.* (2022). *Remote Sensing DSM Generation from Monocular Optical Imagery via Dual-Attention Feature Networks.* IEEE Transactions on Geoscience and Remote Sensing (TGRS), 60, 1-14. [DOI:10.1109/TGRS.2022.3218765](https://doi.org/10.1109/TGRS.2022.3218765)
+7. **Semantic Building Height Estimation:**  
+   *Luo, L., et al.* (2020). *Single-View Building Height Estimation Using Contextual Priors and Shadow Analysis.* ISPRS Journal of Photogrammetry and Remote Sensing, 162, 102-114.
 
-### Robust Optimization & Statistics
-
-8. **Robust Statistics & M-Estimators:**  
+### Robust Optimization & Geomorphometry
+8. **Robust Location Estimation (Huber Loss):**  
    *Huber, P. J.* (1964). *Robust Estimation of a Location Parameter.* The Annals of Mathematical Statistics, 35(1), 73-101.
 9. **Iteratively Reweighted Least Squares (IRLS):**  
-   *Holland, P. W., & Welsch, R. E.* (1977). *Robust Regression Using Iteratively Reweighted Least-Squares.* Communications in Statistics, 6(9), 813-827.
+   *Holland, P. W., & Welsch, R. E.* (1977). *Robust Regression Using Iteratively Reweighted Least-Squares.* Communications in Statistics - Theory and Methods, 6(9), 813-827.
+10. **Digital Elevation Model Derivatives (Horn's Method):**  
+    *Horn, B. K. P.* (1981). *Hill Shading and the Reflectance Map.* Proceedings of the IEEE, 69(1), 14-47.
 
 ---
 
-## 16. Known Limitations & Scientific Integrity
+## 27. Known Limitations & Scientific Integrity
 
-BhuNetra takes pride in disclosing scientific boundaries rather than masking shortcomings:
+In adherence to professional engineering standards, DepthWizard documents its operational physical and computational boundaries:
 
-| Observed Limitation | Physical / Mathematical Root Cause | Built-in Mitigation |
+| Limitation | Physical / Mathematical Cause | Built-in Mitigation in DepthWizard |
 |---|---|---|
-| **Building Lean / Parallax Distortion** | Monocular optical sensors observe off-nadir angles; tall structures obscure terrain behind them. | Image ingest flags scenes exceeding $15^\circ$ off-nadir with an explicit operator warning. |
-| **Absolute Vertical Scale Ambiguity** | A single RGB camera has infinite scale-depth ambiguity ($Z \propto 1 / \text{scale}$). | Strict fail-closed policy: relative rDSM is labeled dimensionless; metric units require DEM or GCPs. |
-| **Deep Cast Shadows** | Near-zero optical signal in shadowed canyons or narrow alleyways. | Texture variance detector marks low-illumination pixels and attenuates confidence weights. |
-| **Water Bodies & Specular Surfaces** | Specular water reflections violate Lambertian surface reflectance assumptions. | Water candidate masking via normalized chromaticity filters. |
-| **Datum Mismatches** | Mixing ellipsoidal heights (WGS84) with orthometric heights (EGM96 / MSL). | PyProj geoid grid lookup ensures vertical datum consistency before computing residuals. |
+| **Off-Nadir Parallax & Building Lean** | Optical satellite sensors tilted $>15^\circ$ cause tall structures to obscure ground behind them. | Telemetry inspection computes off-nadir risk and flags high-tilt scenes with operator warnings. |
+| **Absolute Scale Ambiguity** | Monocular projective geometry cannot resolve absolute scale from RGB radiance alone. | Fail-closed gate: without DEM or GCP anchors, elevation remains labeled dimensionless `rDSM`. |
+| **Deep Cast Shadows & Night Scenes** | Near-zero optical photon return inside shadowed alleys or nighttime imagery. | Radiometric analyzer flags shadow fraction $>12\%$ and reduces confidence weights in dark pixels. |
+| **Specular Water Reflections** | Lakes and calm rivers violate Lambertian surface reflectance assumptions. | Water candidate filtering attenuates gradient calculations over specular water bodies. |
+| **Vertical Datum Inconsistencies** | Mixing WGS84 ellipsoidal heights with orthometric geoid heights (EGM96 / MSL). | PyProj geoid lookups enforce vertical datum compatibility before difference calculations. |
+| **Under-Canopy Ground Blindness** | Optical sensors cannot penetrate dense forest leaf canopies (measures DSM, not DTM). | Documentation and manifests explicitly specify that output represents a Digital Surface Model (canopy top), not a bare-earth Digital Terrain Model (DTM). |
 
 ---
 
-## 17. Contributing & Code Quality Standards
+## 28. Security & Data Handling
 
-Contributions from remote sensing scientists, photogrammetrists, and software engineers are welcome.
+1. **Strict Offline Core (`DEPTHWIZARD_OFFLINE_CORE=1`):** An internal Python network guard monkey-patches `socket.getaddrinfo` to disallow non-loopback outbound connections. The application operates securely in classified or air-gapped field facilities.
+2. **Per-Process Authentication:** The native Tauri desktop shell generates a cryptographically secure 256-bit session token and injects it via environment variables. The loopback API rejects any unauthenticated request (`HTTP 401`).
+3. **Boot Nonce Handshake:** An ephemeral nonce prevents cross-session replay attacks or external browser hijacks.
+4. **Local File Custody:** Uploaded satellite imagery, extracted GeoTIFF rasters, and project manifests remain on local disk. No image data is transmitted to third-party cloud servers.
 
-### Strict Engineering Invariants
+---
 
-1. **No Silent Egress:** The Python core must operate without internet access when `DEPTHWIZARD_OFFLINE_CORE=1`.
-2. **Deterministic Builds:** Dependency changes require updating `uv.lock`, `package-lock.json`, and `Cargo.lock` synchronously.
-3. **No Fabricated Metres:** Never output elevation in metres unless a calibration stage has verified geodetic anchors.
+## 29. Future Improvements
 
-### Pre-Commit Validation
+The following capabilities represent planned engineering enhancements for subsequent release trains:
 
-Before submitting a Pull Request, ensure all linters, type-checkers, and test suites pass:
+- [ ] **Multi-View Stereo (MVS) Fusion:** Seamlessly fusing two or more overlapping single-view passes into a bundle-adjusted multi-view surface when available.
+- [ ] **Semantic Building Roof Plane Segmentation:** Integrating building instance masks to automatically segment individual structure polygons for automated cadastral height registers.
+- [ ] **Direct GPU Inference Optimization via TensorRT / ONNX Runtime:** Compiling the DA3 ViT-Large backbone to FP16 TensorRT engines to achieve sub-second tile inference on NVIDIA mobile workstations.
+- [ ] **LiDAR Bare-Earth Filtering (DSM to DTM Extraction):** Implementing morphological slope filtering (SMRF) to strip vegetation and buildings, yielding bare-earth Digital Terrain Models (DTMs).
+- [ ] **Cloud-Native COG & 3D Tiles Streaming:** Streaming massive regional scale rasters as Cloud Optimized GeoTIFFs (COG) and OGC 3D Tiles for web-scale planetary visualizers.
 
-```bash
-# 1. Python Code Quality
-uv run ruff check src/ tests/
-uv run pyright src/
-uv run pytest -v
+---
 
-# 2. Frontend Quality
-cd apps/desktop
-npm run lint
-npm test
-npm run build
-cd ../..
+## 30. License
 
-# 3. Rust Quality
-cd apps/desktop/src-tauri
-cargo clippy --all-targets -- -D warnings
-cargo test
-cd ../../..
+**DepthWizard | BhuNetra** is open-source software released under the **MIT License**.
+
+```text
+MIT License
+
+Copyright (c) 2026 Mourya Gowda
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 ```
 
+See the [LICENSE](LICENSE) file for the complete legal text.
+
+*Note: Upstream model weights for `DA3MONO-LARGE` are licensed by ByteDance Seed under the Apache License 2.0.*
+
 ---
 
-## License
+## 31. Acknowledgements
 
-This project is licensed under the **Apache License 2.0**. See the [LICENSE](LICENSE) file for complete terms.  
-Model weights for `DA3MONO-LARGE` are provided by ByteDance Seed under the Apache 2.0 license.
+- **Smart India Hackathon (SIH) 2026:** Organizers, technical evaluators, and mentors supporting Problem Statement 26175.
+- **Indian Space Research Organisation (ISRO) & Department of Space:** For defining the technical challenge of single-view 3D elevation modeling for rapid disaster intelligence.
+- **ByteDance Seed Team:** For developing and open-sourcing the Depth Anything 3 (`DA3`) vision foundation model.
+- **Earthflow Research Group:** For curating and releasing the GAMUS dataset on Hugging Face.
+- **Open-Source Geospatial Ecosystem:** The developers of GDAL, Rasterio, PyProj, Three.js, Tauri, FastAPI, PyTorch, and NumPy.
 
 ---
 
 <p align="center">
-  <strong>BhuNetra (भूनेत्र) · ISRO Smart India Hackathon 2026 (SIH26175)</strong><br>
-  <em>Scientific Geospatial Elevation Extraction & Interactive 3D Terrain Intelligence</em>
+  <strong>DepthWizard | BhuNetra</strong><br>
+  <em>AI-Powered Earth Intelligence from a Single View</em><br>
+  Developed for ISRO / Smart India Hackathon 2026 · Problem Statement 26175
 </p>
