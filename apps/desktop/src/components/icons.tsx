@@ -31,37 +31,17 @@ export const AiReconstructionIcon = () => <Icon><polygon points="13 2 3 14 12 14
 export const AccuracyIcon = () => <Icon><path d="M18 20V10M12 20V4M6 20v-6"/><path d="M3 20h18"/></Icon>;
 export const ElevationModelIcon = () => <Icon><path d="M2 20h20"/><path d="m4 17 6-10 4 6 2-3 4 7"/></Icon>;
 
-export const BhuNetraLogo = ({ size = 26 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="BhuNetra Logo">
-    <defs>
-      <linearGradient id="bnGlobe" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#06b6d4" />
-        <stop offset="50%" stopColor="#3b82f6" />
-        <stop offset="100%" stopColor="#8b5cf6" />
-      </linearGradient>
-      <linearGradient id="bnContour" x1="16" y1="20" x2="48" y2="44" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#38bdf8" />
-        <stop offset="100%" stopColor="#a855f7" />
-      </linearGradient>
-      <filter id="bnGlow" x="-20%" y="-20%" width="140%" height="140%">
-        <feGaussianBlur stdDeviation="3" result="blur" />
-        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-      </filter>
-    </defs>
-    {/* Outer Orbital / Geo-ring */}
-    <ellipse cx="32" cy="32" rx="27" ry="14" transform="rotate(-28 32 32)" stroke="#38bdf8" strokeWidth="1.8" strokeDasharray="3 3" opacity="0.6" />
-    {/* Earth / Sensor Eye Iris Contour */}
-    <circle cx="32" cy="32" r="22" stroke="url(#bnGlobe)" strokeWidth="2.5" />
-    {/* Inner Elevation Contour Lines */}
-    <path d="M16 35 C20 25, 28 22, 34 26 C40 30, 44 24, 48 28" stroke="url(#bnContour)" strokeWidth="2" strokeLinecap="round" />
-    <path d="M18 41 C24 34, 30 33, 36 37 C42 41, 46 38, 47 40" stroke="#38bdf8" strokeWidth="1.8" strokeLinecap="round" opacity="0.85" />
-    <path d="M22 47 C26 43, 32 42, 38 45 C41 46, 43 45, 44 46" stroke="#818cf8" strokeWidth="1.5" strokeLinecap="round" opacity="0.7" />
-    {/* Central Elevation Anchor / Vision Focal Point */}
-    <circle cx="32" cy="32" r="4.5" fill="#38bdf8" filter="url(#bnGlow)" />
-    <circle cx="32" cy="32" r="2" fill="#ffffff" />
-    {/* Satellite Node on Orbit */}
-    <circle cx="53" cy="20" r="3" fill="#00f2fe" filter="url(#bnGlow)" />
-    <line x1="51" y1="18" x2="55" y2="22" stroke="#ffffff" strokeWidth="1.2" />
-  </svg>
+export const BhuNetraLogo = ({ size = 26, className = "" }: { size?: number; className?: string }) => (
+  <img
+    src="/depthwizard-mark.png"
+    alt="DepthWizard Logo"
+    width={size}
+    height={size}
+    className={className}
+    style={{ objectFit: "contain", verticalAlign: "middle" }}
+  />
 );
+
+export const DepthWizardLogo = BhuNetraLogo;
+
 

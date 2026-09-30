@@ -1,0 +1,165 @@
+{
+  "artifacts": {
+    "provenance": {
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_10_30_RGB_project\\provenance.json",
+      "semantics": "project_processing_provenance",
+      "sha256": "d4b0d5559fb6d498970a0719a370423a5f9d3da37ddbfbe14aea9a26cb39a091",
+      "units": null
+    },
+    "rdsm": {
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_10_30_RGB_project\\products\\rdsm.tif",
+      "semantics": "dimensionless_relative_surface_height",
+      "sha256": "721c5f2497445acf17ef253a7a9e7bcfad6bb6476e0828a35fdc29dbb1079588",
+      "units": "relative"
+    }
+  },
+  "created_at_utc": "2026-09-29T15:56:54.460124+00:00",
+  "errors": [],
+  "estimator": {
+    "evidence": [
+      {
+        "branch_id": "DepthWizard-V4-confidence-gated-v2",
+        "evidence_id": "potsdam-external-v2:3b1ecb2ae9b559d84cc2233af25887e05575889bdbd7b57bd2568b7e98bc7118",
+        "independently_evaluated": true,
+        "promotion_passed": false,
+        "summary": "Frozen V4 was slightly worse than independently calibrated DA3 in aggregate and violated the per-tile non-degradation criterion."
+      }
+    ],
+    "geometry_pipeline_revision": "scene-global-affine-mosaic-v2",
+    "reason": "calibrated DA3 retained because no learned branch has independently satisfied the production promotion contract",
+    "selected_model_id": "DA3MONO-LARGE",
+    "selected_path": "calibrated_da3"
+  },
+  "geometry_config_sha256": "dab7dcc9596f305f284b417c88c738f550d854ce7fa1028ae9dc4323f21ae6ad",
+  "input_kind": "non_georeferenced",
+  "job_id": "d7e3a68e9a1d4baaa5703d13ae3854d3",
+  "project_id": "b24a382f1176414a84dc8221e9602cd9",
+  "run_config_sha256": "2ab0341f6dff7e39093650d45fc9ebac254255674fcd75a8cdc6969d9a7f9701",
+  "schema_version": 2,
+  "source_path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_10_30_RGB.tif",
+  "source_sha256": "4dbc72c2fae02b35cef2a46c867b7e8c1feeb39f02bc662840c5a1ec972f3a45",
+  "stages": {
+    "calibration": {
+      "artifacts": {},
+      "completed_at_utc": "2026-09-29T15:57:12.480759+00:00",
+      "details": {
+        "metric_claim": false,
+        "reason": "non_georeferenced_input"
+      },
+      "started_at_utc": "2026-09-29T15:57:12.480759+00:00",
+      "status": "skipped",
+      "updated_at_utc": "2026-09-29T15:57:12.480759+00:00"
+    },
+    "complete": {
+      "artifacts": {},
+      "completed_at_utc": "2026-09-29T15:57:12.494595+00:00",
+      "details": {},
+      "started_at_utc": "2026-09-29T15:57:12.494595+00:00",
+      "status": "completed",
+      "updated_at_utc": "2026-09-29T15:57:12.494595+00:00"
+    },
+    "export": {
+      "artifacts": {
+        "provenance": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_10_30_RGB_project\\provenance.json",
+        "rdsm": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_10_30_RGB_project\\products\\rdsm.tif"
+      },
+      "completed_at_utc": "2026-09-29T15:57:12.491603+00:00",
+      "details": {
+        "elevation_units": "relative",
+        "metric_claim": false,
+        "source_files_overwritten": false
+      },
+      "started_at_utc": "2026-09-29T15:57:12.491603+00:00",
+      "status": "completed",
+      "updated_at_utc": "2026-09-29T15:57:12.491603+00:00"
+    },
+    "geometry": {
+      "artifacts": {
+        "rdsm": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_10_30_RGB_project\\products\\rdsm.tif"
+      },
+      "completed_at_utc": "2026-09-29T15:57:12.477788+00:00",
+      "details": {
+        "estimator_path": "calibrated_da3",
+        "foundation_model_id": "DA3MONO-LARGE",
+        "harmonized_tiles": 0,
+        "model_id": "DA3MONO-LARGE",
+        "normalization": {
+          "high": [
+            230.0,
+            229.0,
+            229.0
+          ],
+          "high_percentile": 99.0,
+          "low": [
+            4.0,
+            1.0,
+            3.0
+          ],
+          "low_percentile": 1.0
+        },
+        "tile_count": 1,
+        "valid_pixel_fraction": 1.0
+      },
+      "elapsed_seconds": 17.729265900001337,
+      "started_at_utc": "2026-09-29T15:56:54.748408+00:00",
+      "status": "completed",
+      "updated_at_utc": "2026-09-29T15:57:12.477788+00:00"
+    },
+    "ingest": {
+      "artifacts": {},
+      "completed_at_utc": "2026-09-29T15:56:54.746394+00:00",
+      "details": {
+        "quality_assessment": {
+          "assessment_limitations": [
+            "Cloud and shadow fractions are radiometric candidates, not semantic masks",
+            "Building lean cannot be inferred reliably without sensor geometry or stereo evidence"
+          ],
+          "bright_low_chroma_candidate_fraction": 0.030269622802734375,
+          "deep_shadow_candidate_fraction": 0.1269550323486328,
+          "flags": [],
+          "off_nadir_degrees": null,
+          "saturation_fraction": 0.00435638427734375,
+          "status": "pass",
+          "texture_gradient_score": 0.02702702702702703
+        },
+        "raster": {
+          "count": 3,
+          "crs": null,
+          "dtype": "uint8",
+          "elevation_reference": "unknown",
+          "ground_sample_distance_x": null,
+          "ground_sample_distance_y": null,
+          "height": 1024,
+          "nodata": null,
+          "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_10_30_RGB.tif",
+          "quality": {
+            "assessment_limitations": [
+              "Cloud and shadow fractions are radiometric candidates, not semantic masks",
+              "Building lean cannot be inferred reliably without sensor geometry or stereo evidence"
+            ],
+            "bright_low_chroma_candidate_fraction": 0.030269622802734375,
+            "deep_shadow_candidate_fraction": 0.1269550323486328,
+            "flags": [],
+            "off_nadir_degrees": null,
+            "saturation_fraction": 0.00435638427734375,
+            "status": "pass",
+            "texture_gradient_score": 0.02702702702702703
+          },
+          "transform": null,
+          "valid_data_fraction": 1.0,
+          "vertical_crs": null,
+          "vertical_datum": null,
+          "width": 1024
+        }
+      },
+      "started_at_utc": "2026-09-29T15:56:54.743869+00:00",
+      "status": "completed",
+      "updated_at_utc": "2026-09-29T15:56:54.746394+00:00"
+    }
+  },
+  "status": "complete",
+  "updated_at_utc": "2026-09-29T15:57:12.497885+00:00",
+  "warnings": [
+    "selected geometry path emitted no native confidence raster; no confidence values were fabricated"
+  ]
+}

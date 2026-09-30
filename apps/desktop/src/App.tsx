@@ -234,7 +234,7 @@ function reopenedJobState(manifest: ProjectManifest, projectDir: string): Projec
 export function App() {
   const demoMode = new URLSearchParams(window.location.search).get("demo") === "1";
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [activeTool, setActiveTool] = useState("Terrain");
+  const [activeTool, setActiveTool] = useState("Dashboard");
   const [activeView, setActiveView] = useState<(typeof views)[number]>("Optical");
   const [cameraMode, setCameraMode] = useState<CameraMode>("orbit");
   const [activeLayer, setActiveLayer] = useState<(typeof layers)[number]>("Texture");
@@ -771,7 +771,7 @@ export function App() {
     return Number.isFinite(value) && value > 0 ? value : undefined;
   })();
 
-  const loadExistingProject = async (selectedDir: string) => {
+  const loadExistingProject = async (selectedDir: string, navigateToTool?: string) => {
     setImportError(null);
     setPreviewError(null);
     setOpeningProject(true);
@@ -812,7 +812,9 @@ export function App() {
       setGcpEvidence(null);
       setValidationEvidence(null);
       setRasterViewState(DEFAULT_RASTER_VIEW_STATE);
-      setActiveTool("Project");
+      if (navigateToTool) {
+        setActiveTool(navigateToTool);
+      }
       setActiveLayer(manifest.artifacts.dsm || manifest.artifacts.rdsm ? "Contours" : "Texture");
       setActiveView(manifest.artifacts.dsm || manifest.artifacts.rdsm ? "DSM" : "Optical");
       rememberProject(selectedDir);
@@ -824,19 +826,23 @@ export function App() {
     }
   };
 
-  const handleLoadDemoProject = async () => {
+  const handleLoadDemoProject = async (navigateToTerrain = false) => {
     setImportError(null);
     try {
       const demoResult = await loadDemoProject();
       await loadExistingProject(demoResult.project_dir);
-      setActiveTool("Terrain");
-      setActiveView("3D Terrain");
-      setActiveLayer("Texture");
+      if (navigateToTerrain) {
+        setActiveTool("Terrain");
+        setActiveView("3D Terrain");
+        setActiveLayer("Texture");
+      }
     } catch {
       await loadExistingProject("M:/SIH/BHUNETRA/data/sample_project");
-      setActiveTool("Terrain");
-      setActiveView("3D Terrain");
-      setActiveLayer("Texture");
+      if (navigateToTerrain) {
+        setActiveTool("Terrain");
+        setActiveView("3D Terrain");
+        setActiveLayer("Texture");
+      }
     }
   };
 
@@ -844,7 +850,7 @@ export function App() {
     setImportError(null);
     try {
       if (!projectMesh) {
-        await handleLoadDemoProject();
+        await handleLoadDemoProject(true);
       }
       setActiveTool("Terrain");
       setActiveView("3D Terrain");
@@ -856,7 +862,7 @@ export function App() {
 
   useEffect(() => {
     if (!metadata && !projectDir && !projectJob && !demoMode) {
-      void handleLoadDemoProject();
+      void handleLoadDemoProject(false);
     }
   }, []);
 
@@ -866,7 +872,7 @@ export function App() {
       const result = await loadGamusSample(sampleId, "val");
       setGamusSampleLoaded(sampleId);
       if (result.project_dir) {
-        await loadExistingProject(result.project_dir);
+        await loadExistingProject(result.project_dir, "Terrain");
         setActiveTool("Terrain");
         setActiveView("3D Terrain");
         setActiveLayer("Texture");
@@ -879,7 +885,7 @@ export function App() {
       resetAnalysis();
       setMetadata(nextMetadata);
       setSourceAvailable(true);
-      const projDir = `M:/SIH/BHUNETRA/data/gamus_cache/${sampleId}_RGB_project`;
+      const projDir = `/projects/${sampleId}_project`;
       setProjectDir(projDir);
       setSubmittingProject(true);
       try {
@@ -891,8 +897,8 @@ export function App() {
         setProjectJob(nextJob);
         rememberProject(projDir);
       } catch {
-        // In web / offline mode, load demo project backing with sample metadata
-        await loadExistingProject("M:/SIH/BHUNETRA/data/sample_project");
+        // In web / offline mode, load project directly from /projects/
+        await loadExistingProject(projDir, "Terrain");
       }
       setRasterViewState(DEFAULT_RASTER_VIEW_STATE);
       setActiveTool("Terrain");
@@ -932,7 +938,7 @@ export function App() {
         "Enter BhuNetra project directory path (e.g. M:\\SIH\\BHUNETRA\\data\\sample_project):",
       );
       if (!selectedDir) return;
-      await loadExistingProject(selectedDir);
+      await loadExistingProject(selectedDir, "Projects");
     } catch (error) {
       setImportError(error instanceof Error ? error.message : "Unable to open project folder picker");
     }
@@ -1611,13 +1617,6 @@ export function App() {
         <div className="dw-top-actions">
           <button
             className="dw-btn"
-            onClick={() => setDatasetExplorerOpen(true)}
-            title="Connect and explore Hugging Face earthflow/GAMUS dataset"
-          >
-            <DatasetIcon /> Dataset
-          </button>
-          <button
-            className="dw-btn"
             onClick={() => setEvaluatorOpen(true)}
             title="Launch SIH26175 Evaluator Mode Walkthrough"
           >
@@ -1642,7 +1641,7 @@ export function App() {
                   <summary className="dw-btn">Recent</summary>
                   <div className="dw-recent-menu">
                     {recentProjects.map((path) => (
-                      <button key={path} type="button" onClick={() => void loadExistingProject(path)} title={path}>
+                      <button key={path} type="button" onClick={() => void loadExistingProject(path, "Projects")} title={path}>
                         <span>{fileName(path)}</span>
                         <small>{path}</small>
                       </button>
@@ -1652,9 +1651,7 @@ export function App() {
               )}
             </>
           )}
-          <button className="dw-btn" onClick={() => void importImagery()} disabled={importing || processing || validatingReference || buildingMesh || exporting}>
-            <UploadIcon /> {importing ? "Inspecting…" : "Import imagery"}
-          </button>
+
           {!demoMode && metadata && !projectDir && (
             <button className="dw-btn dw-btn--primary" onClick={() => void reconstruct()} disabled={submittingProject}>
               {submittingProject ? "Starting…" : "Reconstruct"}
@@ -1912,7 +1909,7 @@ export function App() {
               manifest={projectManifest}
               recentProjects={recentProjects}
               onOpenProject={() => void openProject()}
-              onLoadProject={(path) => void loadExistingProject(path)}
+              onLoadProject={(path) => void loadExistingProject(path, "Projects")}
               onImportImagery={() => void importImagery()}
             />
           )}
@@ -2228,7 +2225,7 @@ export function App() {
                     {!metadata && !projectDir && !processing ? (
                       <div className="bn-landing-container">
                         <div className="bn-landing-logo-ring">
-                          <BhuNetraLogo size={52} />
+                          <BhuNetraLogo size={104} />
                         </div>
                         <h1 className="bn-landing-headline">BhuNetra</h1>
                         <div className="bn-landing-tagline">AI-Powered Earth Intelligence from a Single View</div>

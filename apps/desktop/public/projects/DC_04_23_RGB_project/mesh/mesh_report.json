@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "product": "textured_terrain_lod",
+  "source_rdsm": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\products\\rdsm.tif",
+  "texture": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB.tif",
+  "crs": null,
+  "gsd_x": 1.0,
+  "gsd_y": 1.0,
+  "spacing_semantics": "relative_grid_units_per_pixel",
+  "valid_fraction": 1.0,
+  "vertical_scale": 1.5,
+  "vertical_scale_semantics": "visualization_only_for_dimensionless_rdsm",
+  "wall_time_seconds": 2.2991909999982454,
+  "lods": [
+    {
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\mesh\\terrain-lod0.glb",
+      "stride": 1,
+      "vertices": 1048576,
+      "faces": 2093058,
+      "width_samples": 1024,
+      "height_samples": 1024
+    },
+    {
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\mesh\\terrain-lod1.glb",
+      "stride": 2,
+      "vertices": 263169,
+      "faces": 524288,
+      "width_samples": 513,
+      "height_samples": 513
+    },
+    {
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\mesh\\terrain-lod2.glb",
+      "stride": 4,
+      "vertices": 66049,
+      "faces": 131072,
+      "width_samples": 257,
+      "height_samples": 257
+    },
+    {
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_04_23_RGB_project\\mesh\\terrain-lod3.glb",
+      "stride": 8,
+      "vertices": 16641,
+      "faces": 32768,
+      "width_samples": 129,
+      "height_samples": 129
+    }
+  ]
+}

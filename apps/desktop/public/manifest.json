@@ -1,0 +1,25 @@
+{
+  "short_name": "DepthWizard",
+  "name": "DepthWizard · BhuNetra — AI Earth Intelligence",
+  "icons": [
+    {
+      "src": "/depthwizard-mark.png",
+      "type": "image/png",
+      "sizes": "500x500"
+    },
+    {
+      "src": "/bhu-netra-mark.png",
+      "type": "image/png",
+      "sizes": "500x500"
+    },
+    {
+      "src": "/favicon.ico",
+      "type": "image/x-icon",
+      "sizes": "16x16 32x32 48x48 64x64 128x128 256x256"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#060b19",
+  "theme_color": "#060b19",
+  "display": "standalone"
+}

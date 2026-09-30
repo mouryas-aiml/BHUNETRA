@@ -1,0 +1,46 @@
+{
+  "config_sha256": "e086830b72aa31a815917171141083828c32ea97ade0baee8aff7f7b405eb189",
+  "created_at_utc": "2026-09-29T14:46:41.809838+00:00",
+  "model": {
+    "promotion_evidence": [
+      {
+        "branch_id": "DepthWizard-V4-confidence-gated-v2",
+        "evidence_id": "potsdam-external-v2:3b1ecb2ae9b559d84cc2233af25887e05575889bdbd7b57bd2568b7e98bc7118",
+        "independently_evaluated": true,
+        "promotion_passed": false,
+        "summary": "Frozen V4 was slightly worse than independently calibrated DA3 in aggregate and violated the per-tile non-degradation criterion."
+      }
+    ],
+    "promotion_reason": "calibrated DA3 retained because no learned branch has independently satisfied the production promotion contract",
+    "selected_model_id": "DA3MONO-LARGE",
+    "selected_path": "calibrated_da3"
+  },
+  "products": {
+    "rdsm": {
+      "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_11_16_RGB_project\\products\\rdsm.tif",
+      "semantics": "dimensionless_relative_surface_height",
+      "sha256": "985f79a2339d213b651a451d208bc242bd800b27b5ab3daf2834003ef1410976",
+      "units": "relative"
+    }
+  },
+  "project": {
+    "geometry_config_sha256": "3e3011666ab1dfd8564a32c817376906f111475f8eac65304d1797212069f8f1",
+    "input_kind": "non_georeferenced",
+    "job_id": "2ab8bea9ddb0426996e6db672c6b5c3c",
+    "project_id": "fc5790f221e14fb3b6be01f45323c5ee",
+    "run_config_sha256": "5db51fe8b0764ae56ff4565d976e6d70f3e28976edc0514cbcc4ea57dafde018"
+  },
+  "runtime": {
+    "machine": "AMD64",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.14"
+  },
+  "schema_version": 1,
+  "source": {
+    "path": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_11_16_RGB.tif",
+    "sha256": "5b187812e6df379be1243cf8da9bd200eb8896c0db769b37ed3e9e913f49b6c8"
+  },
+  "warnings": [
+    "selected geometry path emitted no native confidence raster; no confidence values were fabricated"
+  ]
+}

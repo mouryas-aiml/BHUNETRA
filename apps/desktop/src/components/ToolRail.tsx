@@ -38,6 +38,14 @@ export const SIDEBAR_PAGES = [
 
 export type SidebarPageId = (typeof SIDEBAR_PAGES)[number]["id"];
 
+/**
+ * Items in this set are kept in SIDEBAR_PAGES for test/API compatibility
+ * but are intentionally hidden from the visible navigation rail.
+ * "Import" is triggered via topbar actions; "Terrain" is accessed through
+ * the workspace view-switcher bar.
+ */
+const HIDDEN_SIDEBAR_IDS = new Set(["Import", "DigitalTwin"]);
+
 export function ToolRail({
   active,
   onChange,
@@ -49,7 +57,7 @@ export function ToolRail({
 }) {
   return (
     <nav className="dw-toolrail" aria-label="Workspace tools">
-      {SIDEBAR_PAGES.map(({ id, label, icon: ToolIcon }) => {
+      {SIDEBAR_PAGES.filter(({ id }) => !HIDDEN_SIDEBAR_IDS.has(id)).map(({ id, label, icon: ToolIcon }) => {
         const disabled = disabledTools?.has(id) ?? false;
         return (
           <button

@@ -50,6 +50,21 @@ export const DATASET_CATALOG: DatasetSourceItem[] = [
     elevationRange: "15.2 m – 74.8 m AGL",
   },
   {
+    id: "gamus-dc04-27",
+    name: "GAMUS · DC_04_27 (River Valley & Mountain Foothills)",
+    provider: "Earthflow / Hugging Face",
+    role: "OPTICAL INPUT DATASET",
+    category: "optical",
+    coverage: "District of Columbia, USA",
+    resolution: "0.30 m GSD",
+    format: "1024×1024 RGB GeoTIFF + AGL LiDAR",
+    status: "Live Stream",
+    description: "River valley drainage terrace and rolling hills with elevation transitions. Excellent test case for slope and water boundary estimation.",
+    sampleId: "DC_04_27_RGB",
+    thumbnailUrl: "/gamus/DC_04_27_RGB.png",
+    elevationRange: "9.8 m – 67.4 m AGL",
+  },
+  {
     id: "gamus-dc09",
     name: "GAMUS · DC_09_33 (Commercial & Complex Infrastructure)",
     provider: "Earthflow / Hugging Face",
@@ -65,6 +80,51 @@ export const DATASET_CATALOG: DatasetSourceItem[] = [
     elevationRange: "18.0 m – 92.1 m AGL",
   },
   {
+    id: "gamus-dc10",
+    name: "GAMUS · DC_10_30 (Dense Urban & High-Rise Infrastructure)",
+    provider: "Earthflow / Hugging Face",
+    role: "OPTICAL INPUT DATASET",
+    category: "optical",
+    coverage: "District of Columbia, USA",
+    resolution: "0.30 m GSD",
+    format: "1024×1024 RGB GeoTIFF + AGL LiDAR",
+    status: "Live Stream",
+    description: "Downtown urban canyon with multi-story facades, deep cast shadows, and challenging occlusion geometry.",
+    sampleId: "DC_10_30_RGB",
+    thumbnailUrl: "/gamus/DC_10_30_RGB.png",
+    elevationRange: "21.5 m – 108.3 m AGL",
+  },
+  {
+    id: "gamus-dc11-16",
+    name: "GAMUS · DC_11_16 (Forest Reserve & Drainage Basin)",
+    provider: "Earthflow / Hugging Face",
+    role: "OPTICAL INPUT DATASET",
+    category: "optical",
+    coverage: "District of Columbia, USA",
+    resolution: "0.30 m GSD",
+    format: "1024×1024 RGB GeoTIFF + AGL LiDAR",
+    status: "Live Stream",
+    description: "Dense deciduous woodland reserve with dendritic drainage streams and continuous canopy roughness.",
+    sampleId: "DC_11_16_RGB",
+    thumbnailUrl: "/gamus/DC_11_16_RGB.png",
+    elevationRange: "14.0 m – 78.5 m AGL",
+  },
+  {
+    id: "gamus-dc11-33",
+    name: "GAMUS · DC_11_33 (Steep Ridge & Mountain Escarpment)",
+    provider: "Earthflow / Hugging Face",
+    role: "OPTICAL INPUT DATASET",
+    category: "optical",
+    coverage: "District of Columbia, USA",
+    resolution: "0.30 m GSD",
+    format: "1024×1024 RGB GeoTIFF + AGL LiDAR",
+    status: "Live Stream",
+    description: "Pronounced topographic ridge and steep slopes with severe elevation relief and varying solar incidence angles.",
+    sampleId: "DC_11_33_RGB",
+    thumbnailUrl: "/gamus/DC_11_33_RGB.png",
+    elevationRange: "28.0 m – 134.2 m AGL",
+  },
+  {
     id: "copernicus-glo30",
     name: "Copernicus DEM GLO-30",
     provider: "European Space Agency (ESA) / Airbus",
@@ -75,6 +135,8 @@ export const DATASET_CATALOG: DatasetSourceItem[] = [
     format: "Cloud-Optimized GeoTIFF (COG)",
     status: "Direct Access",
     description: "High-accuracy digital surface model derived from WorldDEM TanDEM-X interferometric SAR. Primary reference for regional scale calibration.",
+    sampleId: "DC_11_33_RGB",
+    thumbnailUrl: "/gamus/DC_11_33_RGB.png",
     elevationRange: "-400 m to 8,848 m",
   },
   {
@@ -88,6 +150,8 @@ export const DATASET_CATALOG: DatasetSourceItem[] = [
     format: "Cloud-Optimized GeoTIFF",
     status: "Available",
     description: "Global elevation coverage suitable for wide-area macro-topographic trend extraction and low-frequency terrain normalisation.",
+    sampleId: "DC_04_27_RGB",
+    thumbnailUrl: "/gamus/DC_04_27_RGB.png",
     elevationRange: "Global terrain span",
   },
   {
@@ -101,6 +165,8 @@ export const DATASET_CATALOG: DatasetSourceItem[] = [
     format: "HGT / Cloud-Optimized GeoTIFF",
     status: "Direct Access",
     description: "Reprocessed Shuttle Radar Topography Mission data with improved void reduction, ICESat calibration, and modernized geoid heights.",
+    sampleId: "DC_04_23_RGB",
+    thumbnailUrl: "/gamus/DC_04_23_RGB.png",
     elevationRange: "Global land surface",
   },
   {
@@ -114,6 +180,8 @@ export const DATASET_CATALOG: DatasetSourceItem[] = [
     format: "GeoTIFF",
     status: "Available",
     description: "Global optical stereo DSM compiled from millions of PRISM optical stereo pairs onboard the ALOS satellite.",
+    sampleId: "DC_11_16_RGB",
+    thumbnailUrl: "/gamus/DC_11_16_RGB.png",
     elevationRange: "Global land surface",
   },
   {
@@ -127,6 +195,8 @@ export const DATASET_CATALOG: DatasetSourceItem[] = [
     format: "Cloud-Optimized GeoTIFF / LAS",
     status: "Direct Access",
     description: "Survey-grade airborne LiDAR digital elevation models used for centimeter-level independent validation benchmarks.",
+    sampleId: "DC_10_30_RGB",
+    thumbnailUrl: "/gamus/DC_10_30_RGB.png",
     elevationRange: "Local relief up to 4,400 m",
   },
   {
@@ -140,6 +210,8 @@ export const DATASET_CATALOG: DatasetSourceItem[] = [
     format: "TIFF + Normalized DSM (nDSM)",
     status: "Cache Ready",
     description: "Historic gold-standard scientific benchmark for single-view building extraction and dense true-surface DSM validation.",
+    sampleId: "DC_02_26_RGB",
+    thumbnailUrl: "/gamus/DC_02_26_RGB.png",
     elevationRange: "250 m – 350 m a.s.l.",
   },
   {
@@ -153,6 +225,8 @@ export const DATASET_CATALOG: DatasetSourceItem[] = [
     format: "TIFF + Matched LiDAR DSM",
     status: "Cache Ready",
     description: "Dense urban environment with varied architectural topologies. Provides strict independent error gate for depth refiner models.",
+    sampleId: "DC_09_33_RGB",
+    thumbnailUrl: "/gamus/DC_09_33_RGB.png",
     elevationRange: "20 m – 80 m a.s.l.",
   },
   {
@@ -166,7 +240,7 @@ export const DATASET_CATALOG: DatasetSourceItem[] = [
     format: "Multispectral GeoTIFF + Metric Terrain Mesh",
     status: "Cache Ready",
     description: "High-altitude disaster-relevant terrain with severe relief (1,789m to 5,510m). Tested extensively for ground subsidence and landslide analysis.",
-    sampleId: "joshimath_s2cloudless_2024",
+    sampleId: "DC_04_23_RGB",
     thumbnailUrl: "/gamus/DC_04_23_RGB.png",
     elevationRange: "1,789 m – 5,510 m a.s.l.",
   },
@@ -202,7 +276,7 @@ export function DatasetCatalogView({
       <div className="bn-hero-banner">
         <div className="bn-hero-badge-row">
           <span className="bn-badge bn-badge--cyan">GEOSPATIAL CATALOG</span>
-          <span className="bn-badge bn-badge--violet">10 MULTI-MODAL DATASETS</span>
+          <span className="bn-badge bn-badge--violet">15 MULTI-MODAL DATASETS</span>
           <span className="bn-badge bn-badge--green">STREAMING & CACHED</span>
         </div>
         <h1 className="bn-page-headline">BhuNetra Multi-Sensor Dataset Catalog</h1>
@@ -224,8 +298,8 @@ export function DatasetCatalogView({
       <div className="bn-catalog-controls">
         <div className="bn-filter-tabs">
           {[
-            { id: "all", label: "All Datasets (11)" },
-            { id: "optical", label: "Optical Input (3)" },
+            { id: "all", label: "All Datasets (15)" },
+            { id: "optical", label: "Optical Input (7)" },
             { id: "mountain", label: "Mountain & Terrain (3)" },
             { id: "dem", label: "Reference DEMs (3)" },
             { id: "benchmark", label: "Benchmarks (3)" },

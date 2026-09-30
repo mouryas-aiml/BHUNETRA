@@ -470,11 +470,30 @@ export function cancelProjectJob(jobId: string): Promise<ProjectJobState> {
   });
 }
 
+function extractSampleProjectName(dir: string): string | null {
+  if (!dir) return null;
+  const match = dir.match(/DC_\d+_\d+(_RGB)?/i);
+  if (match) {
+    const base = match[0].toUpperCase();
+    return base.endsWith("_RGB") ? `${base}_project` : `${base}_RGB_project`;
+  }
+  return null;
+}
+
 export async function getProjectManifest(projectDir: string): Promise<ProjectManifest> {
   try {
     const query = new URLSearchParams({ project_dir: projectDir });
     return await coreFetch<ProjectManifest>(`/v1/projects/manifest?${query.toString()}`);
   } catch {
+    const sampleFolder = extractSampleProjectName(projectDir);
+    if (sampleFolder) {
+      try {
+        const sampleRes = await fetch(`/projects/${sampleFolder}/project-manifest.json`);
+        if (sampleRes.ok) return (await sampleRes.json()) as ProjectManifest;
+      } catch {
+        // fallback
+      }
+    }
     const res = await fetch("/sample_project/project-manifest.json");
     if (res.ok) {
       return (await res.json()) as ProjectManifest;
@@ -634,6 +653,15 @@ export async function getProjectMesh(projectDir: string): Promise<ProjectMeshRep
     const query = new URLSearchParams({ project_dir: projectDir });
     return await coreFetch<ProjectMeshReport>(`/v1/projects/mesh?${query.toString()}`);
   } catch {
+    const sampleFolder = extractSampleProjectName(projectDir);
+    if (sampleFolder) {
+      try {
+        const sampleRes = await fetch(`/projects/${sampleFolder}/mesh/mesh-manifest.json`);
+        if (sampleRes.ok) return (await sampleRes.json()) as ProjectMeshReport;
+      } catch {
+        // fallback
+      }
+    }
     const res = await fetch("/sample_project/mesh/mesh-manifest.json");
     if (res.ok) {
       return (await res.json()) as ProjectMeshReport;
@@ -648,6 +676,10 @@ export async function getProjectMeshUrl(projectDir: string, level = 0): Promise<
     const response = await checkedResponse(`/v1/projects/mesh/lod/${level}?${query.toString()}`);
     return URL.createObjectURL(await response.blob());
   } catch {
+    const sampleFolder = extractSampleProjectName(projectDir);
+    if (sampleFolder) {
+      return `/projects/${sampleFolder}/mesh/terrain-lod${level}.glb`;
+    }
     return `/sample_project/mesh/terrain-lod${level}.glb`;
   }
 }
@@ -717,6 +749,11 @@ export async function getProjectPreviewUrl(
     const response = await checkedResponse(`/v1/projects/preview?${query.toString()}`);
     return URL.createObjectURL(await response.blob());
   } catch {
+    const sampleFolder = extractSampleProjectName(projectDir);
+    if (sampleFolder) {
+      const sampleId = sampleFolder.replace(/_project$/i, "");
+      return `/gamus/${sampleId}.png`;
+    }
     return "/sample_project/sample_image.png";
   }
 }
@@ -863,7 +900,7 @@ export async function getGamusSamples(split = "val", limit = 20): Promise<GamusS
         elevation_range_m: [12.4, 88.6],
         has_height_ground_truth: true,
         rgb_path: "/gamus/DC_04_23_RGB.png",
-        height_path: "/sample_project/products/rdsm.tif",
+        height_path: "/projects/DC_04_23_RGB_project/products/rdsm.tif",
         description: "District of Columbia residential canopy and road corridor with high-relief terrain.",
         is_cached: true,
       },
@@ -877,8 +914,22 @@ export async function getGamusSamples(split = "val", limit = 20): Promise<GamusS
         elevation_range_m: [15.2, 74.8],
         has_height_ground_truth: true,
         rgb_path: "/gamus/DC_02_26_RGB.png",
-        height_path: "/sample_project/products/rdsm.tif",
+        height_path: "/projects/DC_02_26_RGB_project/products/rdsm.tif",
         description: "Suburban residential grid with distinct roof profiles and vegetation boundaries.",
+        is_cached: true,
+      },
+      {
+        id: "DC_04_27_RGB",
+        split: "val",
+        scene_type: "River Valley & Foothills",
+        resolution: "0.3 m GSD",
+        dimensions: [1024, 1024],
+        channels: 3,
+        elevation_range_m: [9.8, 67.4],
+        has_height_ground_truth: true,
+        rgb_path: "/gamus/DC_04_27_RGB.png",
+        height_path: "/projects/DC_04_27_RGB_project/products/rdsm.tif",
+        description: "River valley drainage terrace and rolling hills with elevation transitions.",
         is_cached: true,
       },
       {
@@ -891,37 +942,51 @@ export async function getGamusSamples(split = "val", limit = 20): Promise<GamusS
         elevation_range_m: [18.0, 92.1],
         has_height_ground_truth: true,
         rgb_path: "/gamus/DC_09_33_RGB.png",
-        height_path: "/sample_project/products/rdsm.tif",
+        height_path: "/projects/DC_09_33_RGB_project/products/rdsm.tif",
         description: "Commercial facility with complex multi-level flat roofs and parking structures.",
         is_cached: true,
       },
       {
-        id: "DC_05_12_RGB",
+        id: "DC_10_30_RGB",
         split: "val",
-        scene_type: "Riverbank & Infrastructure",
+        scene_type: "Dense Urban / High-Rise",
         resolution: "0.3 m GSD",
         dimensions: [1024, 1024],
         channels: 3,
-        elevation_range_m: [5.1, 45.3],
+        elevation_range_m: [21.5, 108.3],
         has_height_ground_truth: true,
-        rgb_path: "/gamus/DC_04_23_RGB.png",
-        height_path: "/sample_project/products/rdsm.tif",
-        description: "Riparian slope with road crossings and elevation transitions.",
-        is_cached: false,
+        rgb_path: "/gamus/DC_10_30_RGB.png",
+        height_path: "/projects/DC_10_30_RGB_project/products/rdsm.tif",
+        description: "Downtown urban canyon with multi-story facades and complex shadows.",
+        is_cached: true,
       },
       {
-        id: "DC_08_41_RGB",
+        id: "DC_11_16_RGB",
         split: "val",
-        scene_type: "Parkland & Ridge",
+        scene_type: "Forest Reserve & Drainage Basin",
         resolution: "0.3 m GSD",
         dimensions: [1024, 1024],
         channels: 3,
-        elevation_range_m: [22.0, 115.4],
+        elevation_range_m: [14.0, 78.5],
         has_height_ground_truth: true,
-        rgb_path: "/gamus/DC_02_26_RGB.png",
-        height_path: "/sample_project/products/rdsm.tif",
-        description: "High relief ridge with dense deciduous woodland.",
-        is_cached: false,
+        rgb_path: "/gamus/DC_11_16_RGB.png",
+        height_path: "/projects/DC_11_16_RGB_project/products/rdsm.tif",
+        description: "Dense deciduous woodland reserve with dendritic drainage streams.",
+        is_cached: true,
+      },
+      {
+        id: "DC_11_33_RGB",
+        split: "val",
+        scene_type: "Steep Ridge & Mountain Escarpment",
+        resolution: "0.3 m GSD",
+        dimensions: [1024, 1024],
+        channels: 3,
+        elevation_range_m: [28.0, 134.2],
+        has_height_ground_truth: true,
+        rgb_path: "/gamus/DC_11_33_RGB.png",
+        height_path: "/projects/DC_11_33_RGB_project/products/rdsm.tif",
+        description: "Pronounced topographic ridge and steep slopes with severe elevation relief.",
+        is_cached: true,
       },
     ];
   }
@@ -934,17 +999,18 @@ export async function loadGamusSample(sampleId: string, split = "val"): Promise<
       body: JSON.stringify({ sample_id: sampleId, split }),
     });
   } catch {
+    const sampleFolder = `${sampleId}_project`;
     return {
       sample_id: sampleId,
       split: split,
       rgb_path: `/gamus/${sampleId}.png`,
       rgb_preview: `/gamus/${sampleId}.png`,
-      agl_reference_path: "/sample_project/products/rdsm.tif",
+      agl_reference_path: `/projects/${sampleFolder}/products/rdsm.tif`,
       width: 1024,
       height: 1024,
       channels: 3,
       status: "ready",
-      project_dir: "/sample_project",
+      project_dir: `/projects/${sampleFolder}`,
     };
   }
 }

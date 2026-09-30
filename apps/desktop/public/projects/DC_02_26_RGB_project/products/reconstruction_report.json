@@ -1,0 +1,34 @@
+{
+  "status": "PASS",
+  "source": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_02_26_RGB.tif",
+  "product": "rDSM",
+  "units": "dimensionless_relative_elevation",
+  "georeferenced": false,
+  "model_id": "DA3MONO-LARGE",
+  "device": "cpu",
+  "shape": [
+    1024,
+    1024
+  ],
+  "tile_size": 512,
+  "overlap": 64,
+  "tile_count": 9,
+  "harmonized_tiles": 8,
+  "normalization": {
+    "low": [
+      5.0,
+      2.0,
+      3.0
+    ],
+    "high": [
+      193.0,
+      189.0,
+      191.0
+    ],
+    "low_percentile": 1.0,
+    "high_percentile": 99.0
+  },
+  "wall_time_seconds": 157.61130290000074,
+  "rdsm": "M:\\SIH\\BHUNETRA\\data\\gamus_cache\\DC_02_26_RGB_project\\products\\rdsm.tif",
+  "confidence": null
+}

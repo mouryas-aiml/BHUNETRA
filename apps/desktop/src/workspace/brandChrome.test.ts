@@ -8,11 +8,11 @@ function source(relative: string): string {
 describe("DepthWizard product identity chrome", () => {
   it("keeps the top bar logo-only and centers the project filename in available space", () => {
     const css = source("../styles/brand.css");
-    expect(css).toContain("grid-template-columns: 48px minmax(0, 1fr) auto");
+    expect(css).toContain("grid-template-columns: 68px minmax(0, 1fr) auto");
     expect(css).toContain(".dw-brand > span:not(.dw-mark)");
-    expect(css).toContain("width: 38px");
-    expect(css).toContain("height: 38px");
-    expect(css).toContain("transform: translateX(-7px)");
+    expect(css).toContain("width: 56px");
+    expect(css).toContain("height: 56px");
+    expect(css).toContain("transform: translateX(-4px)");
     expect(css).toContain("display: none");
     expect(css).toContain('url(\"/depthwizard-mark.png\")');
     expect(css).toContain("justify-self: center");
