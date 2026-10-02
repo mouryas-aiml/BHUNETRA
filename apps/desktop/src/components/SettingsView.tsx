@@ -19,7 +19,7 @@ export function SettingsView() {
           <span className="bn-badge bn-badge--cyan">CONFIGURATION & PREFERENCES</span>
           <span className="bn-badge bn-badge--green">SYSTEM STATUS: OPTIMAL</span>
         </div>
-        <h1 className="bn-page-headline">BhuNetra System Settings</h1>
+        <h1 className="bn-page-headline">DepthWizard System Settings</h1>
         <p className="bn-page-lead">
           Manage backend connection parameters, Hugging Face streaming credentials, 3D WebGL renderer profiles, and offline cache storage.
         </p>
@@ -37,7 +37,7 @@ export function SettingsView() {
           <h3 className="bn-card-title">Backend & API Endpoints</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: "14px", marginTop: "14px" }}>
             <div>
-              <label className="bn-control-label">BhuNetra Core Service API Base</label>
+              <label className="bn-control-label">DepthWizard Core Service API Base</label>
               <input
                 type="text"
                 className="dw-compact-select"

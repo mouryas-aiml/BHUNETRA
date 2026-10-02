@@ -544,6 +544,9 @@ class ProductionElevationRuntime:
             georeferenced=georeferenced,
             model_id=selected_model_id,
         )
+        if selected_confidence is None:
+            from depthwizard.calibration.confidence import derive_uncertainty_indicator
+            selected_confidence = derive_uncertainty_indicator(selected_relative)
         confidence_path = self._write_confidence_product(
             manifest,
             request,
@@ -553,6 +556,7 @@ class ProductionElevationRuntime:
         artifacts = {"rdsm": str(rdsm_path.resolve())}
         if confidence_path is not None:
             artifacts["confidence"] = str(confidence_path.resolve())
+
         manifest.record_stage(
             ProcessingStage.GEOMETRY,
             status="completed",
@@ -1018,13 +1022,62 @@ class ProductionElevationRuntime:
                 semantics="metric_calibration_evidence",
                 units=None,
             )
+            calibration_artifacts = {
+                "dsm": str(dsm_path.resolve()),
+                "calibration": str(calibration_path.resolve()),
+            }
+            if request.metric_dem_path is not None and request.metric_dem_path.is_file():
+                aligned_dem, dem_valid = reproject_to_match(request.metric_dem_path, request.source)
+                ref_path = request.output_dir / "products" / "reference.tif"
+                write_float_geotiff(
+                    ref_path,
+                    np.where(dem_valid, aligned_dem, np.nan).astype(np.float32),
+                    template_path=request.source,
+                    description="DepthWizard aligned reference DEM",
+                    tags={
+                        "DEPTHWIZARD_PRODUCT": "ALIGNED_REFERENCE_DEM",
+                        "ELEVATION_UNITS": "metres",
+                    },
+                )
+                _register_artifact(
+                    manifest,
+                    "reference",
+                    ref_path,
+                    semantics="aligned_reference_elevation_surface",
+                    units="m",
+                )
+                calibration_artifacts["reference"] = str(ref_path.resolve())
+
+                residual = np.where(
+                    dem_valid & np.isfinite(aligned_dem),
+                    calibration.dsm - aligned_dem,
+                    np.nan,
+                ).astype(np.float32)
+                res_path = request.output_dir / "products" / "residual.tif"
+                write_float_geotiff(
+                    res_path,
+                    residual,
+                    template_path=request.source,
+                    description="DepthWizard prediction minus reference DEM residual",
+                    tags={
+                        "DEPTHWIZARD_PRODUCT": "CALIBRATION_RESIDUAL",
+                        "ELEVATION_UNITS": "metres",
+                        "RESIDUAL_SIGN": "prediction_minus_reference",
+                    },
+                )
+                _register_artifact(
+                    manifest,
+                    "residual",
+                    res_path,
+                    semantics="calibration_residual_surface",
+                    units="m",
+                )
+                calibration_artifacts["residual"] = str(res_path.resolve())
+
             manifest.record_stage(
                 ProcessingStage.CALIBRATION,
                 status="completed",
-                artifacts={
-                    "dsm": str(dsm_path.resolve()),
-                    "calibration": str(calibration_path.resolve()),
-                },
+                artifacts=calibration_artifacts,
                 details={
                     "mode": calibration.mode.value,
                     "metric_claim": True,
@@ -1034,6 +1087,7 @@ class ProductionElevationRuntime:
                 },
                 elapsed_seconds=time.perf_counter() - started,
             )
+
 
             current_stage = ProcessingStage.EXPORT
             raise_if_cancelled(cancellation_probe)
@@ -1087,9 +1141,16 @@ class ProductionElevationRuntime:
             }
             if slope_path is not None:
                 export_artifacts["slope"] = str(slope_path.resolve())
+            ref_path_artifact = manifest.artifact_path("reference")
+            if ref_path_artifact is not None and ref_path_artifact.is_file():
+                export_artifacts["reference"] = str(ref_path_artifact.resolve(strict=False))
+            res_path_artifact = manifest.artifact_path("residual")
+            if res_path_artifact is not None and res_path_artifact.is_file():
+                export_artifacts["residual"] = str(res_path_artifact.resolve(strict=False))
             confidence_path = manifest.artifact_path("confidence")
             if confidence_path is not None:
                 export_artifacts["confidence"] = str(confidence_path.resolve(strict=False))
+
             manifest.record_stage(
                 ProcessingStage.EXPORT,
                 status="completed",

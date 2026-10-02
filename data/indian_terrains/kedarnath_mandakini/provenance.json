@@ -1,0 +1,16 @@
+{
+  "system": "DepthWizard",
+  "version": "0.2.0",
+  "region_id": "kedarnath_mandakini",
+  "region_name": "Kedarnath & Mandakini Valley (Rudraprayag Himalayas)",
+  "crs": "EPSG:32644",
+  "latitude": 30.7346,
+  "longitude": 79.0669,
+  "gsd_m": 1.5,
+  "elevation_envelope_m": [
+    3583.0,
+    6940.0
+  ],
+  "calibration_model": "Positive-Scale Huber IRLS",
+  "reference_dem": "Copernicus GLO-30 / CartoDEM 30m"
+}

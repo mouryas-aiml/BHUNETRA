@@ -1,0 +1,16 @@
+{
+  "system": "DepthWizard",
+  "version": "0.2.0",
+  "region_id": "western_ghats_kudremukh",
+  "region_name": "Western Ghats Escarpments & Dense Canopy (Kudremukh)",
+  "crs": "EPSG:32643",
+  "latitude": 13.13,
+  "longitude": 75.25,
+  "gsd_m": 1.5,
+  "elevation_envelope_m": [
+    650.0,
+    1894.0
+  ],
+  "calibration_model": "Positive-Scale Huber IRLS",
+  "reference_dem": "Copernicus GLO-30 / CartoDEM 30m"
+}

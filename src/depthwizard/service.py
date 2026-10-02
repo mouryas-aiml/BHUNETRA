@@ -678,3 +678,40 @@ def load_demo() -> dict[str, object]:
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Failed to load demo project: {exc}") from exc
 
+
+class IndianTerrainLoadRequest(BaseModel):
+    region_id: str
+
+
+@app.get("/v1/datasets/indian-terrain", dependencies=[Depends(_session_guard)])
+def indian_terrain_regions() -> list[dict[str, object]]:
+    from depthwizard.data.indian_terrain import IndianTerrainProvider
+    provider = IndianTerrainProvider()
+    return provider.export_catalog_json()
+
+
+@app.post("/v1/datasets/indian-terrain/load", dependencies=[Depends(_session_guard)])
+def indian_terrain_load(request: IndianTerrainLoadRequest) -> dict[str, object]:
+    from depthwizard.data.indian_terrain import IndianTerrainProvider
+    provider = IndianTerrainProvider()
+    region = provider.get_region(request.region_id)
+    if region is None:
+        raise HTTPException(status_code=404, detail=f"Unknown Indian terrain region: {request.region_id}")
+    sample_path = provider.get_sample_project_path(request.region_id)
+    if sample_path is None or not (sample_path / "project-manifest.json").is_file():
+        return {
+            "status": "metadata_only",
+            "region": region.as_dict(),
+            "message": f"Region '{region.name}' metadata loaded. Sample raster download required via {region.access_requirements}",
+        }
+    manifest_path = sample_path / "project-manifest.json"
+    data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    return {
+        "status": "ready",
+        "region": region.as_dict(),
+        "project_dir": str(sample_path),
+        "manifest_path": str(manifest_path),
+        "manifest": data,
+    }
+
+

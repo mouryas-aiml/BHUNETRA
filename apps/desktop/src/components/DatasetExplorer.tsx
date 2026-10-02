@@ -289,7 +289,7 @@ export function DatasetExplorer({ isOpen, onClose, onSelectSample }: DatasetExpl
                 </div>
 
                 <div className="bn-pipeline-preview-box">
-                  <div className="bn-pipeline-preview-title">Automated BhuNetra Ingest</div>
+                  <div className="bn-pipeline-preview-title">Automated DepthWizard Ingest</div>
                   <ol className="bn-pipeline-steps">
                     <li>Stream 1024×1024 RGB array from Hugging Face</li>
                     <li>Synthesize GIS-compliant GeoTIFF raster</li>

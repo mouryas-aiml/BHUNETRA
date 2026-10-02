@@ -1,4 +1,4 @@
-"""BhuNetra GAMUS dataset integration module.
+"""DepthWizard GAMUS dataset integration module.
 
 Connects to earthflow/GAMUS on Hugging Face using streaming and remote metadata API.
 Downloads single samples on demand into a local cache directory without downloading
@@ -153,7 +153,7 @@ def get_dataset_info() -> dict[str, Any]:
     try:
         req = urllib.request.Request(
             HF_API_INFO_URL,
-            headers={"User-Agent": "BhuNetra-Geospatial-Workstation/0.2.0"},
+            headers={"User-Agent": "DepthWizard-Geospatial-Workstation/0.2.0"},
         )
         with urllib.request.urlopen(req, timeout=3) as resp:
             hf_metadata = json.loads(resp.read().decode("utf-8"))

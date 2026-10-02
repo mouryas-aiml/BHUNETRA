@@ -1,156 +1,187 @@
 import { useState } from "react";
+import { AiReconstructionIcon, TerrainIcon } from "./icons";
 import type { RasterMetadata } from "../api";
 
 interface ImageInspectorViewProps {
   metadata: RasterMetadata | null;
   onNavigate: (page: string) => void;
+  onRunReconstruction?: () => void;
 }
 
-export function ImageInspectorView({ metadata, onNavigate }: ImageInspectorViewProps) {
+export function ImageInspectorView({ metadata, onNavigate, onRunReconstruction }: ImageInspectorViewProps) {
   const [selectedBand, setSelectedBand] = useState<"all" | "red" | "green" | "blue">("all");
 
-  const fileName = metadata?.path?.split(/[\\/]/).pop() ?? "sample_image.png";
-  const width = metadata?.width ?? 1024;
-  const height = metadata?.height ?? 1024;
-  const crs = metadata?.crs ?? "EPSG:3857 (Web Mercator)";
-  const gsd = metadata?.ground_sample_distance_x?.toFixed(2) ?? "0.30";
+  const fileName = metadata?.path ? metadata.path.split(/[\\/]/).pop() ?? metadata.path : "No image selected";
+  const hasMetadata = metadata !== null;
+  const width = metadata?.width ?? 0;
+  const height = metadata?.height ?? 0;
+  const isGeoreferenced = Boolean(metadata?.crs);
+  const crs = metadata?.crs ?? "Non-georeferenced (Relative Mode)";
+  const gsd = metadata?.ground_sample_distance_x != null ? `${metadata.ground_sample_distance_x.toFixed(2)} m` : "—";
 
-  // Simulated 16-bin radiometric band histogram
-  const redBins = [10, 22, 45, 78, 120, 160, 210, 260, 290, 280, 240, 190, 140, 80, 40, 15];
-  const greenBins = [14, 30, 60, 95, 145, 190, 240, 285, 300, 270, 210, 160, 110, 65, 30, 10];
-  const blueBins = [8, 18, 38, 70, 110, 150, 195, 235, 260, 240, 190, 140, 90, 50, 25, 8];
+  // Real quality assessment from metadata
+  const quality = metadata?.quality;
+  const qualityStatus = quality?.status ?? "not_assessed";
+  const qualityFlags = quality?.flags ?? [];
 
-  const maxBin = 300;
+  // Determine readiness indicator (SIH Requirement 15)
+  const isReady = qualityStatus !== "warning" || qualityFlags.length === 0;
+  const readinessLabel = isReady
+    ? "Ready for processing"
+    : "Image quality may reduce elevation reliability";
+
+  // Radiometric metrics
+  const saturationPct = quality?.saturation_fraction != null ? (quality.saturation_fraction * 100).toFixed(1) : "0.0";
+  const shadowPct = quality?.deep_shadow_candidate_fraction != null ? (quality.deep_shadow_candidate_fraction * 100).toFixed(1) : "0.0";
+  const brightPct = quality?.bright_low_chroma_candidate_fraction != null ? (quality.bright_low_chroma_candidate_fraction * 100).toFixed(1) : "0.0";
+  const textureScore = quality?.texture_gradient_score != null ? quality.texture_gradient_score.toFixed(4) : "—";
+  const validDataPct = metadata?.valid_data_fraction != null ? (metadata.valid_data_fraction * 100).toFixed(1) : "100.0";
 
   return (
     <div className="bn-page-container">
       {/* Header */}
       <div className="bn-hero-banner">
         <div className="bn-hero-badge-row">
-          <span className="bn-badge bn-badge--cyan">OPTICAL SENSOR INSPECTOR</span>
-          <span className="bn-badge bn-badge--violet">RADIOMETRIC TELEMETRY</span>
-          <span className="bn-badge bn-badge--green">QUALITY VERIFIED</span>
+          <span className="bn-badge bn-badge--cyan">02 — IMAGE QUALITY & ANALYSIS</span>
+          <span className={`bn-badge ${isReady ? "bn-badge--green" : "bn-badge--yellow"}`}>
+            {readinessLabel.toUpperCase()}
+          </span>
+          <span className="bn-badge bn-badge--violet">
+            {isGeoreferenced ? "GEOREFERENCED GEOTIFF" : "RELATIVE RGB IMAGE"}
+          </span>
         </div>
-        <h1 className="bn-page-headline">BhuNetra AI Remote Sensing Image Inspector</h1>
+        <h1 className="bn-page-headline">DepthWizard Remote Sensing Image Quality Inspector</h1>
         <p className="bn-page-lead">
-          Comprehensive optical spectral verification, channel decomposition, radiometric histograms, and spatial georeferencing diagnostics.
+          Pre-inference radiometric diagnostics, spatial georeferencing inspection, resolution validation, and blur/contrast readiness assessment.
         </p>
 
         <div className="bn-action-ribbon">
-          <button className="dw-btn dw-btn--primary" onClick={() => onNavigate("Reconstruction")}>
-            ⚡ Reconstruct Depth from this Image
+          <button
+            className="dw-btn dw-btn--primary"
+            onClick={() => {
+              if (onRunReconstruction) onRunReconstruction();
+              else onNavigate("Reconstruction");
+            }}
+          >
+            <AiReconstructionIcon /> Proceed to Monocular Depth (03)
+          </button>
+          <button className="dw-btn" onClick={() => onNavigate("Elevation")}>
+            View Elevation Model
           </button>
           <button className="dw-btn" onClick={() => onNavigate("Terrain")}>
-            ⛰️ View in 3D Terrain
-          </button>
-          <button className="dw-btn" onClick={() => onNavigate("Heatmap")}>
-            Inspect Heatmap
+            <TerrainIcon /> Open 3D Terrain
           </button>
         </div>
       </div>
 
+      {/* SIH Requirement 15: Image Quality Readiness Card */}
+      <div className="bn-card bn-card--accent-border" style={{ marginBottom: "20px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
+          <div>
+            <span className="bn-card-tag" style={{ color: isReady ? "var(--bn-green-accent)" : "var(--bn-yellow-accent)" }}>
+              PRE-INFERENCE READINESS CHECK
+            </span>
+            <h3 style={{ fontSize: "20px", color: "var(--dw-text-bright)", marginTop: "4px" }}>
+              Status: {readinessLabel}
+            </h3>
+          </div>
+          <span
+            className={`bn-badge ${isReady ? "bn-badge--green" : "bn-badge--yellow"}`}
+            style={{ fontSize: "14px", padding: "6px 14px" }}
+          >
+            {isReady ? "✓ PASSED QUALITY CRITERIA" : "⚠ QUALITY DIAGNOSTIC WARNING"}
+          </span>
+        </div>
+
+        {qualityFlags.length > 0 && (
+          <div style={{ marginTop: "14px", padding: "10px 14px", background: "rgba(245, 158, 11, 0.1)", borderRadius: "6px", borderLeft: "3px solid #f59e0b" }}>
+            <strong style={{ color: "#fbbf24", fontSize: "13px" }}>Identified Quality Flags:</strong>
+            <ul style={{ margin: "6px 0 0 16px", padding: 0, fontSize: "12px", color: "var(--dw-text-subtle)" }}>
+              {qualityFlags.map((flag) => (
+                <li key={flag}>{flag.replace(/_/g, " ")}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
       <div className="bn-inspector-view-layout">
-        {/* Left: Image Display & Channels */}
+        {/* Left: Metadata & Quality Telemetry */}
         <div className="bn-card bn-inspector-media-card">
           <div className="bn-chart-header">
-            <h3>Source Optical Chip</h3>
-            <span className="bn-text--cyan">{width} × {height} px · 3 Bands (RGB)</span>
+            <h3>Input Imagery Telemetry</h3>
+            <span className="bn-text--cyan">{fileName}</span>
           </div>
 
-          <div className="bn-inspector-image-frame">
-            <img
-              src="/gamus/DC_04_23_RGB.png"
-              alt="Source Optical Raster"
-              className="bn-inspector-preview-img"
-              onError={(e) => {
-                // Fallback to sample image if gamus preview unavailable
-                (e.target as HTMLImageElement).src = "/sample_project/sample_image.png";
-              }}
-            />
-          </div>
-
-          <div className="bn-channel-toggles">
-            <span style={{ fontSize: "14px", color: "var(--dw-text-subtle)", marginRight: "8px" }}>Channel Decomposition (RGB Split):</span>
-            {(["all", "red", "green", "blue"] as const).map((b) => (
-              <button
-                key={b}
-                className={`bn-filter-btn ${selectedBand === b ? "bn-filter-btn--active" : ""}`}
-                onClick={() => setSelectedBand(b)}
-              >
-                {b.toUpperCase()}
-              </button>
-            ))}
+          <div className="bn-analytics-table-grid" style={{ marginTop: "14px" }}>
+            <div className="bn-stat-cell">
+              <span className="bn-stat-cell-label">Raster Dimensions</span>
+              <span className="bn-stat-cell-val">{hasMetadata ? `${width} × ${height} px` : "—"}</span>
+            </div>
+            <div className="bn-stat-cell">
+              <span className="bn-stat-cell-label">Spectral Bands</span>
+              <span className="bn-stat-cell-val">{metadata?.count ?? 0} Bands ({metadata?.dtype ?? "—"})</span>
+            </div>
+            <div className="bn-stat-cell">
+              <span className="bn-stat-cell-label">Coordinate System (CRS)</span>
+              <span className="bn-stat-cell-val" style={{ fontSize: "13px" }}>{crs}</span>
+            </div>
+            <div className="bn-stat-cell">
+              <span className="bn-stat-cell-label">Pixel GSD (Resolution)</span>
+              <span className="bn-stat-cell-val">{gsd}</span>
+            </div>
+            <div className="bn-stat-cell">
+              <span className="bn-stat-cell-label">Valid Pixel Coverage</span>
+              <span className="bn-stat-cell-val">{validDataPct}%</span>
+            </div>
+            <div className="bn-stat-cell">
+              <span className="bn-stat-cell-label">Texture Gradient Score</span>
+              <span className="bn-stat-cell-val">{textureScore}</span>
+            </div>
           </div>
         </div>
 
-        {/* Right: Spectral & Radiometric Telemetry */}
-        <div className="bn-card bn-inspector-stats-card">
-          <h3 className="bn-card-title">Geospatial & Sensor Metadata</h3>
-          <div className="bn-details-table">
-            <div className="bn-stat-row">
-              <span>File Identifier</span>
-              <span className="bn-stat-val">{fileName}</span>
+        {/* Right: Radiometric Quality Breakdown */}
+        <div className="bn-card">
+          <h3 className="bn-card-title">Radiometric & Exposure Distribution</h3>
+          <p style={{ fontSize: "13px", color: "var(--dw-text-subtle)", marginTop: "4px" }}>
+            Quantitative inspection of pixel clipping, shadow occlusion, and radiometric contrast.
+          </p>
+
+          <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", marginBottom: "4px" }}>
+                <span>Dynamic Range Saturation (Clipping)</span>
+                <strong>{saturationPct}%</strong>
+              </div>
+              <div style={{ width: "100%", height: "8px", background: "rgba(255,255,255,0.1)", borderRadius: "4px", overflow: "hidden" }}>
+                <div style={{ width: `${Math.min(100, Number(saturationPct))}%`, height: "100%", background: "var(--bn-cyan-accent)" }} />
+              </div>
             </div>
-            <div className="bn-stat-row">
-              <span>Spatial Dimensions</span>
-              <span className="bn-stat-val">{width} × {height} px</span>
+
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", marginBottom: "4px" }}>
+                <span>Deep Shadow Candidate Fraction</span>
+                <strong>{shadowPct}%</strong>
+              </div>
+              <div style={{ width: "100%", height: "8px", background: "rgba(255,255,255,0.1)", borderRadius: "4px", overflow: "hidden" }}>
+                <div style={{ width: `${Math.min(100, Number(shadowPct))}%`, height: "100%", background: "#6366f1" }} />
+              </div>
             </div>
-            <div className="bn-stat-row">
-              <span>Coordinate Reference (CRS)</span>
-              <span className="bn-stat-val">{crs}</span>
-            </div>
-            <div className="bn-stat-row">
-              <span>Ground Sample Distance (GSD)</span>
-              <span className="bn-stat-val">{gsd} m / pixel</span>
-            </div>
-            <div className="bn-stat-row">
-              <span>Radiometric Bit Depth</span>
-              <span className="bn-stat-val">8-bit Unsigned Integer (uint8)</span>
-            </div>
-            <div className="bn-stat-row">
-              <span>Off-Nadir Sensor Angle</span>
-              <span className="bn-stat-val">3.8° (near-nadir vertical)</span>
-            </div>
-            <div className="bn-stat-row">
-              <span>Saturation Fraction</span>
-              <span className="bn-stat-val bn-text--success">0.5% (excellent range)</span>
-            </div>
-            <div className="bn-stat-row">
-              <span>Shadow Fraction</span>
-              <span className="bn-stat-val">1.2% (clear ground visibility)</span>
+
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", marginBottom: "4px" }}>
+                <span>Bright Low-Chroma Candidate Fraction</span>
+                <strong>{brightPct}%</strong>
+              </div>
+              <div style={{ width: "100%", height: "8px", background: "rgba(255,255,255,0.1)", borderRadius: "4px", overflow: "hidden" }}>
+                <div style={{ width: `${Math.min(100, Number(brightPct))}%`, height: "100%", background: "#ec4899" }} />
+              </div>
             </div>
           </div>
 
-          <h3 className="bn-card-title" style={{ marginTop: "20px" }}>Radiometric & Spectral Band Histogram</h3>
-          <div className="bn-spectral-histogram">
-            <div className="bn-bars-wrapper" style={{ height: "130px" }}>
-              {Array.from({ length: 16 }).map((_, i) => {
-                const rH = (redBins[i] / maxBin) * 100;
-                const gH = (greenBins[i] / maxBin) * 100;
-                const bH = (blueBins[i] / maxBin) * 100;
-
-                return (
-                  <div key={i} className="bn-hist-bar-col">
-                    <div style={{ display: "flex", gap: "2px", alignItems: "flex-end", height: "100%" }}>
-                      {(selectedBand === "all" || selectedBand === "red") && (
-                        <div style={{ width: "4px", height: `${rH}%`, background: "#ef4444", borderRadius: "2px 2px 0 0" }} />
-                      )}
-                      {(selectedBand === "all" || selectedBand === "green") && (
-                        <div style={{ width: "4px", height: `${gH}%`, background: "#22c55e", borderRadius: "2px 2px 0 0" }} />
-                      )}
-                      {(selectedBand === "all" || selectedBand === "blue") && (
-                        <div style={{ width: "4px", height: `${bH}%`, background: "#3b82f6", borderRadius: "2px 2px 0 0" }} />
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px", fontSize: "12px", color: "var(--dw-text-subtle)" }}>
-              <span>Digital Number 0</span>
-              <span>DN 128</span>
-              <span>DN 255</span>
-            </div>
+          <div style={{ marginTop: "20px", padding: "12px", background: "rgba(0,0,0,0.3)", borderRadius: "6px", fontSize: "12px", color: "var(--dw-text-subtle)", lineHeight: 1.5 }}>
+            <strong>Geospatial Compliance Note:</strong> Non-georeferenced images proceed automatically to the Relative rDSM pipeline without inventing geodetic coordinates. Georeferenced GeoTIFFs preserve native CRS tags and affine transform matrices for metric calibration.
           </div>
         </div>
       </div>

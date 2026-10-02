@@ -1,0 +1,56 @@
+{
+  "project_id": "northeast_tawang",
+  "surface_product": "dsm",
+  "horizontal_units": "m",
+  "vertical_units": "m",
+  "gsd_x": 2.0,
+  "gsd_y": 2.0,
+  "raster_width": 1024,
+  "raster_height": 1024,
+  "valid_pixels": 1048576,
+  "minimum_elevation": 2100.0,
+  "maximum_elevation": 4799.99658203125,
+  "relief": 2699.99658203125,
+  "lods": [
+    {
+      "level": 0,
+      "stride": 1,
+      "path": "terrain-lod0.glb",
+      "sha256": "b4df175d31f92c7f55ba618640f4b45550a17dba9d8bbdba16be26014f3634d2",
+      "vertices": 1048576,
+      "faces": 2093058,
+      "width_samples": 1024,
+      "height_samples": 1024
+    },
+    {
+      "level": 1,
+      "stride": 2,
+      "path": "terrain-lod1.glb",
+      "sha256": "b9722dd15e0417020350842e8ea9af1baabdeb271259150e08935e1aff386a65",
+      "vertices": 263169,
+      "faces": 524288,
+      "width_samples": 513,
+      "height_samples": 513
+    },
+    {
+      "level": 2,
+      "stride": 4,
+      "path": "terrain-lod2.glb",
+      "sha256": "85ffa0921681115311bc2949b87126ed3a65dfa86463ac77d08c30efb3c8cdeb",
+      "vertices": 66049,
+      "faces": 131072,
+      "width_samples": 257,
+      "height_samples": 257
+    },
+    {
+      "level": 3,
+      "stride": 8,
+      "path": "terrain-lod3.glb",
+      "sha256": "2979a0c00221d311e3afcbf24094522f7ebd87b46766386838fa3ee389dea00f",
+      "vertices": 16641,
+      "faces": 32768,
+      "width_samples": 129,
+      "height_samples": 129
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "project_id": "badrinath_alaknanda",
+  "surface_product": "dsm",
+  "horizontal_units": "m",
+  "vertical_units": "m",
+  "gsd_x": 2.0,
+  "gsd_y": 2.0,
+  "raster_width": 1024,
+  "raster_height": 1024,
+  "valid_pixels": 1048576,
+  "minimum_elevation": 3100.0,
+  "maximum_elevation": 6595.99560546875,
+  "relief": 3495.99560546875,
+  "lods": [
+    {
+      "level": 0,
+      "stride": 1,
+      "path": "terrain-lod0.glb",
+      "sha256": "694eb1e0be9bcbb8fa5e31f179bcd9635620b37def28d1f42770e71d38847d65",
+      "vertices": 1048576,
+      "faces": 2093058,
+      "width_samples": 1024,
+      "height_samples": 1024
+    },
+    {
+      "level": 1,
+      "stride": 2,
+      "path": "terrain-lod1.glb",
+      "sha256": "482553342211f4f60eec8a8a7795b42a813d5e304e3d6406fae35d324258b815",
+      "vertices": 263169,
+      "faces": 524288,
+      "width_samples": 513,
+      "height_samples": 513
+    },
+    {
+      "level": 2,
+      "stride": 4,
+      "path": "terrain-lod2.glb",
+      "sha256": "fe55a9d2b393f8e2c712b991d8975f451a645cf37d4eb6e3144e97fdceb3e90d",
+      "vertices": 66049,
+      "faces": 131072,
+      "width_samples": 257,
+      "height_samples": 257
+    },
+    {
+      "level": 3,
+      "stride": 8,
+      "path": "terrain-lod3.glb",
+      "sha256": "1e6cd8d8f624a98154e01e8fb847fdce24365526fe06fb97b4ee2cd88fa594f6",
+      "vertices": 16641,
+      "faces": 32768,
+      "width_samples": 129,
+      "height_samples": 129
+    }
+  ]
+}

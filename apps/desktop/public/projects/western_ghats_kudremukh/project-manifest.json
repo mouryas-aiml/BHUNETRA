@@ -1,0 +1,44 @@
+{
+  "project_id": "western_ghats_kudremukh",
+  "title": "Western Ghats Escarpments & Dense Canopy (Kudremukh)",
+  "state": "COMPLETED",
+  "georeferenced": true,
+  "crs": "EPSG:32643",
+  "gsd_m": 1.5,
+  "vertical_units": "m",
+  "elevation_range": [
+    650.0,
+    1893.997802734375
+  ],
+  "artifacts": {
+    "source_image": "optical.png",
+    "dsm": "products/dsm.tif",
+    "rdsm": "products/rdsm.tif",
+    "slope": "products/slope.tif",
+    "residual": "products/residual.tif",
+    "confidence": "products/confidence.tif",
+    "mesh_manifest": "mesh/mesh-manifest.json",
+    "provenance": "provenance.json",
+    "terrain_lod0": "mesh/terrain-lod0.glb",
+    "terrain_lod1": "mesh/terrain-lod1.glb",
+    "terrain_lod2": "mesh/terrain-lod2.glb",
+    "terrain_lod3": "mesh/terrain-lod3.glb"
+  },
+  "provenance": {
+    "system": "DepthWizard",
+    "version": "0.2.0",
+    "region_id": "western_ghats_kudremukh",
+    "region_name": "Western Ghats Escarpments & Dense Canopy (Kudremukh)",
+    "crs": "EPSG:32643",
+    "latitude": 13.13,
+    "longitude": 75.25,
+    "gsd_m": 1.5,
+    "elevation_envelope_m": [
+      650.0,
+      1894.0
+    ],
+    "calibration_model": "Positive-Scale Huber IRLS",
+    "reference_dem": "Copernicus GLO-30 / CartoDEM 30m"
+  },
+  "status": "complete"
+}

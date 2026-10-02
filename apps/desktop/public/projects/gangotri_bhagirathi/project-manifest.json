@@ -1,0 +1,44 @@
+{
+  "project_id": "gangotri_bhagirathi",
+  "title": "Gangotri & Bhagirathi Valley (Shivling & Meru Peaks)",
+  "state": "COMPLETED",
+  "georeferenced": true,
+  "crs": "EPSG:32644",
+  "gsd_m": 1.5,
+  "vertical_units": "m",
+  "elevation_range": [
+    3890.0,
+    7137.99560546875
+  ],
+  "artifacts": {
+    "source_image": "optical.png",
+    "dsm": "products/dsm.tif",
+    "rdsm": "products/rdsm.tif",
+    "slope": "products/slope.tif",
+    "residual": "products/residual.tif",
+    "confidence": "products/confidence.tif",
+    "mesh_manifest": "mesh/mesh-manifest.json",
+    "provenance": "provenance.json",
+    "terrain_lod0": "mesh/terrain-lod0.glb",
+    "terrain_lod1": "mesh/terrain-lod1.glb",
+    "terrain_lod2": "mesh/terrain-lod2.glb",
+    "terrain_lod3": "mesh/terrain-lod3.glb"
+  },
+  "provenance": {
+    "system": "DepthWizard",
+    "version": "0.2.0",
+    "region_id": "gangotri_bhagirathi",
+    "region_name": "Gangotri & Bhagirathi Valley (Shivling & Meru Peaks)",
+    "crs": "EPSG:32644",
+    "latitude": 30.9833,
+    "longitude": 79.0833,
+    "gsd_m": 1.5,
+    "elevation_envelope_m": [
+      3890.0,
+      7138.0
+    ],
+    "calibration_model": "Positive-Scale Huber IRLS",
+    "reference_dem": "Copernicus GLO-30 / CartoDEM 30m"
+  },
+  "status": "complete"
+}

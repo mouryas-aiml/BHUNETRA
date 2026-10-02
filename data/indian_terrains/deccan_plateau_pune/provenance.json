@@ -1,0 +1,16 @@
+{
+  "system": "DepthWizard",
+  "version": "0.2.0",
+  "region_id": "deccan_plateau_pune",
+  "region_name": "Deccan Traps Basalt Mesa & Plateau (Sinhagad)",
+  "crs": "EPSG:32643",
+  "latitude": 18.3664,
+  "longitude": 73.7558,
+  "gsd_m": 1.5,
+  "elevation_envelope_m": [
+    580.0,
+    1312.0
+  ],
+  "calibration_model": "Positive-Scale Huber IRLS",
+  "reference_dem": "Copernicus GLO-30 / CartoDEM 30m"
+}

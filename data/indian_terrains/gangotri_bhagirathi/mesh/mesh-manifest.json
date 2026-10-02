@@ -1,0 +1,56 @@
+{
+  "project_id": "gangotri_bhagirathi",
+  "surface_product": "dsm",
+  "horizontal_units": "m",
+  "vertical_units": "m",
+  "gsd_x": 1.5,
+  "gsd_y": 1.5,
+  "raster_width": 1024,
+  "raster_height": 1024,
+  "valid_pixels": 1048576,
+  "minimum_elevation": 3890.0,
+  "maximum_elevation": 7137.99560546875,
+  "relief": 3247.99560546875,
+  "lods": [
+    {
+      "level": 0,
+      "stride": 1,
+      "path": "terrain-lod0.glb",
+      "sha256": "a7aaecd69f28e88da2ce0cb3a92514d0f4b8b832c0523a4191772c815e9f50ec",
+      "vertices": 1048576,
+      "faces": 2093058,
+      "width_samples": 1024,
+      "height_samples": 1024
+    },
+    {
+      "level": 1,
+      "stride": 2,
+      "path": "terrain-lod1.glb",
+      "sha256": "8ff9b36dd821bdb8fac0ae8b512437313110d3d83515c630c85321061766f913",
+      "vertices": 263169,
+      "faces": 524288,
+      "width_samples": 513,
+      "height_samples": 513
+    },
+    {
+      "level": 2,
+      "stride": 4,
+      "path": "terrain-lod2.glb",
+      "sha256": "a2a2072fcaaa2e5243265260b7e9c629b67d8ebc4157d43a2ed7634d2bc6c9ff",
+      "vertices": 66049,
+      "faces": 131072,
+      "width_samples": 257,
+      "height_samples": 257
+    },
+    {
+      "level": 3,
+      "stride": 8,
+      "path": "terrain-lod3.glb",
+      "sha256": "8c4e0c48d0db1e3ca382bc5522b772429ef0b9cabdb4f883881da84d24a560cf",
+      "vertices": 16641,
+      "faces": 32768,
+      "width_samples": 129,
+      "height_samples": 129
+    }
+  ]
+}

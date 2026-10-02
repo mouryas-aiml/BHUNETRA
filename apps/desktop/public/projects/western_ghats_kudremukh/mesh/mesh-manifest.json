@@ -1,0 +1,56 @@
+{
+  "project_id": "western_ghats_kudremukh",
+  "surface_product": "dsm",
+  "horizontal_units": "m",
+  "vertical_units": "m",
+  "gsd_x": 1.5,
+  "gsd_y": 1.5,
+  "raster_width": 1024,
+  "raster_height": 1024,
+  "valid_pixels": 1048576,
+  "minimum_elevation": 650.0,
+  "maximum_elevation": 1893.997802734375,
+  "relief": 1243.997802734375,
+  "lods": [
+    {
+      "level": 0,
+      "stride": 1,
+      "path": "terrain-lod0.glb",
+      "sha256": "a8344aeeb9926856a683ba6a9f0bcb3cd3b5099c45b2e2e89a9a3cf7ffd5443f",
+      "vertices": 1048576,
+      "faces": 2093058,
+      "width_samples": 1024,
+      "height_samples": 1024
+    },
+    {
+      "level": 1,
+      "stride": 2,
+      "path": "terrain-lod1.glb",
+      "sha256": "601f604506c389716c4993bd26d4a40d536aad7e4d03b299acad040b305f7aac",
+      "vertices": 263169,
+      "faces": 524288,
+      "width_samples": 513,
+      "height_samples": 513
+    },
+    {
+      "level": 2,
+      "stride": 4,
+      "path": "terrain-lod2.glb",
+      "sha256": "0e03dd239cc0699a6c02308f0157cea37625013aeeedf5631499e53d542b1213",
+      "vertices": 66049,
+      "faces": 131072,
+      "width_samples": 257,
+      "height_samples": 257
+    },
+    {
+      "level": 3,
+      "stride": 8,
+      "path": "terrain-lod3.glb",
+      "sha256": "037f3cd2f936e1fd01f5a4c889e2665aad198b6ae1c7ae1b0f3fd51351455244",
+      "vertices": 16641,
+      "faces": 32768,
+      "width_samples": 129,
+      "height_samples": 129
+    }
+  ]
+}

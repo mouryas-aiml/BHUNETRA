@@ -1,0 +1,16 @@
+{
+  "system": "DepthWizard",
+  "version": "0.2.0",
+  "region_id": "spiti_valley",
+  "region_name": "Spiti Valley & Pin Basin (Trans-Himalayan Cold Desert)",
+  "crs": "EPSG:32643",
+  "latitude": 32.2276,
+  "longitude": 78.0707,
+  "gsd_m": 2.0,
+  "elevation_envelope_m": [
+    3650.0,
+    6230.0
+  ],
+  "calibration_model": "Positive-Scale Huber IRLS",
+  "reference_dem": "Copernicus GLO-30 / CartoDEM 30m"
+}

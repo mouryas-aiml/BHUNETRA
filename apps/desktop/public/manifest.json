@@ -1,14 +1,9 @@
 {
   "short_name": "DepthWizard",
-  "name": "DepthWizard · BhuNetra — AI Earth Intelligence",
+  "name": "DepthWizard — Single-View Height Estimation & 3D Flythrough",
   "icons": [
     {
       "src": "/depthwizard-mark.png",
-      "type": "image/png",
-      "sizes": "500x500"
-    },
-    {
-      "src": "/bhu-netra-mark.png",
       "type": "image/png",
       "sizes": "500x500"
     },

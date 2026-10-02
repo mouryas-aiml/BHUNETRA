@@ -49,7 +49,7 @@ export function AiReconstructionView({
           <span className="bn-badge bn-badge--violet">DA3MONO-LARGE (ViT)</span>
           <span className="bn-badge bn-badge--green">{completed ? "RECONSTRUCTION COMPLETE" : isRunning ? "PROCESSING" : "STANDBY"}</span>
         </div>
-        <h1 className="bn-page-headline">BhuNetra AI Monocular Depth & Reconstruction Pipeline</h1>
+        <h1 className="bn-page-headline">DepthWizard AI Monocular Depth & Reconstruction Pipeline</h1>
         <p className="bn-page-lead">
           Single-view elevation estimation using a state-of-the-art Vision Transformer trained on multi-source earth observation data, generating continuous surface geometry from standard optical RGB imagery.
         </p>
@@ -60,16 +60,13 @@ export function AiReconstructionView({
             disabled={isRunning}
             onClick={() => void startReconstruction()}
           >
-            <AiReconstructionIcon /> {isRunning ? `Executing Stage ${currentStep}/8…` : "⚡ Run BhuNetra AI Reconstruction"}
+            <AiReconstructionIcon /> {isRunning ? `Executing Stage ${currentStep}/8…` : "⚡ Run DepthWizard AI Reconstruction"}
+          </button>
+          <button className="dw-btn" onClick={() => onNavigate("Elevation")}>
+            View Calibrated Elevation
           </button>
           <button className="dw-btn" onClick={() => onNavigate("Terrain")}>
             <TerrainIcon /> View 3D Terrain Mesh
-          </button>
-          <button className="dw-btn" onClick={() => onNavigate("Heatmap")}>
-            View Heatmap
-          </button>
-          <button className="dw-btn" onClick={() => onNavigate("Elevation")}>
-            Elevation Model Specs
           </button>
         </div>
       </div>

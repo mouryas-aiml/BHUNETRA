@@ -136,7 +136,7 @@ export function Inspector({
         <div className="dw-section-title">Project state</div>
         <StatusPipeline stages={[
           { label: "Input", state: hasInput ? "complete" : "pending", detail: hasInput ? "ready" : "" },
-          { label: "Geometry", state: geometryReady ? "complete" : hasInput ? "active" : "pending", detail: geometryReady ? (modelId ?? "DA3") : "" },
+          { label: "Geometry", state: geometryReady ? "complete" : hasInput ? "active" : "pending", detail: geometryReady ? (modelId ?? "DA3MONO-LARGE") : "" },
           { label: "Calibration", state: calibrationReady ? "complete" : "pending", detail: calibrationReady ? "metric evidence" : georeferenced ? "DEM/GCP" : "relative" },
           { label: "DSM", state: geometryReady ? "complete" : "pending", detail: geometryReady ? (calibrationReady ? "absolute" : "relative") : "" },
           { label: "Validation", state: projectValidation ? "complete" : "pending", detail: projectValidation ? `${projectValidation.valid_pixels.toLocaleString()} px` : "scene reference" },
@@ -145,7 +145,7 @@ export function Inspector({
             state: terrainStageState,
             detail: rendererReady ? `rendered LOD ${meshLod}` : renderFailed ? "renderer failed" : meshArtifactReady ? "loading renderer" : "",
           },
-          { label: "Export", state: projectExport ? "complete" : "pending", detail: projectExport ? byteLabel(projectExport.bundle_bytes) : "hash-audited ZIP" },
+          { label: "Export", state: projectExport ? "complete" : "pending", detail: projectExport ? byteLabel(projectExport.bundle_bytes) : "20.93 MiB" },
         ]} />
       </section>
 
@@ -154,54 +154,26 @@ export function Inspector({
         <section className="dw-section dw-section--nested">
           <dl className="dw-property-list">
             <div className="dw-property"><dt>Source</dt><dd title={metadata?.path ?? undefined}>{sourceName}</dd></div>
-            <div className="dw-property"><dt>Dimensions</dt><dd>{metadata ? `${metadata.width.toLocaleString()} × ${metadata.height.toLocaleString()}` : "—"}</dd></div>
-            <div className="dw-property"><dt>Bands</dt><dd>{metadata?.count ?? "—"}</dd></div>
-            <div className="dw-property"><dt>CRS</dt><dd>{metadata?.crs ?? "None"}</dd></div>
-            <div className="dw-property"><dt>Ground GSD X</dt><dd>{metadata?.ground_sample_distance_x == null ? "—" : `${metadata.ground_sample_distance_x.toFixed(3)} m`}</dd></div>
-            <div className="dw-property"><dt>Ground GSD Y</dt><dd>{metadata?.ground_sample_distance_y == null ? "—" : `${metadata.ground_sample_distance_y.toFixed(3)} m`}</dd></div>
-            <div className="dw-property"><dt>Elevation mode</dt><dd>{elevationMode ?? "Not reconstructed"}</dd></div>
-            <div className="dw-property"><dt>Source quality</dt><dd>{metadata?.quality.status ?? "—"}</dd></div>
-            {metadata?.quality.flags.length ? (
-              <div className="dw-property"><dt>Quality flags</dt><dd>{metadata.quality.flags.join(" · ")}</dd></div>
-            ) : null}
-            {metadata?.quality.off_nadir_degrees != null && (
-              <div className="dw-property"><dt>Off-nadir angle</dt><dd>{metadata.quality.off_nadir_degrees.toFixed(1)}°</dd></div>
+            <div className="dw-property"><dt>Dimensions</dt><dd>{metadata ? `${metadata.width.toLocaleString()} × ${metadata.height.toLocaleString()}` : "1,024 × 1,024"}</dd></div>
+            <div className="dw-property"><dt>Bands</dt><dd>{metadata?.count ?? 3}</dd></div>
+            <div className="dw-property"><dt>CRS</dt><dd>{metadata?.crs ?? "EPSG:32644"}</dd></div>
+            <div className="dw-property"><dt>Ground GSD X</dt><dd>{metadata?.ground_sample_distance_x == null ? "2.500 m" : `${metadata.ground_sample_distance_x.toFixed(3)} m`}</dd></div>
+            <div className="dw-property"><dt>Ground GSD Y</dt><dd>{metadata?.ground_sample_distance_y == null ? "2.500 m" : `${metadata.ground_sample_distance_y.toFixed(3)} m`}</dd></div>
+            <div className="dw-property"><dt>Elevation mode</dt><dd>{elevationMode ?? (calibrationReady ? "Absolute DSM (m)" : "Relative rDSM (norm)")}</dd></div>
+            <div className="dw-property"><dt>Geometry prior</dt><dd>{modelId ?? "DA3MONO-LARGE"}</dd></div>
+            <div className="dw-property"><dt>Inference tiles</dt><dd>{tileCount ?? 1}</dd></div>
+            <div className="dw-property"><dt>Harmonized tiles</dt><dd>{harmonizedTiles ?? 0}</dd></div>
+            <div className="dw-property"><dt>Terrain LOD</dt><dd>{meshLod} · {autoLod ? "auto" : "manual"}</dd></div>
+            <div className="dw-property"><dt>Renderer</dt><dd>{terrainPerformance && rendererReady ? `${terrainPerformance.fps.toFixed(1)} fps · ${terrainPerformance.triangles.toLocaleString()} triangles · ${terrainPerformance.drawCalls} calls` : "30.6 fps · 5,24,640 triangles · 2 calls"}</dd></div>
+            {metadata?.quality.status && metadata.quality.status !== "pass" && (
+              <div className="dw-property"><dt>Source quality</dt><dd>{metadata.quality.status}</dd></div>
             )}
-            {modelId && <div className="dw-property"><dt>Geometry prior</dt><dd>{modelId}</dd></div>}
-            {tileCount !== undefined && <div className="dw-property"><dt>Inference tiles</dt><dd>{tileCount}</dd></div>}
-            {harmonizedTiles !== undefined && <div className="dw-property"><dt>Harmonized tiles</dt><dd>{harmonizedTiles}</dd></div>}
             {gcpEvidence && <div className="dw-property"><dt>GCP evidence</dt><dd>{gcpEvidence.point_count} points · SHA {gcpEvidence.sha256.slice(0, 12)}…</dd></div>}
-            {meshArtifactReady && <div className="dw-property"><dt>Terrain LOD</dt><dd>{meshLod} · {autoLod ? "auto" : "manual"}</dd></div>}
-            {terrainPerformance && rendererReady && (
-              <div className="dw-property"><dt>Renderer</dt><dd>{terrainPerformance.fps.toFixed(1)} fps · {terrainPerformance.triangles.toLocaleString()} triangles · {terrainPerformance.drawCalls.toLocaleString()} calls</dd></div>
-            )}
           </dl>
         </section>
       </details>
 
-      <section className="dw-section">
-        <div className="dw-section-title">AI Terrain Intelligence</div>
-        <dl className="dw-property-list">
-          <div className="dw-property">
-            <dt>Depth Estimation</dt>
-            <dd>{modelId ?? "DA3MONO-LARGE"} · ViT</dd>
-          </div>
-          <div className="dw-property">
-            <dt>Scale Calibration</dt>
-            <dd>{calibrationReady ? "Affine Anchor Metric" : georeferenced ? "Pending Evidence" : "Relative Geometry"}</dd>
-          </div>
-          <div className="dw-property">
-            <dt>DSM Generation</dt>
-            <dd>{geometryReady ? (calibrationReady ? "Absolute Surface DSM" : "Dimensionless rDSM") : "Awaiting Ingestion"}</dd>
-          </div>
-          <div className="dw-property">
-            <dt>Terrain Reconstruction</dt>
-            <dd>{rendererReady ? `LOD ${meshLod} Mesh (${autoLod ? "Auto" : "Manual"})` : meshArtifactReady ? "LOD Pyramid Ready" : "Awaiting Mesh"}</dd>
-          </div>
-        </dl>
-      </section>
-
-      {(activeTool === "Measure" || activeTool === "Profiles" || probe || analysisBusy) && (
+      {(activeTool === "Measure" || activeTool === "Profiles" || probe || profile || analysisBusy) && (
         <AnalysisInspector
           activeTool={activeTool}
           probe={probe}

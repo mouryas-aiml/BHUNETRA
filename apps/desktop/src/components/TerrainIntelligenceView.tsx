@@ -1,129 +1,109 @@
 import { AnalysisIcon, TerrainIcon } from "./icons";
-import type { RasterMetadata } from "../api";
+import type { ProjectManifest, RasterMetadata } from "../api";
 
 interface TerrainIntelligenceViewProps {
   metadata: RasterMetadata | null;
+  manifest?: ProjectManifest | null;
   onNavigate: (page: string) => void;
 }
 
-export function TerrainIntelligenceView({ metadata, onNavigate }: TerrainIntelligenceViewProps) {
+export function TerrainIntelligenceView({ metadata, manifest, onNavigate }: TerrainIntelligenceViewProps) {
+  const isGeoreferenced = Boolean(metadata?.crs);
+  const isCalibrated = manifest?.stages?.calibration?.status === "completed";
+  const units = isCalibrated ? "metres (m)" : "relative units (rDSM)";
+
   return (
     <div className="bn-page-container">
       {/* Header */}
       <div className="bn-hero-banner">
         <div className="bn-hero-badge-row">
-          <span className="bn-badge bn-badge--cyan">GEOSPATIAL TERRAIN INTELLIGENCE</span>
-          <span className="bn-badge bn-badge--violet">SURFACE DERIVATIVES</span>
-          <span className="bn-badge bn-badge--green">CALCULATED METRICS</span>
+          <span className="bn-badge bn-badge--cyan">06 — TERRAIN ANALYSIS DERIVATIVES</span>
+          <span className="bn-badge bn-badge--violet">SURFACE INTELLIGENCE</span>
+          <span className="bn-badge bn-badge--green">SIH26175 MILESTONE 3</span>
         </div>
-        <h1 className="bn-page-headline">BhuNetra Terrain Intelligence Toolkit</h1>
+        <h1 className="bn-page-headline">DepthWizard Terrain Intelligence & Surface Derivatives</h1>
         <p className="bn-page-lead">
-          Quantitative surface analytics, geomorphometric landform classification, summit/valley peak detection, and slope-aspect computation.
+          Quantitative surface derivatives computed directly from the reconstructed digital surface model: topographic slope, directional aspect, analytical hillshade, iso-contours, and cross-sectional elevation profiles.
         </p>
 
         <div className="bn-action-ribbon">
           <button className="dw-btn dw-btn--primary" onClick={() => onNavigate("Terrain")}>
-            <TerrainIcon /> Open 3D View with Contours
+            <TerrainIcon /> Open Interactive 3D Terrain
           </button>
-          <button className="dw-btn" onClick={() => onNavigate("Heatmap")}>
-            View Slope Heatmap
+          <button className="dw-btn" onClick={() => onNavigate("Elevation")}>
+            View Elevation Surface
           </button>
-          <button className="dw-btn" onClick={() => onNavigate("Analytics")}>
-            View Hypsometric Analytics
+          <button className="dw-btn" onClick={() => onNavigate("Accuracy")}>
+            Accuracy & Error Dashboard
           </button>
         </div>
       </div>
 
-      {/* Topographic Landform Features Grid */}
-      <h3 className="bn-section-heading">Geomorphometric Landform Classification & Extrema</h3>
-      <div className="bn-card bn-card--subtle" style={{ marginBottom: "16px" }}>
-        <strong>Summit & Valley Peak Extrema Identification</strong>: Automatic geodesic gradient ascent and descent locates true topographic peaks, ridge lines, and lowest valley sink points across the reconstructed raster.
-      </div>
+      {/* Surface Derivatives Grid */}
       <div className="bn-dashboard-grid">
         <div className="bn-card">
-          <div className="bn-badge bn-badge--cyan">HIGHEST SUMMIT</div>
-          <h3 style={{ marginTop: "10px", fontSize: "24px", color: "var(--dw-text-bright)" }}>5,510.0 m</h3>
-          <p style={{ fontSize: "14px", color: "var(--dw-text-subtle)", margin: "4px 0 12px 0" }}>
-            Glaciated Mountain Peak (Nanda Devi Range corridor)
+          <span className="bn-badge bn-badge--cyan">DERIVATIVE 01</span>
+          <h3 style={{ marginTop: "12px", fontSize: "20px", color: "var(--dw-text-bright)" }}>
+            Topographic Slope Map
+          </h3>
+          <p style={{ fontSize: "13px", color: "var(--dw-text-subtle)", marginTop: "6px", lineHeight: 1.5 }}>
+            Calculates the maximum rate of elevation change across local 2x2 ground-pixel Jacobian geometry. Essential for identifying landslide hazards, steep escarpments, and trafficability corridors.
           </p>
-          <div className="bn-stat-row">
-            <span>Coordinates</span>
-            <span className="bn-stat-val">30.6124°N, 79.5841°E</span>
-          </div>
-          <div className="bn-stat-row">
-            <span>Summit Slope</span>
-            <span className="bn-stat-val">42.8° (steep ridge)</span>
+          <div style={{ marginTop: "12px", fontSize: "12px", color: "var(--dw-text-bright)" }}>
+            Slope Units: <strong>Angular degrees [0°, 90°]</strong>
           </div>
         </div>
 
         <div className="bn-card">
-          <div className="bn-badge bn-badge--violet">LOWEST VALLEY</div>
-          <h3 style={{ marginTop: "10px", fontSize: "24px", color: "var(--dw-text-bright)" }}>1,789.0 m</h3>
-          <p style={{ fontSize: "14px", color: "var(--dw-text-subtle)", margin: "4px 0 12px 0" }}>
-            Alaknanda River Gorge Drainage
+          <span className="bn-badge bn-badge--violet">DERIVATIVE 02</span>
+          <h3 style={{ marginTop: "12px", fontSize: "20px", color: "var(--dw-text-bright)" }}>
+            Compass Aspect Direction
+          </h3>
+          <p style={{ fontSize: "13px", color: "var(--dw-text-subtle)", marginTop: "6px", lineHeight: 1.5 }}>
+            Measures the horizontal compass orientation that downhill slopes face. Vital for solar irradiation modeling, snowmelt dynamics in the Himalayas, and vegetation moisture analysis.
           </p>
-          <div className="bn-stat-row">
-            <span>Coordinates</span>
-            <span className="bn-stat-val">30.5428°N, 79.5215°E</span>
-          </div>
-          <div className="bn-stat-row">
-            <span>Valley Slope</span>
-            <span className="bn-stat-val">4.2° (alluvial floor)</span>
+          <div style={{ marginTop: "12px", fontSize: "12px", color: "var(--dw-text-bright)" }}>
+            Aspect Range: <strong>Azimuth [0° to 360° clockwise from North]</strong>
           </div>
         </div>
 
         <div className="bn-card">
-          <div className="bn-badge bn-badge--green">TOTAL VERTICAL RELIEF</div>
-          <h3 style={{ marginTop: "10px", fontSize: "24px", color: "var(--dw-text-bright)" }}>3,721.0 m</h3>
-          <p style={{ fontSize: "14px", color: "var(--dw-text-subtle)", margin: "4px 0 12px 0" }}>
-            Extreme High-Relief Mountain Terrain
+          <span className="bn-badge bn-badge--green">DERIVATIVE 03</span>
+          <h3 style={{ marginTop: "12px", fontSize: "20px", color: "var(--dw-text-bright)" }}>
+            Dynamic Elevation Contours
+          </h3>
+          <p style={{ fontSize: "13px", color: "var(--dw-text-subtle)", marginTop: "6px", lineHeight: 1.5 }}>
+            Vectorized iso-elevation intervals overlaid directly onto the optical texture or elevation surface. Enables rapid topographic map generation and tactical elevation gradient appraisal.
           </p>
-          <div className="bn-stat-row">
-            <span>Relief Ratio</span>
-            <span className="bn-stat-val">0.340 (High Energy)</span>
+          <div style={{ marginTop: "12px", fontSize: "12px", color: "var(--dw-text-bright)" }}>
+            Contour Spacing: <strong>Adaptive based on terrain relief span</strong>
           </div>
-          <div className="bn-stat-row">
-            <span>Ruggedness Index</span>
-            <span className="bn-stat-val">18.4 (Severe)</span>
+        </div>
+
+        <div className="bn-card">
+          <span className="bn-badge bn-badge--cyan">DERIVATIVE 04</span>
+          <h3 style={{ marginTop: "12px", fontSize: "20px", color: "var(--dw-text-bright)" }}>
+            Elevation Profile Transects
+          </h3>
+          <p style={{ fontSize: "13px", color: "var(--dw-text-subtle)", marginTop: "6px", lineHeight: 1.5 }}>
+            Interactive cross-sectional sampling between any two surface points. Plots elevation progression, slope changes, and geodesic ground distance in real time.
+          </p>
+          <div style={{ marginTop: "12px", fontSize: "12px", color: "var(--dw-text-bright)" }}>
+            Measurement: <strong>Active in 2D Raster & 3D Terrain viewports</strong>
           </div>
         </div>
       </div>
 
-      {/* Surface Derivatives Table */}
-      <h3 className="bn-section-heading">Surface Derivatives & Morphometry</h3>
-      <div className="bn-card">
-        <div className="bn-analytics-table-grid">
-          <div className="bn-stat-cell">
-            <span className="bn-stat-cell-label">Mean Slope</span>
-            <span className="bn-stat-cell-val">18.4° (Moderately Steep)</span>
-          </div>
-          <div className="bn-stat-cell">
-            <span className="bn-stat-cell-label">Maximum Slope</span>
-            <span className="bn-stat-cell-val">58.4° (Near-vertical Escarpment)</span>
-          </div>
-          <div className="bn-stat-cell">
-            <span className="bn-stat-cell-label">Dominant Aspect</span>
-            <span className="bn-stat-cell-val">South-Southwest (214°)</span>
-          </div>
-          <div className="bn-stat-cell">
-            <span className="bn-stat-cell-label">Plan Curvature</span>
-            <span className="bn-stat-cell-val">+0.012 m⁻¹ (Diverging ridges)</span>
-          </div>
-          <div className="bn-stat-cell">
-            <span className="bn-stat-cell-label">Profile Curvature</span>
-            <span className="bn-stat-cell-val">-0.018 m⁻¹ (Accelerating slope)</span>
-          </div>
-          <div className="bn-stat-cell">
-            <span className="bn-stat-cell-label">Drainage Vector</span>
-            <span className="bn-stat-cell-val">D8 Steepest Descent</span>
-          </div>
-        </div>
-
-        <div className="bn-card bn-card--subtle" style={{ marginTop: "16px" }}>
-          <strong>Operational Intelligence Note:</strong>
-          <p style={{ fontSize: "14px", marginTop: "6px", color: "var(--dw-text-subtle)", lineHeight: 1.5 }}>
-            BhuNetra calculates surface normal vectors directly from the reconstructed 3D mesh. Areas with slope &gt; 35° paired with high negative profile curvature represent critical landslide-susceptible zones under monsoonal saturation.
-          </p>
+      {/* Building Height Extractor Card */}
+      <div className="bn-card bn-card--accent-border" style={{ marginTop: "20px" }}>
+        <h3 className="bn-card-title">Building / Structure Net Height Extraction</h3>
+        <p style={{ fontSize: "14px", color: "var(--dw-text-subtle)", marginTop: "8px", lineHeight: 1.5 }}>
+          DepthWizard provides an evidence-based structural height tool. The operator defines a polygon footprint on the optical or DSM layer. The algorithm automatically erodes boundary pixels to avoid roof eaves, fits a robust ground reference plane from surrounding buffer annulus points, and extracts net structure height above the local terrain.
+        </p>
+        <div style={{ marginTop: "14px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          <button className="dw-btn dw-btn--primary" onClick={() => onNavigate("Terrain")}>
+            <AnalysisIcon /> Launch Transect & Structure Analysis in 3D View
+          </button>
         </div>
       </div>
     </div>

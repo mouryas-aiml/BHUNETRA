@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="DepthWizard.png" alt="DepthWizard | BhuNetra Logo" width="160">
+  <img src="DepthWizard.png" alt="DepthWizard Logo" width="160">
 </p>
 
-<h1 align="center">DepthWizard | BhuNetra</h1>
+<h1 align="center">DepthWizard</h1>
 
 <p align="center">
   <strong>AI-Powered Earth Intelligence from a Single View</strong>
@@ -30,7 +30,7 @@
 
 ### Quick Links
 
-- 🌐 **Live Web Application:** [https://bhunetra-five.vercel.app](https://bhunetra-five.vercel.app)
+- 🌐 **Live Web Application:** [https://depthwizard.vercel.app](https://depthwizard.vercel.app)
 - 📦 **SIH DepthWizard Repository:** [https://github.com/IMG-PROCESS-SAC/SIH-DepthWizard-2026](https://github.com/IMG-PROCESS-SAC/SIH-DepthWizard-2026)
 - 🎥 **Video Explanation:** [YouTube Idea Explanation Video — URL pending]
 - 📊 **Primary Benchmark Dataset (GAMUS):** [https://huggingface.co/datasets/earthflow/GAMUS](https://huggingface.co/datasets/earthflow/GAMUS)
@@ -44,7 +44,7 @@
 1. [Project Overview](#1-project-overview)
 2. [Smart India Hackathon Context](#2-smart-india-hackathon-context)
 3. [What Problem Are We Solving?](#3-what-problem-are-we-solving)
-4. [What DepthWizard | BhuNetra Solves](#4-what-depthwizard--bhunetra-solves)
+4. [What DepthWizard Solves](#4-what-depthwizard-solves)
 5. [Core Innovation](#5-core-innovation)
 6. [Key Features](#6-key-features)
 7. [How It Works](#7-how-it-works)
@@ -77,7 +77,7 @@
 
 ## 1. Project Overview
 
-**DepthWizard | BhuNetra** is an AI-assisted single-view remote-sensing terrain reconstruction system developed for the **Smart India Hackathon (SIH) 2026 Problem Statement 26175**. The software unifies monocular computer vision, robust geodetic calibration, raster terrain intelligence, and real-time GPU-accelerated 3D exploration into an integrated engineering solution.
+**DepthWizard** is an AI-assisted single-view remote-sensing terrain reconstruction system developed for the **Smart India Hackathon (SIH) 2026 Problem Statement 26175**. The software unifies monocular computer vision, robust geodetic calibration, raster terrain intelligence, and real-time GPU-accelerated 3D exploration into an integrated engineering solution.
 
 ```
 ┌─────────────────┐     ┌───────────────────┐     ┌──────────────────────┐     ┌───────────────────────┐
@@ -95,16 +95,16 @@
 
 In traditional photogrammetry, generating a 3D Digital Surface Model (DSM) requires stereo or multi-view image pairs captured from separate orbital passes or airborne flightlines, or expensive active sensors such as airborne LiDAR or InSAR radar interferometry. When a natural disaster occurs—such as a flash flood, landslide, glacial lake outburst flood (GLOF), or earthquake—first responders frequently possess only a **single optical satellite or drone image** of the affected region.
 
-**DepthWizard | BhuNetra** resolves this critical operational bottleneck. Operating directly on monocular optical imagery, it extracts dense spatial surface variations using a vision-foundation geometry prior, transforms these variations through geodetically grounded scale calibration, derives actionable analytical terrain layers (slope, aspect, contours, hillshade, profiles, building heights), and streams the result into an interactive Three.js 3D viewport.
+**DepthWizard** resolves this critical operational bottleneck. Operating directly on monocular optical imagery, it extracts dense spatial surface variations using a vision-foundation geometry prior, transforms these variations through geodetically grounded scale calibration, derives actionable analytical terrain layers (slope, aspect, contours, hillshade, profiles, building heights), and streams the result into an interactive Three.js 3D viewport.
 
 ### Relative Depth vs. Metric Elevation: A Fundamental Distinction
 
-A cornerstone of the **DepthWizard | BhuNetra** philosophy is scientific truthfulness:
+A cornerstone of the **DepthWizard** philosophy is scientific truthfulness:
 
 - **Relative Depth / Dimensionless Surface (`rDSM`):** When given uncalibrated imagery without spatial metadata or geodetic ground anchors, the system generates an affine-preserving, normalized relative surface. It explicitly refuses to invent artificial metric elevations or fabricate metres out of thin air.
 - **Metric Elevation / Calibrated Surface (`DSM`):** When georeferencing and independent vertical control (such as coarse regional DEMs like SRTM or Copernicus GLO-30, or surveyed Ground Control Points) are supplied, DepthWizard executes robust Iteratively Reweighted Least Squares (IRLS) Huber regression to produce genuine physical elevation in metres, projected to standard cartographic Coordinate Reference Systems (CRS).
 
-By uniting monocular inference, rigorous calibration, geospatial analytics, and interactive WebGL visualization in a single offline-first native workstation, **DepthWizard | BhuNetra** delivers a complete pipeline from raw pixels to tactical earth intelligence.
+By uniting monocular inference, rigorous calibration, geospatial analytics, and interactive WebGL visualization in a single offline-first native workstation, **DepthWizard** delivers a complete pipeline from raw pixels to tactical earth intelligence.
 
 ---
 
@@ -123,7 +123,7 @@ By uniting monocular inference, rigorous calibration, geospatial analytics, and 
 
 The official SIH Problem Statement 26175 mandates extracting 3D height information from single-view satellite and aerial imagery, generating digital surface models, and enabling real-time 3D flight navigation and measurement.
 
-| SIH Requirement | DepthWizard | BhuNetra Technical Implementation | Verification Evidence |
+| SIH Requirement | DepthWizard Technical Implementation | Verification Evidence |
 |---|---|---|
 | **Single-View Height Estimation** | Pretrained `DA3MONO-LARGE` Vision Transformer foundation geometry prior coupled with scene-global overlap harmonization ($h = -\text{depth}$). | Unit-tested model contracts, frozen checkpoint SHA-256 verification (`7a799a7f...`). |
 | **Georeferenced & Non-Georeferenced Ingest** | Dual-path raster pipeline: non-georeferenced images yield dimensionless `rDSM`; georeferenced GeoTIFFs yield metric `dsm.tif` upon calibration. | Ingestion tests for PNG, JPG, and GeoTIFF; fail-closed metadata validators. |
@@ -159,9 +159,9 @@ Synthetic and deep-learning-generated terrains can hallucinate details or smooth
 
 ---
 
-## 4. What DepthWizard | BhuNetra Solves
+## 4. What DepthWizard Solves
 
-| Problem | DepthWizard | BhuNetra Response | Technical Mechanism |
+| Problem | DepthWizard Response | Technical Mechanism |
 |---|---|---|
 | **2D image lacks explicit height** | Monocular Depth Inference | `DA3MONO-LARGE` Vision Transformer predicts affine height evidence ($h = -\text{depth}$). |
 | **Relative depth lacks metric scale** | Evidence Calibration | Huber IRLS regression anchors relative heights to DEM or GCP anchors under an $\alpha > 0$ constraint. |
@@ -176,7 +176,7 @@ Synthetic and deep-learning-generated terrains can hallucinate details or smooth
 
 ## 5. Core Innovation
 
-The core innovation of **DepthWizard | BhuNetra** is not merely running an AI model, but establishing an **end-to-end, mathematically grounded pipeline** that converts an unconstrained optical image into an interactive, scientifically validated 3D geospatial environment without requiring manual intervention across multiple tools.
+The core innovation of **DepthWizard** is not merely running an AI model, but establishing an **end-to-end, mathematically grounded pipeline** that converts an unconstrained optical image into an interactive, scientifically validated 3D geospatial environment without requiring manual intervention across multiple tools.
 
 ```mermaid
 flowchart LR
@@ -243,7 +243,7 @@ flowchart LR
 
 ## 7. How It Works
 
-The lifecycle of an image within **DepthWizard | BhuNetra** proceeds through seven systematic stages:
+The lifecycle of an image within **DepthWizard** proceeds through seven systematic stages:
 
 ```mermaid
 flowchart TB
@@ -436,7 +436,7 @@ In strict adherence to scientific rigor, DepthWizard evaluated multiple alternat
 
 ## 12. Dataset Access
 
-The primary remote-sensing benchmark dataset integrated into **DepthWizard | BhuNetra** is the **GAMUS Dataset**:
+The primary remote-sensing benchmark dataset integrated into **DepthWizard** is the **GAMUS Dataset**:
 
 - **Repository:** [earthflow/GAMUS on Hugging Face](https://huggingface.co/datasets/earthflow/GAMUS)
 - **Modalities:** High-resolution optical aerial/satellite imagery paired with LiDAR-derived Above Ground Level (AGL) height maps and semantic masks.
@@ -558,7 +558,7 @@ flowchart TD
 sequenceDiagram
     autonumber
     actor Operator as Analyst
-    participant UI as BhuNetra UI
+    participant UI as DepthWizard UI
     participant Core as Python Core
     participant HF as Hugging Face Hub
     participant Cache as Local Cache
@@ -749,7 +749,7 @@ project_directory/
 ## 18. Project Structure
 
 ```text
-BHUNETRA/
+DEPTHWIZARD/
 ├── apps/
 │   └── desktop/
 │       ├── public/
@@ -820,9 +820,9 @@ BHUNETRA/
 
 ## 19. Working Prototype
 
-The **DepthWizard | BhuNetra** prototype is fully functional and qualified across both native desktop and web environments:
+The **DepthWizard** prototype is fully functional and qualified across both native desktop and web environments:
 
-- 🌐 **Live Web Deployment:** [https://bhunetra-five.vercel.app](https://bhunetra-five.vercel.app)
+- 🌐 **Live Web Deployment:** [https://depthwizard.vercel.app](https://depthwizard.vercel.app)
 - 💻 **Native Workstation:** Tauri 2 desktop application executable on Windows and macOS.
 - 📂 **Demonstration Dataset:** Pre-packaged with real scenes from the GAMUS dataset (`DC_02_26`, `DC_04_23`) and a mountainous calibration scene from the Joshimath corridor in Uttarakhand, India.
 
@@ -839,14 +839,14 @@ The **DepthWizard | BhuNetra** prototype is fully functional and qualified acros
 
 ## 20. Screenshots
 
-The following screenshots are captured directly from the running **DepthWizard | BhuNetra** workstation:
+The following screenshots are captured directly from the running **DepthWizard** workstation:
 
 ### 20.1 Executive Intelligence Dashboard
 <p align="center">
-  <img src="Screenshots/Screenshot 1.png" alt="BhuNetra Executive Intelligence Dashboard" width="95%">
+  <img src="Screenshots/Screenshot 1.png" alt="DepthWizard Executive Intelligence Dashboard" width="95%">
 </p>
 <p align="center">
-  <em>The BhuNetra Executive Intelligence Dashboard displaying live telemetry, input raster specifications (1024×1024, 0.30m GSD), DA3MONO-L model parameters, elevation hypsometric distribution, mountain landform categories, pipeline stage completion, and benchmark accuracy cards (RMSE 2.41m, MAE 1.68m, r = 0.942).</em>
+  <em>The DepthWizard Executive Intelligence Dashboard displaying live telemetry, input raster specifications (1024×1024, 0.30m GSD), DA3MONO-L model parameters, elevation hypsometric distribution, mountain landform categories, pipeline stage completion, and benchmark accuracy cards (RMSE 2.41m, MAE 1.68m, r = 0.942).</em>
 </p>
 
 ---
@@ -970,8 +970,8 @@ Calibrated Prediction (dsm.tif)    ───────────────
 
 ```powershell
 # 1. Clone the repository
-git clone https://github.com/IMG-PROCESS-SAC/SIH-DepthWizard-2026.git M:\SIH\BHUNETRA
-cd M:\SIH\BHUNETRA
+git clone https://github.com/IMG-PROCESS-SAC/SIH-DepthWizard-2026.git M:\SIH\DEPTHWIZARD
+cd M:\SIH\DEPTHWIZARD
 
 # 2. Synchronize Python virtual environment with locked dependencies
 uv sync --frozen --python 3.12 --extra dev --extra ml
@@ -1003,11 +1003,11 @@ Run the Python scientific backend and Vite frontend dev server in two separate P
 
 ```powershell
 # Terminal 1: Launch Python Scientific Backend
-cd M:\SIH\BHUNETRA
+cd M:\SIH\DEPTHWIZARD
 & ".\.venv\Scripts\python.exe" -m depthwizard.cli serve --host 127.0.0.1 --port 8765
 
 # Terminal 2: Launch Vite Frontend Dev Server
-cd M:\SIH\BHUNETRA\apps\desktop
+cd M:\SIH\DEPTHWIZARD\apps\desktop
 npm run dev
 # Open browser at http://localhost:1420
 ```
@@ -1015,7 +1015,7 @@ npm run dev
 ### Method 2: Full Standalone Native Desktop App (Tauri)
 
 ```powershell
-cd M:\SIH\BHUNETRA\apps\desktop\src-tauri
+cd M:\SIH\DEPTHWIZARD\apps\desktop\src-tauri
 cargo run
 ```
 
@@ -1056,7 +1056,7 @@ The DepthWizard scientific core exposes a high-performance REST API over loopbac
 - **Request:**
   ```json
   {
-    "path": "M:/SIH/BHUNETRA/data/sample_project/sample_image.png"
+    "path": "M:/SIH/DEPTHWIZARD/data/sample_project/sample_image.png"
   }
   ```
 - **Response:**
@@ -1082,9 +1082,9 @@ The DepthWizard scientific core exposes a high-performance REST API over loopbac
 - **Request:**
   ```json
   {
-    "source": "M:/SIH/BHUNETRA/data/imagery/scene.tif",
-    "output_dir": "M:/SIH/BHUNETRA/data/projects/scene_01",
-    "metric_dem_path": "M:/SIH/BHUNETRA/data/anchors/srtm_30m.tif",
+    "source": "M:/SIH/DEPTHWIZARD/data/imagery/scene.tif",
+    "output_dir": "M:/SIH/DEPTHWIZARD/data/projects/scene_01",
+    "metric_dem_path": "M:/SIH/DEPTHWIZARD/data/anchors/srtm_30m.tif",
     "gcp_csv_path": null
   }
   ```
@@ -1092,9 +1092,9 @@ The DepthWizard scientific core exposes a high-performance REST API over loopbac
   ```json
   {
     "job_id": "7b8f9e12c4a14209bb3e18a99f1234ef",
-    "project_dir": "M:/SIH/BHUNETRA/data/projects/scene_01",
+    "project_dir": "M:/SIH/DEPTHWIZARD/data/projects/scene_01",
     "status": "queued",
-    "manifest_path": "M:/SIH/BHUNETRA/data/projects/scene_01/project-manifest.json",
+    "manifest_path": "M:/SIH/DEPTHWIZARD/data/projects/scene_01/project-manifest.json",
     "submitted_at_utc": "2026-09-30T10:00:00Z",
     "updated_at_utc": "2026-09-30T10:00:00Z"
   }
@@ -1121,7 +1121,7 @@ The DepthWizard scientific core exposes a high-performance REST API over loopbac
 - **Request:**
   ```json
   {
-    "project_dir": "M:/SIH/BHUNETRA/data/projects/scene_01",
+    "project_dir": "M:/SIH/DEPTHWIZARD/data/projects/scene_01",
     "point": { "x": 0.5, "y": 0.5 }
   }
   ```
@@ -1140,7 +1140,7 @@ The DepthWizard scientific core exposes a high-performance REST API over loopbac
 - **Request:**
   ```json
   {
-    "project_dir": "M:/SIH/BHUNETRA/data/projects/scene_01",
+    "project_dir": "M:/SIH/DEPTHWIZARD/data/projects/scene_01",
     "start": { "x": 0.1, "y": 0.1 },
     "end": { "x": 0.9, "y": 0.9 },
     "samples": 256
@@ -1153,7 +1153,7 @@ The DepthWizard scientific core exposes a high-performance REST API over loopbac
 - **Request:**
   ```json
   {
-    "project_dir": "M:/SIH/BHUNETRA/data/projects/scene_01",
+    "project_dir": "M:/SIH/DEPTHWIZARD/data/projects/scene_01",
     "footprint_polygon": [[0.4, 0.4], [0.45, 0.4], [0.45, 0.45], [0.4, 0.45]],
     "eave_erosion_m": 0.5,
     "annulus_inner_m": 1.0,
@@ -1184,7 +1184,7 @@ The DepthWizard scientific core exposes a high-performance REST API over loopbac
 
 ## 26. Research Papers & Academic Citations
 
-The architecture and methodology of **DepthWizard | BhuNetra** are built upon and benchmarked against peer-reviewed literature in computer vision, remote sensing, and robust statistics:
+The architecture and methodology of **DepthWizard** are built upon and benchmarked against peer-reviewed literature in computer vision, remote sensing, and robust statistics:
 
 ### Vision Foundation & Monocular Depth Estimation
 1. **Depth Anything 3 (DA3):**  
@@ -1252,7 +1252,7 @@ The following capabilities represent planned engineering enhancements for subseq
 
 ## 30. License
 
-**DepthWizard | BhuNetra** is open-source software released under the **MIT License**.
+**DepthWizard** is open-source software released under the **MIT License**.
 
 ```text
 MIT License
@@ -1295,7 +1295,7 @@ See the [LICENSE](LICENSE) file for the complete legal text.
 ---
 
 <p align="center">
-  <strong>DepthWizard | BhuNetra</strong><br>
+  <strong>DepthWizard</strong><br>
   <em>AI-Powered Earth Intelligence from a Single View</em><br>
   Developed for ISRO / Smart India Hackathon 2026 · Problem Statement 26175
 </p>

@@ -1,0 +1,56 @@
+{
+  "project_id": "kedarnath_mandakini",
+  "surface_product": "dsm",
+  "horizontal_units": "m",
+  "vertical_units": "m",
+  "gsd_x": 1.5,
+  "gsd_y": 1.5,
+  "raster_width": 1024,
+  "raster_height": 1024,
+  "valid_pixels": 1048576,
+  "minimum_elevation": 3583.0,
+  "maximum_elevation": 6939.99609375,
+  "relief": 3356.99609375,
+  "lods": [
+    {
+      "level": 0,
+      "stride": 1,
+      "path": "terrain-lod0.glb",
+      "sha256": "1d3ec549075e6a0bbc2595a9aaa58e8e9f1fd2cf0225634a3584616755f3800d",
+      "vertices": 1048576,
+      "faces": 2093058,
+      "width_samples": 1024,
+      "height_samples": 1024
+    },
+    {
+      "level": 1,
+      "stride": 2,
+      "path": "terrain-lod1.glb",
+      "sha256": "2d1624121c64c5e62db6a2c4a98b65f0ad8ca27fe8fbd7d3edf25efc32d7959d",
+      "vertices": 263169,
+      "faces": 524288,
+      "width_samples": 513,
+      "height_samples": 513
+    },
+    {
+      "level": 2,
+      "stride": 4,
+      "path": "terrain-lod2.glb",
+      "sha256": "a228baf40ecff2f05c2f89d9c4cb28389a75148ff9d74c3f52fa5000d4210a8d",
+      "vertices": 66049,
+      "faces": 131072,
+      "width_samples": 257,
+      "height_samples": 257
+    },
+    {
+      "level": 3,
+      "stride": 8,
+      "path": "terrain-lod3.glb",
+      "sha256": "81c2623c03a3cbe9d57bf54bd392280901f9c7049cd0d13cffc88daeb33020b6",
+      "vertices": 16641,
+      "faces": 32768,
+      "width_samples": 129,
+      "height_samples": 129
+    }
+  ]
+}

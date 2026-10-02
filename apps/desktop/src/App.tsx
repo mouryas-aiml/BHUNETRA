@@ -35,13 +35,15 @@ import {
   type ReferenceValidationReport,
   loadDemoProject,
   loadGamusSample,
+  resolveDatasetSpec,
+  extractProjectFolder,
+  KNOWN_DATASETS,
 } from "./api";
 import { DatasetExplorer } from "./components/DatasetExplorer";
-import { EvaluatorMode } from "./components/EvaluatorMode";
 import { Inspector, type ValidationEvidence } from "./components/Inspector";
 import { ScientificLegend } from "./components/ScientificLegend";
 import { ToolRail } from "./components/ToolRail";
-import { BhuNetraLogo, DatasetIcon, EvaluatorIcon, UploadIcon } from "./components/icons";
+import { DepthWizardLogo, DatasetIcon, UploadIcon } from "./components/icons";
 import { DashboardView } from "./components/DashboardView";
 import { DatasetCatalogView } from "./components/DatasetCatalogView";
 import { HeatmapView } from "./components/HeatmapView";
@@ -51,8 +53,6 @@ import { ImageInspectorView } from "./components/ImageInspectorView";
 import { ElevationModelView } from "./components/ElevationModelView";
 import { TerrainIntelligenceView } from "./components/TerrainIntelligenceView";
 import { AccuracyDashboardView } from "./components/AccuracyDashboardView";
-import { FlythroughStudioView } from "./components/FlythroughStudioView";
-import { ProjectManagementView } from "./components/ProjectManagementView";
 import { SettingsView } from "./components/SettingsView";
 import { ComparisonViewport } from "./workspace/ComparisonViewport";
 import {
@@ -248,7 +248,6 @@ export function App() {
   const [projectManifest, setProjectManifest] = useState<ProjectManifest | null>(null);
   const [submittingProject, setSubmittingProject] = useState(false);
   const [datasetExplorerOpen, setDatasetExplorerOpen] = useState(false);
-  const [evaluatorOpen, setEvaluatorOpen] = useState(false);
   const [gamusSampleLoaded, setGamusSampleLoaded] = useState<string | null>(null);
   const [gcpEvidence, setGcpEvidence] = useState<GroundControlPointFileReport | null>(null);
   const [demoReport, setDemoReport] = useState<AbsoluteDemoReport | null>(null);
@@ -499,6 +498,7 @@ export function App() {
   const projectAnalystInteractive = !demoMode && Boolean(projectDir) && geometryReady;
   const terrainToolInteractive = projectAnalystInteractive && (
     activeTool === "Project"
+    || activeTool === "Terrain"
     || activeTool === "Measure"
     || activeTool === "Profiles"
     || (activeTool === "Structures" && calibrationReady)
@@ -757,15 +757,19 @@ export function App() {
     return () => window.removeEventListener("keydown", keyDown);
   }, [activeTool, structurePolygon.length]);
 
-  const projectName = useMemo(() => (
-    demoMode
-      ? "BhuNetra · Joshimath Terrain Demo"
-      : gamusSampleLoaded
-        ? `GAMUS · ${gamusSampleLoaded}`
-        : metadata?.path
-          ? fileName(metadata.path)
-          : "BhuNetra Workspace"
-  ), [demoMode, gamusSampleLoaded, metadata]);
+  const projectName = useMemo(() => {
+    if (demoMode) return "DepthWizard · Joshimath Terrain Demo";
+    if (projectDir) {
+      const spec = resolveDatasetSpec(projectDir);
+      if (spec) return `DepthWizard · ${spec.name}`;
+      const folder = extractProjectFolder(projectDir);
+      if (folder) return `DepthWizard · ${folder.replace(/_project$/i, "")}`;
+    }
+    if (gamusSampleLoaded) return `GAMUS · ${gamusSampleLoaded}`;
+    if (metadata?.path) return fileName(metadata.path);
+    return "DepthWizard Workspace";
+  }, [demoMode, gamusSampleLoaded, metadata, projectDir]);
+
   const analystHorizontalScaleMPerPixel = (() => {
     const value = Number(relativeHorizontalScaleInput);
     return Number.isFinite(value) && value > 0 ? value : undefined;
@@ -775,19 +779,38 @@ export function App() {
     setImportError(null);
     setPreviewError(null);
     setOpeningProject(true);
+    // 1. Completely clear previous scene, DSM, terrain mesh, GLB/model, metadata, cursor state, transect and cached renderer state
+    revokePreview();
+    clearProjectMesh();
+    resetAnalysis();
+    setMetadata(null);
+    setProjectManifest(null);
+    setProjectMesh(null);
+    setProjectJob(null);
+    setProjectValidation(null);
+    setProjectExport(null);
+    setSourceAvailable(false);
+    setGcpEvidence(null);
+    setValidationEvidence(null);
+    setTerrainPerformance(null);
+    const cleanFolder = extractProjectFolder(selectedDir);
+    setTerrainRenderState({ phase: "loading", message: `Clearing scene & loading ${cleanFolder} terrain…`, triangles: 0, drawCalls: 0 });
+    setTerrainOverlayRenderState(emptyTerrainOverlayState);
+
     try {
       const manifest = await getProjectManifest(selectedDir);
+      const spec = resolveDatasetSpec(selectedDir) || resolveDatasetSpec(manifest.source_path);
       let nextMetadata: RasterMetadata;
       let nextSourceAvailable = true;
       try {
-        nextMetadata = await inspectRaster(manifest.source_path);
+        nextMetadata = await inspectRaster(manifest.source_path || selectedDir);
       } catch (sourceError) {
         const persistedSurface = manifest.artifacts.dsm?.path ?? manifest.artifacts.rdsm?.path;
         if (!persistedSurface) throw sourceError;
         const surfaceMetadata = await inspectRaster(persistedSurface);
         nextMetadata = {
           ...surfaceMetadata,
-          path: manifest.source_path,
+          path: manifest.source_path || selectedDir,
           count: 0,
           dtype: "source unavailable",
         };
@@ -795,12 +818,10 @@ export function App() {
       }
       const [validation, mesh, exported] = await Promise.all([
         manifest.artifacts.metrics ? getProjectValidation(selectedDir).catch(() => null) : Promise.resolve(null),
-        manifest.artifacts.mesh_manifest ? getProjectMesh(selectedDir).catch(() => null) : Promise.resolve(null),
+        getProjectMesh(selectedDir).catch(() => null),
         getProjectExport(selectedDir).catch(() => null),
       ]);
-      revokePreview();
-      clearProjectMesh();
-      resetAnalysis();
+
       setMetadata(nextMetadata);
       setSourceAvailable(nextSourceAvailable);
       setProjectDir(selectedDir);
@@ -809,14 +830,24 @@ export function App() {
       setProjectValidation(validation);
       setProjectMesh(mesh);
       setProjectExport(exported);
-      setGcpEvidence(null);
-      setValidationEvidence(null);
+      setMeshLod(0);
+      setAutoLod(true);
       setRasterViewState(DEFAULT_RASTER_VIEW_STATE);
+
+      // 4. Update live Analyst Cursor and Elevation Transect profile for this dataset
+      const defaultPoint = { x: 0.52, y: 0.48 };
+      const [initialProbe, initialProfile] = await Promise.all([
+        probeProject(selectedDir, defaultPoint).catch(() => null),
+        sampleProjectProfile(selectedDir, { x: 0.15, y: 0.25 }, { x: 0.85, y: 0.75 }, 160, spec?.gsd).catch(() => null),
+      ]);
+      if (initialProbe) setProbe(initialProbe);
+      if (initialProfile) setProfile(initialProfile);
+
       if (navigateToTool) {
         setActiveTool(navigateToTool);
       }
-      setActiveLayer(manifest.artifacts.dsm || manifest.artifacts.rdsm ? "Contours" : "Texture");
-      setActiveView(manifest.artifacts.dsm || manifest.artifacts.rdsm ? "DSM" : "Optical");
+      setActiveLayer("Texture");
+      setActiveView("3D Terrain");
       rememberProject(selectedDir);
     } catch (error) {
       if (recentProjects.includes(selectedDir)) forgetProject(selectedDir);
@@ -837,7 +868,7 @@ export function App() {
         setActiveLayer("Texture");
       }
     } catch {
-      await loadExistingProject("M:/SIH/BHUNETRA/data/sample_project");
+      await loadExistingProject("data/sample_project");
       if (navigateToTerrain) {
         setActiveTool("Terrain");
         setActiveView("3D Terrain");
@@ -866,8 +897,33 @@ export function App() {
     }
   }, []);
 
+  const handleLoadIndianRegion = async (regionId: string) => {
+    setImportError(null);
+    const cleanId = regionId.replace(/^\/?projects\//, "").replace(/^data\/indian_terrains\//, "");
+    try {
+      const projDir = `/projects/${cleanId}`;
+      await loadExistingProject(projDir, "Terrain");
+      setActiveTool("Terrain");
+      setActiveView("3D Terrain");
+      setActiveLayer("Texture");
+    } catch {
+      try {
+        await loadExistingProject(`data/indian_terrains/${cleanId}`, "Terrain");
+        setActiveTool("Terrain");
+        setActiveView("3D Terrain");
+        setActiveLayer("Texture");
+      } catch (error) {
+        setImportError(error instanceof Error ? error.message : `Unable to load Indian mountain region ${cleanId}`);
+      }
+    }
+  };
+
   const handleSelectGamusSample = async (sampleId: string) => {
     setImportError(null);
+    if (sampleId in KNOWN_DATASETS || !sampleId.startsWith("DC_")) {
+      await handleLoadIndianRegion(sampleId);
+      return;
+    }
     try {
       const result = await loadGamusSample(sampleId, "val");
       setGamusSampleLoaded(sampleId);
@@ -934,11 +990,11 @@ export function App() {
   const openProject = async () => {
     try {
       const selectedDir = await pickPath(
-        { multiple: false, directory: true, title: "Open BhuNetra project" },
-        "Enter BhuNetra project directory path (e.g. M:\\SIH\\BHUNETRA\\data\\sample_project):",
+        { multiple: false, directory: true, title: "Open DepthWizard project" },
+        "Enter DepthWizard project directory path (e.g. data/sample_project):",
       );
       if (!selectedDir) return;
-      await loadExistingProject(selectedDir, "Projects");
+      await loadExistingProject(selectedDir, "Dashboard");
     } catch (error) {
       setImportError(error instanceof Error ? error.message : "Unable to open project folder picker");
     }
@@ -1065,7 +1121,7 @@ export function App() {
       if ("__TAURI_INTERNALS__" in window) {
         try {
           const picked = await pickPath(
-            { multiple: false, directory: true, title: "Choose BhuNetra project folder" },
+            { multiple: false, directory: true, title: "Choose DepthWizard project folder" },
             "Enter output directory for project reconstruction:",
             defaultOut,
           );
@@ -1340,8 +1396,8 @@ export function App() {
       } catch {
         report = {
           schema_version: 1,
-          project_id: projectManifest?.project_id || "bhunetra-scene-export",
-          bundle_path: "bhunetra-project-export.zip",
+          project_id: projectManifest?.project_id || "depthwizard-scene-export",
+          bundle_path: "depthwizard-project-export.zip",
           bundle_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           bundle_bytes: 5632140,
           project_manifest_sha256: "d41d8cd98f00b204e9800998ecf8427e",
@@ -1466,8 +1522,7 @@ export function App() {
     if (view === "Optical") return Boolean(metadata) && sourceAvailable;
     if (view === "Depth") return Boolean(metadata);
     if (view === "DSM") return geometryReady;
-    if (view === "Reference" || view === "Residual") return Boolean(projectValidation);
-    if (view === "Confidence") return Boolean(projectManifest?.artifacts?.confidence);
+    if (view === "Reference" || view === "Residual" || view === "Confidence") return Boolean(metadata) || geometryReady;
     return false;
   };
 
@@ -1494,7 +1549,7 @@ export function App() {
     if (layer === "Slope") return Boolean(projectManifest?.artifacts?.slope);
     if (layer === "Hillshade" || layer === "Contours" || layer === "Heatmap") return geometryReady;
     if (layer === "Confidence") return Boolean(projectManifest?.artifacts?.confidence);
-    if (layer === "Residual") return Boolean(projectValidation);
+    if (layer === "Residual") return Boolean(projectManifest?.artifacts?.residual || projectValidation);
     return false;
   };
 
@@ -1615,41 +1670,35 @@ export function App() {
           <span>ISRO · SIH26175</span>
         </div>
         <div className="dw-top-actions">
-          <button
-            className="dw-btn"
-            onClick={() => setEvaluatorOpen(true)}
-            title="Launch SIH26175 Evaluator Mode Walkthrough"
-          >
-            <EvaluatorIcon /> Evaluator Mode
-          </button>
+          {/* Status Indicator */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            {metadata ? (
+              <span
+                className={`bn-badge ${calibrationReady ? "bn-badge--green" : geometryReady ? "bn-badge--violet" : "bn-badge--cyan"}`}
+                style={{ fontSize: 11, padding: "3px 8px" }}
+              >
+                {calibrationReady ? "Metric DSM" : geometryReady ? "Relative rDSM" : metadata.crs ? "GeoTIFF Ingest" : "RGB Ingest"}
+              </span>
+            ) : (
+              <span className="bn-badge" style={{ background: "rgba(100,116,139,0.2)", color: "#94a3b8", fontSize: 11 }}>
+                No Image Loaded
+              </span>
+            )}
+            {processing && (
+              <span className="bn-badge bn-badge--cyan" style={{ fontSize: 11, padding: "3px 8px" }}>
+                <span className="dw-spinner" /> Processing
+              </span>
+            )}
+          </div>
+
           {!demoMode && !projectDir && (
             <button
               className="dw-btn"
               onClick={() => void handleLoadDemoProject()}
-              title="Instantly open verified sample terrain project"
+              title="Instantly open verified sample terrain project (Joshimath, UK)"
             >
               Demo Terrain
             </button>
-          )}
-          {!demoMode && (
-            <>
-              <button className="dw-btn" onClick={() => void openProject()} disabled={openingProject || processing || exporting}>
-                {openingProject ? "Opening…" : "Open project"}
-              </button>
-              {recentProjects.length > 0 && (
-                <details className="dw-recent-projects">
-                  <summary className="dw-btn">Recent</summary>
-                  <div className="dw-recent-menu">
-                    {recentProjects.map((path) => (
-                      <button key={path} type="button" onClick={() => void loadExistingProject(path, "Projects")} title={path}>
-                        <span>{fileName(path)}</span>
-                        <small>{path}</small>
-                      </button>
-                    ))}
-                  </div>
-                </details>
-              )}
-            </>
           )}
 
           {!demoMode && metadata && !projectDir && (
@@ -1657,6 +1706,7 @@ export function App() {
               {submittingProject ? "Starting…" : "Reconstruct"}
             </button>
           )}
+
           {!demoMode && processing && projectJob && (
             <button
               className="dw-btn"
@@ -1667,11 +1717,13 @@ export function App() {
               {projectJob.cancellation_requested ? "Cancelling…" : "Cancel processing"}
             </button>
           )}
+
           {needsRecovery && (
             <button className="dw-btn dw-btn--primary" onClick={() => void recoverProject()} disabled={submittingProject || !sourceAvailable} title={!sourceAvailable ? "Original source imagery is required to resume processing" : undefined}>
               {submittingProject ? "Recovering…" : "Recover project"}
             </button>
           )}
+
           {!demoMode && waitingForCalibration && (
             <>
               <button className="dw-btn dw-btn--primary" onClick={() => void addDemEvidence()} disabled={submittingProject || !sourceAvailable}>
@@ -1681,16 +1733,18 @@ export function App() {
               <button className="dw-btn" onClick={() => void addDemGcpEvidence()} disabled={submittingProject || !sourceAvailable}>DEM + GCP</button>
             </>
           )}
-          {!demoMode && geometryReady && (
+
+          {!demoMode && geometryReady && !meshArtifactReady && (
             <button
               className="dw-btn"
               onClick={() => void buildTerrain()}
-              disabled={buildingMesh || processing || meshArtifactReady || !sourceAvailable}
-              title={!sourceAvailable && !meshArtifactReady ? "Original source RGB is required to build a new textured terrain mesh" : undefined}
+              disabled={buildingMesh || processing || !sourceAvailable}
+              title={!sourceAvailable ? "Original source RGB is required to build a new textured terrain mesh" : undefined}
             >
-              {buildingMesh ? "Building 3D…" : meshArtifactReady ? "3D mesh built" : "Build 3D terrain"}
+              {buildingMesh ? "Building 3D…" : "Build 3D terrain"}
             </button>
           )}
+
           {!demoMode && calibrationReady && (
             <button
               className="dw-btn"
@@ -1701,13 +1755,22 @@ export function App() {
               {validatingReference ? "Validating…" : projectValidation ? "Reference validated" : "Validate reference"}
             </button>
           )}
+
           <button
             className="dw-btn dw-btn--primary"
             onClick={() => void exportProject()}
-            disabled={processing || exporting}
+            disabled={processing || exporting || !geometryReady}
             title="Build and download a hash-audited ZIP. Source imagery is excluded by default."
           >
-            {exporting ? "Packaging…" : projectExport ? "Export again" : "Export"}
+            {exporting ? "Packaging…" : projectExport ? "Export again" : "Export Products"}
+          </button>
+
+          <button
+            className="dw-btn"
+            onClick={() => setActiveTool("Settings")}
+            title="DepthWizard System Settings"
+          >
+            Settings
           </button>
         </div>
       </header>
@@ -1900,17 +1963,7 @@ export function App() {
               onInstant3D={() => void handleInstant3DTerrain()}
               onExploreGamus={() => setDatasetExplorerOpen(true)}
               onImportImagery={() => void importImagery()}
-            />
-          )}
-
-          {activeTool === "Projects" && (
-            <ProjectManagementView
-              currentProjectDir={projectDir}
-              manifest={projectManifest}
-              recentProjects={recentProjects}
-              onOpenProject={() => void openProject()}
-              onLoadProject={(path) => void loadExistingProject(path, "Projects")}
-              onImportImagery={() => void importImagery()}
+              onLoadIndianRegion={(regionId) => void handleLoadIndianRegion(regionId)}
             />
           )}
 
@@ -1937,14 +1990,19 @@ export function App() {
           {activeTool === "Elevation" && (
             <ElevationModelView
               metadata={metadata}
+              manifest={projectManifest}
               isCalibrated={calibrationReady}
               onNavigate={(page) => setActiveTool(page)}
+              onAddDem={() => void addDemEvidence()}
+              onAddGcp={() => void addGcpEvidence()}
             />
           )}
 
           {activeTool === "Heatmap" && (
             <HeatmapView
               metadata={metadata}
+              manifest={projectManifest}
+              projectDir={projectDir}
               surfaceProduct={calibrationReady ? "dsm" : "rdsm"}
               isCalibrated={calibrationReady}
             />
@@ -1972,31 +2030,11 @@ export function App() {
             />
           )}
 
-          {activeTool === "Validation" && (
-            <AccuracyDashboardView
-              validation={projectValidation}
-              onNavigate={(page) => setActiveTool(page)}
-              onUploadReference={() => void importImagery()}
-            />
-          )}
-
-          {activeTool === "Flythrough" && (
-            <FlythroughStudioView
-              onStartFlythrough={(_speed, _altitude, _fov) => {
-                setActiveTool("Terrain");
-                setActiveView("3D Terrain");
-                setAutoFlythrough(true);
-              }}
-              onNavigate={(page) => setActiveTool(page)}
-            />
-          )}
-
           {activeTool === "Settings" && (
             <SettingsView />
           )}
 
           {activeTool !== "Dashboard" &&
-            activeTool !== "Projects" &&
             activeTool !== "Dataset" &&
             activeTool !== "Reconstruction" &&
             activeTool !== "Elevation" &&
@@ -2004,12 +2042,11 @@ export function App() {
             activeTool !== "Intelligence" &&
             activeTool !== "Inspector" &&
             activeTool !== "Accuracy" &&
-            activeTool !== "Validation" &&
-            activeTool !== "Flythrough" &&
             activeTool !== "Settings" && (
               <>
                 {activeView === "3D Terrain" && meshUrl && (
                   <TerrainViewport
+                    key={projectDir ?? meshUrl}
                     meshUrl={meshUrl}
                     cameraMode={cameraMode}
                     verticalExaggeration={verticalExaggeration}
@@ -2220,15 +2257,137 @@ export function App() {
                   </div>
                 )}
 
-                {activeView !== "3D Terrain" && !previewUrl && !previewLoading && !previewError && !compareActive && (
+                {activeView === "Reference" && !previewUrl && !previewLoading && (
+                  <div className="dw-empty-canvas">
+                    <div className="dw-empty-card" style={{ maxWidth: 580 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                        <span className="bn-badge bn-badge--violet">REFERENCE ELEVATION</span>
+                        <span className="bn-badge bn-badge--cyan">CALIBRATION GROUND TRUTH</span>
+                      </div>
+                      <h2>Reference Elevation Layer</h2>
+                      <p style={{ lineHeight: 1.6, color: "var(--bn-text-secondary)" }}>
+                        {projectValidation ? (
+                          <>
+                            Reference surface aligned via <strong>{projectValidation.reference_path.split(/[\\/]/).pop()}</strong>.
+                            Grid correspondence: {projectValidation.valid_pixels.toLocaleString()} elevation points.
+                          </>
+                        ) : (
+                          <>
+                            <strong>Reference data unavailable</strong> — no external reference DEM (Copernicus DEM GLO-30, SRTM v3, CartoDEM) or Ground Control Points were attached to this scene.
+                            In Relative Mode (rDSM), elevation is dimensionless without external anchors.
+                          </>
+                        )}
+                      </p>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, margin: "14px 0", fontSize: 12, textAlign: "left" }}>
+                        <div style={{ background: "rgba(15,23,42,0.6)", padding: "8px 12px", borderRadius: 4 }}>
+                          <span style={{ color: "var(--bn-text-muted)", display: "block" }}>Reference Source</span>
+                          <strong>{metadata?.crs ? "Copernicus GLO-30 / SRTM" : "None (Relative Mode)"}</strong>
+                        </div>
+                        <div style={{ background: "rgba(15,23,42,0.6)", padding: "8px 12px", borderRadius: 4 }}>
+                          <span style={{ color: "var(--bn-text-muted)", display: "block" }}>Calibration Status</span>
+                          <strong style={{ color: calibrationReady ? "#10b981" : "#f97316" }}>
+                            {calibrationReady ? "METRIC DSM CALIBRATED" : "UNRESTRICTED rDSM"}
+                          </strong>
+                        </div>
+                        <div style={{ background: "rgba(15,23,42,0.6)", padding: "8px 12px", borderRadius: 4 }}>
+                          <span style={{ color: "var(--bn-text-muted)", display: "block" }}>Coordinate Reference</span>
+                          <strong>{metadata?.crs ?? "Non-georeferenced"}</strong>
+                        </div>
+                        <div style={{ background: "rgba(15,23,42,0.6)", padding: "8px 12px", borderRadius: 4 }}>
+                          <span style={{ color: "var(--bn-text-muted)", display: "block" }}>Sample Resolution</span>
+                          <strong>{metadata?.ground_sample_distance_x ? `${metadata.ground_sample_distance_x.toFixed(2)} m GSD` : "Relative pixel units"}</strong>
+                        </div>
+                      </div>
+                      <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 14 }}>
+                        <button className="dw-btn dw-btn--primary" onClick={() => void addDemEvidence()}>
+                          Add Reference DEM
+                        </button>
+                        <button className="dw-btn" onClick={() => void addGcpEvidence()}>
+                          Add GCP CSV
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeView === "Residual" && !previewUrl && !previewLoading && (
+                  <div className="dw-empty-canvas">
+                    <div className="dw-empty-card" style={{ maxWidth: 580 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                        <span className="bn-badge bn-badge--violet">RESIDUAL ERROR ANALYSIS</span>
+                        <span className="bn-badge bn-badge--cyan">PREDICTED − REFERENCE</span>
+                      </div>
+                      <h2>Residual Surface Analysis</h2>
+                      {projectValidation ? (
+                        <>
+                          <p style={{ lineHeight: 1.6, color: "var(--bn-text-secondary)" }}>
+                            Observed elevation residual: <code>Residual = Predicted Elevation − Reference Elevation</code> across {projectValidation.valid_pixels.toLocaleString()} pixels.
+                          </p>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, margin: "14px 0", fontSize: 12, textAlign: "left" }}>
+                            <div style={{ background: "rgba(15,23,42,0.6)", padding: "8px 12px", borderRadius: 4 }}>
+                              <span style={{ color: "var(--bn-text-muted)", display: "block" }}>RMSE</span>
+                              <strong style={{ color: "#38bdf8", fontSize: 16 }}>{projectValidation.elevation.rmse_m.toFixed(2)} m</strong>
+                            </div>
+                            <div style={{ background: "rgba(15,23,42,0.6)", padding: "8px 12px", borderRadius: 4 }}>
+                              <span style={{ color: "var(--bn-text-muted)", display: "block" }}>MAE</span>
+                              <strong style={{ color: "#10b981", fontSize: 16 }}>{projectValidation.elevation.mae_m.toFixed(2)} m</strong>
+                            </div>
+                            <div style={{ background: "rgba(15,23,42,0.6)", padding: "8px 12px", borderRadius: 4 }}>
+                              <span style={{ color: "var(--bn-text-muted)", display: "block" }}>Mean Residual</span>
+                              <strong style={{ color: "#f8fafc", fontSize: 16 }}>{projectValidation.elevation.mean_bias_m.toFixed(2)} m</strong>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <p style={{ lineHeight: 1.6, color: "var(--bn-text-secondary)" }}>
+                            <strong style={{ color: "#f97316" }}>Reference data unavailable — residual analysis cannot be computed.</strong>
+                          </p>
+                          <p style={{ fontSize: 12, color: "var(--bn-text-muted)", lineHeight: 1.5 }}>
+                            To compute empirical residual error metrics (RMSE, MAE, and spatial residual distribution), provide an independent reference DEM or Ground Control Points. DepthWizard strictly refuses to fabricate fake accuracy metrics when reference truth is absent.
+                          </p>
+                          <div style={{ marginTop: 14 }}>
+                            <button className="dw-btn dw-btn--primary" onClick={() => void addDemEvidence()}>
+                              Upload Reference DEM
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {activeView === "Confidence" && !previewUrl && !previewLoading && (
+                  <div className="dw-empty-canvas">
+                    <div className="dw-empty-card" style={{ maxWidth: 580 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                        <span className="bn-badge bn-badge--violet">UNCERTAINTY INDICATOR LAYER</span>
+                        <span className="bn-badge bn-badge--cyan">MONOCULAR SPATIAL GRADIENTS</span>
+                      </div>
+                      <h2>Uncertainty Indicator</h2>
+                      <p style={{ lineHeight: 1.6, color: "var(--bn-text-secondary)" }}>
+                        Spatial uncertainty indicator derived from monocular depth edge gradient discontinuities and optical contrast roughness.
+                        High values highlight sharp cliff escarpments, deep shadows, and low-contrast textures where monocular estimation variance is elevated.
+                      </p>
+                      <div style={{ margin: "14px 0", fontSize: 12, color: "var(--bn-text-muted)" }}>
+                        Run AI Height Estimation on an ingested image to compute and render this scientific layer.
+                      </div>
+                      <button className="dw-btn dw-btn--primary" onClick={() => void reconstruct()} disabled={!metadata || submittingProject}>
+                        Run AI Height Estimation
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {activeView !== "Reference" && activeView !== "Residual" && activeView !== "Confidence" && activeView !== "3D Terrain" && !previewUrl && !previewLoading && !previewError && !compareActive && (
                   <div className="dw-empty-canvas">
                     {!metadata && !projectDir && !processing ? (
                       <div className="bn-landing-container">
                         <div className="bn-landing-logo-ring">
-                          <BhuNetraLogo size={104} />
+                          <DepthWizardLogo size={104} />
                         </div>
-                        <h1 className="bn-landing-headline">BhuNetra</h1>
-                        <div className="bn-landing-tagline">AI-Powered Earth Intelligence from a Single View</div>
+                        <h1 className="bn-landing-headline">DepthWizard</h1>
+                        <div className="bn-landing-tagline">Single-View Height Estimation & 3D Terrain Intelligence</div>
                         <p className="bn-landing-subtitle">
                           Transform a single optical remote-sensing image into measurable elevation, terrain intelligence and an interactive 3D environment.
                         </p>
@@ -2236,28 +2395,25 @@ export function App() {
                           <button className="dw-btn dw-btn--primary bn-btn--hero" onClick={() => void importImagery()}>
                             <UploadIcon /> Import Imagery
                           </button>
-                          <button className="dw-btn" onClick={() => void openProject()}>
-                            📁 Open Project
+                          <button className="dw-btn" onClick={() => void handleInstant3DTerrain()}>
+                            ⛰️ Load Himalayan Sample
                           </button>
                           <button className="dw-btn" onClick={() => setActiveTool("Dataset")}>
-                            <DatasetIcon /> Explore GAMUS Dataset
+                            <DatasetIcon /> Indian Terrains & Datasets
                           </button>
-                          <button className="dw-btn" onClick={() => void handleInstant3DTerrain()}>
-                            ⛰️ Demo Terrain
-                          </button>
-                          <button className="dw-btn" onClick={() => setEvaluatorOpen(true)}>
-                            <EvaluatorIcon /> Evaluator Mode
+                          <button className="dw-btn" onClick={() => setActiveTool("Dashboard")}>
+                            Executive Dashboard
                           </button>
                         </div>
                         <div className="bn-pipeline-strip">
                           <div className="bn-pipeline-step">
                             <span className="bn-pipe-tag">STAGE 01</span>
-                            <span className="bn-pipe-label">OPTICAL IMAGE</span>
+                            <span className="bn-pipe-label">OPTICAL INGEST</span>
                           </div>
                           <span className="bn-pipeline-arrow">→</span>
                           <div className="bn-pipeline-step">
                             <span className="bn-pipe-tag">STAGE 02</span>
-                            <span className="bn-pipe-label">AI DEPTH ESTIMATION</span>
+                            <span className="bn-pipe-label">MONOCULAR DEPTH</span>
                           </div>
                           <span className="bn-pipeline-arrow">→</span>
                           <div className="bn-pipeline-step">
@@ -2267,7 +2423,7 @@ export function App() {
                           <span className="bn-pipeline-arrow">→</span>
                           <div className="bn-pipeline-step">
                             <span className="bn-pipe-tag">STAGE 04</span>
-                            <span className="bn-pipe-label">DSM GENERATION</span>
+                            <span className="bn-pipe-label">DSM / rDSM MAP</span>
                           </div>
                           <span className="bn-pipeline-arrow">→</span>
                           <div className="bn-pipeline-step">
@@ -2277,7 +2433,7 @@ export function App() {
                           <span className="bn-pipeline-arrow">→</span>
                           <div className="bn-pipeline-step">
                             <span className="bn-pipe-tag">STAGE 06</span>
-                            <span className="bn-pipe-label">ANALYSIS / EXPORT</span>
+                            <span className="bn-pipe-label">DERIVATIVES & EXPORT</span>
                           </div>
                         </div>
                       </div>
@@ -2293,7 +2449,7 @@ export function App() {
                         )}
                         <h2>
                           {processing
-                            ? "Reconstructing Scene with BhuNetra AI"
+                            ? "Reconstructing Scene with DepthWizard AI"
                             : waitingForCalibration
                               ? "Relative Geometry Complete"
                               : calibrationReady
@@ -2310,25 +2466,25 @@ export function App() {
                             : waitingForCalibration
                               ? "This georeferenced project is intentionally paused before any metric-height claim. Add DEM evidence, sparse GCP evidence, or combine DEM + GCP."
                               : calibrationReady
-                                ? "BhuNetra completed evidence-calibrated metric elevation. Navigate the registered layers, build 3D terrain, or load a separate reference DSM."
+                                ? "DepthWizard completed evidence-calibrated metric elevation. Navigate the registered layers, build 3D terrain, or load a separate reference DSM."
                                 : geometryReady
-                                  ? "BhuNetra completed a truthful dimensionless relative surface model. No metric elevation has been invented."
+                                  ? "DepthWizard completed a truthful dimensionless relative surface model. No metric elevation has been invented."
                                   : metadata
                                     ? metadata.crs
-                                      ? "Georeferenced input detected. Reconstruct once, then BhuNetra will require DEM/GCP evidence before claiming absolute height."
-                                      : "Single-view optical remote-sensing image chip accepted. BhuNetra will estimate depth using DA3MONO-LARGE, generate relative surface elevation (rDSM), and produce 3D terrain."
-                                    : "Import a single-view RGB remote-sensing image or open a durable BhuNetra project. Core processing remains local."}
+                                      ? "Georeferenced input detected. Reconstruct once, then DepthWizard will require DEM/GCP evidence before claiming absolute height."
+                                      : "Single-view optical remote-sensing image chip accepted. DepthWizard will estimate depth using DA3MONO-LARGE, generate relative surface elevation (rDSM), and produce 3D terrain."
+                                    : "Import a single-view RGB remote-sensing image or open a durable DepthWizard project. Core processing remains local."}
                         </p>
                         {metadata && !projectDir && !processing && (
                           <div style={{ marginTop: "20px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
                             <button className="dw-btn dw-btn--primary bn-btn--hero" type="button" onClick={() => void reconstruct()}>
-                              ⚡ Run BhuNetra AI Reconstruction
+                              ⚡ Run DepthWizard AI Height Estimation
                             </button>
                             <button className="dw-btn" type="button" onClick={() => void handleInstant3DTerrain()}>
                               ⛰️ Instant 3D Terrain View
                             </button>
                             <button className="dw-btn" type="button" onClick={() => setActiveTool("Dataset")}>
-                              Explore GAMUS Samples
+                              Explore Indian Datasets
                             </button>
                           </div>
                         )}
@@ -2400,16 +2556,6 @@ export function App() {
         isOpen={datasetExplorerOpen}
         onClose={() => setDatasetExplorerOpen(false)}
         onSelectSample={handleSelectGamusSample}
-      />
-      <EvaluatorMode
-        isOpen={evaluatorOpen}
-        onClose={() => setEvaluatorOpen(false)}
-        onLoadDemo={handleLoadDemoProject}
-        onExploreGamus={() => setDatasetExplorerOpen(true)}
-        onInspect={importImagery}
-        onRunReconstruct={reconstruct}
-        onBuild3D={buildTerrain}
-        onExport={exportProject}
       />
     </main>
   );

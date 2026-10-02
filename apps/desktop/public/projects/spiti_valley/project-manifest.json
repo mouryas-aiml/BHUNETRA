@@ -1,0 +1,44 @@
+{
+  "project_id": "spiti_valley",
+  "title": "Spiti Valley & Pin Basin (Trans-Himalayan Cold Desert)",
+  "state": "COMPLETED",
+  "georeferenced": true,
+  "crs": "EPSG:32643",
+  "gsd_m": 2.0,
+  "vertical_units": "m",
+  "elevation_range": [
+    3650.0,
+    6229.99658203125
+  ],
+  "artifacts": {
+    "source_image": "optical.png",
+    "dsm": "products/dsm.tif",
+    "rdsm": "products/rdsm.tif",
+    "slope": "products/slope.tif",
+    "residual": "products/residual.tif",
+    "confidence": "products/confidence.tif",
+    "mesh_manifest": "mesh/mesh-manifest.json",
+    "provenance": "provenance.json",
+    "terrain_lod0": "mesh/terrain-lod0.glb",
+    "terrain_lod1": "mesh/terrain-lod1.glb",
+    "terrain_lod2": "mesh/terrain-lod2.glb",
+    "terrain_lod3": "mesh/terrain-lod3.glb"
+  },
+  "provenance": {
+    "system": "DepthWizard",
+    "version": "0.2.0",
+    "region_id": "spiti_valley",
+    "region_name": "Spiti Valley & Pin Basin (Trans-Himalayan Cold Desert)",
+    "crs": "EPSG:32643",
+    "latitude": 32.2276,
+    "longitude": 78.0707,
+    "gsd_m": 2.0,
+    "elevation_envelope_m": [
+      3650.0,
+      6230.0
+    ],
+    "calibration_model": "Positive-Scale Huber IRLS",
+    "reference_dem": "Copernicus GLO-30 / CartoDEM 30m"
+  },
+  "status": "complete"
+}

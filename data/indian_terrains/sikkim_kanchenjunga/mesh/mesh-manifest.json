@@ -1,0 +1,56 @@
+{
+  "project_id": "sikkim_kanchenjunga",
+  "surface_product": "dsm",
+  "horizontal_units": "m",
+  "vertical_units": "m",
+  "gsd_x": 2.0,
+  "gsd_y": 2.0,
+  "raster_width": 1024,
+  "raster_height": 1024,
+  "valid_pixels": 1048576,
+  "minimum_elevation": 2800.0,
+  "maximum_elevation": 8585.9931640625,
+  "relief": 5785.9931640625,
+  "lods": [
+    {
+      "level": 0,
+      "stride": 1,
+      "path": "terrain-lod0.glb",
+      "sha256": "88f77af9139683ac1cbeff0548e9a0f7637d824504e5ec88c85bedcf7f3246ea",
+      "vertices": 1048576,
+      "faces": 2093058,
+      "width_samples": 1024,
+      "height_samples": 1024
+    },
+    {
+      "level": 1,
+      "stride": 2,
+      "path": "terrain-lod1.glb",
+      "sha256": "edc45acfff07f005abe3925643d384e05b23e4c7d0fcc9bd7e52144cb7176750",
+      "vertices": 263169,
+      "faces": 524288,
+      "width_samples": 513,
+      "height_samples": 513
+    },
+    {
+      "level": 2,
+      "stride": 4,
+      "path": "terrain-lod2.glb",
+      "sha256": "dcd322b49b3ae0edfed786aa9356dc79f645ee16994237a0d7bac87bfd3695e3",
+      "vertices": 66049,
+      "faces": 131072,
+      "width_samples": 257,
+      "height_samples": 257
+    },
+    {
+      "level": 3,
+      "stride": 8,
+      "path": "terrain-lod3.glb",
+      "sha256": "17f143531c87ae9a124ba05ddfb158b0b1f17b8309bced68455dfd7a4ee6bd22",
+      "vertices": 16641,
+      "faces": 32768,
+      "width_samples": 129,
+      "height_samples": 129
+    }
+  ]
+}

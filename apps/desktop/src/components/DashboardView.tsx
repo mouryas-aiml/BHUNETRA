@@ -1,12 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   AiReconstructionIcon,
   AccuracyIcon,
-  AnalysisIcon,
   DatasetIcon,
   ElevationModelIcon,
   ExportIcon,
+  TerrainIcon,
   UploadIcon,
+  DepthWizardLogo,
 } from "./icons";
 import type { ProjectManifest, ProjectMeshReport, RasterMetadata, ReferenceValidationReport } from "../api";
 
@@ -21,486 +22,541 @@ interface DashboardViewProps {
   onInstant3D: () => void;
   onExploreGamus: () => void;
   onImportImagery: () => void;
+  onLoadIndianRegion?: (regionId: string) => void;
 }
 
-type MountainRecord = {
-  name: string; range: string; country: string; continent: string;
-  elevation_m: number; first_ascent: number | null;
-  category: "Extreme" | "Ultra" | "High" | "Major";
-};
+interface IndianTerrainRegion {
+  id: string;
+  name: string;
+  physiography: string;
+  location: string;
+  elevationRange: string;
+  slopeProfile: string;
+  challenges: string;
+  crs: string;
+  sensor: string;
+  status: "Sample Available" | "Integration Ready";
+  thumbnailUrl: string;
+}
 
-export const MOUNTAIN_DATA: MountainRecord[] = [
-  {name:"Mount Everest",range:"Himalayas",country:"Nepal/China",continent:"Asia",elevation_m:8849,first_ascent:1953,category:"Extreme"},
-  {name:"K2",range:"Karakoram",country:"Pakistan/China",continent:"Asia",elevation_m:8611,first_ascent:1954,category:"Extreme"},
-  {name:"Kangchenjunga",range:"Himalayas",country:"Nepal/India",continent:"Asia",elevation_m:8586,first_ascent:1955,category:"Extreme"},
-  {name:"Lhotse",range:"Himalayas",country:"Nepal/China",continent:"Asia",elevation_m:8516,first_ascent:1956,category:"Extreme"},
-  {name:"Makalu",range:"Himalayas",country:"Nepal/China",continent:"Asia",elevation_m:8485,first_ascent:1955,category:"Extreme"},
-  {name:"Cho Oyu",range:"Himalayas",country:"Nepal/China",continent:"Asia",elevation_m:8188,first_ascent:1954,category:"Extreme"},
-  {name:"Dhaulagiri I",range:"Himalayas",country:"Nepal",continent:"Asia",elevation_m:8167,first_ascent:1960,category:"Extreme"},
-  {name:"Manaslu",range:"Himalayas",country:"Nepal",continent:"Asia",elevation_m:8163,first_ascent:1956,category:"Extreme"},
-  {name:"Nanga Parbat",range:"Himalayas",country:"Pakistan",continent:"Asia",elevation_m:8126,first_ascent:1953,category:"Extreme"},
-  {name:"Annapurna I",range:"Himalayas",country:"Nepal",continent:"Asia",elevation_m:8091,first_ascent:1950,category:"Extreme"},
-  {name:"Gasherbrum I",range:"Karakoram",country:"Pakistan/China",continent:"Asia",elevation_m:8080,first_ascent:1958,category:"Extreme"},
-  {name:"Broad Peak",range:"Karakoram",country:"Pakistan/China",continent:"Asia",elevation_m:8051,first_ascent:1957,category:"Extreme"},
-  {name:"Gasherbrum II",range:"Karakoram",country:"Pakistan/China",continent:"Asia",elevation_m:8035,first_ascent:1956,category:"Extreme"},
-  {name:"Shishapangma",range:"Himalayas",country:"China",continent:"Asia",elevation_m:8027,first_ascent:1964,category:"Extreme"},
-  {name:"Gyachung Kang",range:"Himalayas",country:"Nepal/China",continent:"Asia",elevation_m:7952,first_ascent:1964,category:"Ultra"},
-  {name:"Annapurna II",range:"Himalayas",country:"Nepal",continent:"Asia",elevation_m:7937,first_ascent:1960,category:"Ultra"},
-  {name:"Kangbachen",range:"Himalayas",country:"Nepal",continent:"Asia",elevation_m:7903,first_ascent:1974,category:"Ultra"},
-  {name:"Distaghil Sar",range:"Karakoram",country:"Pakistan",continent:"Asia",elevation_m:7884,first_ascent:1960,category:"Ultra"},
-  {name:"Himalchuli",range:"Himalayas",country:"Nepal",continent:"Asia",elevation_m:7893,first_ascent:1960,category:"Ultra"},
-  {name:"Nuptse",range:"Himalayas",country:"Nepal",continent:"Asia",elevation_m:7861,first_ascent:1961,category:"Ultra"},
-  {name:"Ngadi Chuli",range:"Himalayas",country:"Nepal",continent:"Asia",elevation_m:7871,first_ascent:1979,category:"Ultra"},
-  {name:"Kunyang Chhish",range:"Karakoram",country:"Pakistan",continent:"Asia",elevation_m:7852,first_ascent:1971,category:"Ultra"},
-  {name:"Masherbrum",range:"Karakoram",country:"Pakistan",continent:"Asia",elevation_m:7821,first_ascent:1960,category:"Ultra"},
-  {name:"Nanda Devi",range:"Himalayas",country:"India",continent:"Asia",elevation_m:7816,first_ascent:1936,category:"Ultra"},
-  {name:"Rakaposhi",range:"Karakoram",country:"Pakistan",continent:"Asia",elevation_m:7788,first_ascent:1958,category:"Ultra"},
-  {name:"Batura Sar",range:"Karakoram",country:"Pakistan",continent:"Asia",elevation_m:7785,first_ascent:1976,category:"Ultra"},
-  {name:"Kamet",range:"Himalayas",country:"India/China",continent:"Asia",elevation_m:7756,first_ascent:1931,category:"Ultra"},
-  {name:"Dhaulagiri II",range:"Himalayas",country:"Nepal",continent:"Asia",elevation_m:7751,first_ascent:1971,category:"Ultra"},
-  {name:"Kanjut Sar",range:"Karakoram",country:"Pakistan",continent:"Asia",elevation_m:7760,first_ascent:1959,category:"Ultra"},
-  {name:"Saltoro Kangri",range:"Karakoram",country:"Pakistan/India",continent:"Asia",elevation_m:7742,first_ascent:1962,category:"Ultra"},
-  {name:"Jannu",range:"Himalayas",country:"Nepal",continent:"Asia",elevation_m:7711,first_ascent:1962,category:"Ultra"},
-  {name:"Dhaulagiri III",range:"Himalayas",country:"Nepal",continent:"Asia",elevation_m:7715,first_ascent:1973,category:"Ultra"},
-  {name:"Tirich Mir",range:"Hindu Kush",country:"Pakistan",continent:"Asia",elevation_m:7708,first_ascent:1950,category:"Ultra"},
-  {name:"Molamenqing",range:"Himalayas",country:"China",continent:"Asia",elevation_m:7703,first_ascent:1981,category:"Ultra"},
-  {name:"Kongur Tagh",range:"Pamirs",country:"China",continent:"Asia",elevation_m:7649,first_ascent:1981,category:"Ultra"},
-  {name:"Fang",range:"Himalayas",country:"Nepal",continent:"Asia",elevation_m:7647,first_ascent:1985,category:"Ultra"},
-  {name:"Saser Kangri I",range:"Karakoram",country:"India",continent:"Asia",elevation_m:7672,first_ascent:1973,category:"Ultra"},
-  {name:"Dhaulagiri IV",range:"Himalayas",country:"Nepal",continent:"Asia",elevation_m:7661,first_ascent:1975,category:"Ultra"},
-  {name:"Minya Konka",range:"Daxue Mountains",country:"China",continent:"Asia",elevation_m:7556,first_ascent:1932,category:"Ultra"},
-  {name:"Gangkhar Puensum",range:"Himalayas",country:"Bhutan/China",continent:"Asia",elevation_m:7570,first_ascent:null,category:"Ultra"},
-  {name:"Kula Kangri",range:"Himalayas",country:"Bhutan/China",continent:"Asia",elevation_m:7554,first_ascent:null,category:"Ultra"},
-  {name:"Annapurna III",range:"Himalayas",country:"Nepal",continent:"Asia",elevation_m:7555,first_ascent:1961,category:"Ultra"},
-  {name:"Muztagh Ata",range:"Pamirs",country:"China",continent:"Asia",elevation_m:7546,first_ascent:1956,category:"Ultra"},
-  {name:"Annapurna IV",range:"Himalayas",country:"Nepal",continent:"Asia",elevation_m:7525,first_ascent:1955,category:"Ultra"},
-  {name:"Ismoil Somoni Peak",range:"Pamir",country:"Tajikistan",continent:"Asia",elevation_m:7495,first_ascent:1933,category:"Ultra"},
-  {name:"Noshaq",range:"Hindu Kush",country:"Afghanistan/Pakistan",continent:"Asia",elevation_m:7492,first_ascent:1960,category:"Ultra"},
-  {name:"Jengish Chokusu",range:"Tian Shan",country:"Kyrgyzstan/China",continent:"Asia",elevation_m:7439,first_ascent:1956,category:"Ultra"},
-  {name:"Istor-o-Nal",range:"Hindu Kush",country:"Pakistan",continent:"Asia",elevation_m:7403,first_ascent:1955,category:"Ultra"},
-  {name:"Chomolhari",range:"Himalayas",country:"Bhutan/China",continent:"Asia",elevation_m:7326,first_ascent:1937,category:"High"},
-  {name:"Abi Gamin",range:"Himalayas",country:"India/China",continent:"Asia",elevation_m:7355,first_ascent:1950,category:"High"},
-  {name:"Latok I",range:"Karakoram",country:"Pakistan",continent:"Asia",elevation_m:7145,first_ascent:null,category:"High"},
-  {name:"Muztagh Tower",range:"Karakoram",country:"Pakistan",continent:"Asia",elevation_m:7276,first_ascent:1956,category:"High"},
-  {name:"Lenin Peak",range:"Pamir",country:"Kyrgyzstan/Tajikistan",continent:"Asia",elevation_m:7134,first_ascent:1928,category:"Ultra"},
-  {name:"Korjenevskaya",range:"Pamir",country:"Tajikistan",continent:"Asia",elevation_m:7105,first_ascent:1953,category:"Ultra"},
-  {name:"Khan Tengri",range:"Tian Shan",country:"Kyrgyzstan/Kazakhstan",continent:"Asia",elevation_m:7010,first_ascent:1931,category:"Ultra"},
-  {name:"Ulugh Muztagh",range:"Kunlun Mountains",country:"China",continent:"Asia",elevation_m:6973,first_ascent:1985,category:"Ultra"},
-  {name:"Lunkho e Dosare",range:"Hindu Kush",country:"Afghanistan",continent:"Asia",elevation_m:6901,first_ascent:1964,category:"Ultra"},
-  {name:"Dhaulagiri VI",range:"Himalayas",country:"Nepal",continent:"Asia",elevation_m:7268,first_ascent:1970,category:"High"},
-  {name:"Aconcagua",range:"Andes",country:"Argentina",continent:"South America",elevation_m:6961,first_ascent:1897,category:"Ultra"},
-  {name:"Ojos del Salado",range:"Andes",country:"Argentina/Chile",continent:"South America",elevation_m:6893,first_ascent:1937,category:"Ultra"},
-  {name:"Cerro Mercedario",range:"Andes",country:"Argentina",continent:"South America",elevation_m:6770,first_ascent:1934,category:"Ultra"},
-  {name:"Monte Pissis",range:"Andes",country:"Argentina",continent:"South America",elevation_m:6793,first_ascent:1937,category:"Ultra"},
-  {name:"Llullaillaco",range:"Andes",country:"Argentina/Chile",continent:"South America",elevation_m:6739,first_ascent:1952,category:"Ultra"},
-  {name:"Tres Cruces Sur",range:"Andes",country:"Argentina/Chile",continent:"South America",elevation_m:6629,first_ascent:1937,category:"Ultra"},
-  {name:"Huascaran",range:"Andes",country:"Peru",continent:"South America",elevation_m:6768,first_ascent:1908,category:"Ultra"},
-  {name:"Nevado Illimani",range:"Andes",country:"Bolivia",continent:"South America",elevation_m:6438,first_ascent:1898,category:"Ultra"},
-  {name:"Nevado Sajama",range:"Andes",country:"Bolivia",continent:"South America",elevation_m:6542,first_ascent:1939,category:"Ultra"},
-  {name:"Siula Grande",range:"Andes",country:"Peru",continent:"South America",elevation_m:6344,first_ascent:1936,category:"Ultra"},
-  {name:"Nevado Huandoy",range:"Andes",country:"Peru",continent:"South America",elevation_m:6395,first_ascent:1932,category:"Ultra"},
-  {name:"Chimborazo",range:"Andes",country:"Ecuador",continent:"South America",elevation_m:6263,first_ascent:1880,category:"Major"},
-  {name:"Nevado Chani",range:"Andes",country:"Argentina",continent:"South America",elevation_m:6200,first_ascent:null,category:"Major"},
-  {name:"Nevado Alpamayo",range:"Andes",country:"Peru",continent:"South America",elevation_m:5947,first_ascent:1966,category:"Major"},
-  {name:"Cotopaxi",range:"Andes",country:"Ecuador",continent:"South America",elevation_m:5897,first_ascent:1872,category:"Major"},
-  {name:"Fitz Roy",range:"Patagonian Andes",country:"Argentina",continent:"South America",elevation_m:3405,first_ascent:1952,category:"High"},
-  {name:"Cerro Torre",range:"Patagonian Andes",country:"Argentina/Chile",continent:"South America",elevation_m:3128,first_ascent:1974,category:"High"},
-  {name:"Denali",range:"Alaska Range",country:"USA",continent:"North America",elevation_m:6190,first_ascent:1913,category:"Ultra"},
-  {name:"Mount Logan",range:"Saint Elias Mountains",country:"Canada",continent:"North America",elevation_m:5959,first_ascent:1925,category:"Ultra"},
-  {name:"Pico de Orizaba",range:"Sierra Nevada",country:"Mexico",continent:"North America",elevation_m:5636,first_ascent:1848,category:"Major"},
-  {name:"Mount Saint Elias",range:"Saint Elias Mountains",country:"USA/Canada",continent:"North America",elevation_m:5489,first_ascent:1897,category:"Major"},
-  {name:"Mount Foraker",range:"Alaska Range",country:"USA",continent:"North America",elevation_m:5304,first_ascent:1934,category:"Major"},
-  {name:"Popocatepetl",range:"Sierra Nevada",country:"Mexico",continent:"North America",elevation_m:5426,first_ascent:null,category:"Major"},
-  {name:"Mount Blackburn",range:"Wrangell Mountains",country:"USA",continent:"North America",elevation_m:4996,first_ascent:1912,category:"Major"},
-  {name:"Mount Sanford",range:"Wrangell Mountains",country:"USA",continent:"North America",elevation_m:4949,first_ascent:1938,category:"Major"},
-  {name:"Mount Fairweather",range:"Saint Elias Mountains",country:"USA/Canada",continent:"North America",elevation_m:4663,first_ascent:1931,category:"High"},
-  {name:"Mount Rainier",range:"Cascade Range",country:"USA",continent:"North America",elevation_m:4392,first_ascent:1870,category:"High"},
-  {name:"Mount Whitney",range:"Sierra Nevada",country:"USA",continent:"North America",elevation_m:4421,first_ascent:1873,category:"High"},
-  {name:"Mauna Kea",range:"Hawaii",country:"USA",continent:"North America",elevation_m:4205,first_ascent:null,category:"High"},
-  {name:"Mount Robson",range:"Canadian Rockies",country:"Canada",continent:"North America",elevation_m:3954,first_ascent:1913,category:"High"},
-  {name:"Kilimanjaro",range:"Eastern Rift",country:"Tanzania",continent:"Africa",elevation_m:5895,first_ascent:1889,category:"Major"},
-  {name:"Mount Kenya",range:"Mount Kenya massif",country:"Kenya",continent:"Africa",elevation_m:5199,first_ascent:1899,category:"Major"},
-  {name:"Mount Stanley",range:"Rwenzori Mountains",country:"Uganda/DR Congo",continent:"Africa",elevation_m:5109,first_ascent:1906,category:"Major"},
-  {name:"Mawenzi",range:"Eastern Rift",country:"Tanzania",continent:"Africa",elevation_m:5149,first_ascent:1912,category:"Major"},
-  {name:"Mount Speke",range:"Rwenzori Mountains",country:"Uganda",continent:"Africa",elevation_m:4890,first_ascent:1906,category:"High"},
-  {name:"Mount Meru",range:"Eastern Rift",country:"Tanzania",continent:"Africa",elevation_m:4566,first_ascent:1904,category:"High"},
-  {name:"Ras Dejen",range:"Simien Mountains",country:"Ethiopia",continent:"Africa",elevation_m:4550,first_ascent:1841,category:"High"},
-  {name:"Toubkal",range:"Atlas Mountains",country:"Morocco",continent:"Africa",elevation_m:4167,first_ascent:1923,category:"High"},
-  {name:"Mont Blanc",range:"Alps",country:"France/Italy",continent:"Europe",elevation_m:4808,first_ascent:1786,category:"High"},
-  {name:"Mount Elbrus",range:"Caucasus",country:"Russia",continent:"Europe",elevation_m:5642,first_ascent:1874,category:"Major"},
-  {name:"Mount Shkhara",range:"Caucasus",country:"Georgia/Russia",continent:"Europe",elevation_m:5193,first_ascent:1888,category:"Major"},
-  {name:"Kazbek",range:"Caucasus",country:"Georgia/Russia",continent:"Europe",elevation_m:5047,first_ascent:1868,category:"Major"},
-  {name:"Monte Rosa",range:"Alps",country:"Switzerland/Italy",continent:"Europe",elevation_m:4634,first_ascent:1855,category:"High"},
-  {name:"Dom",range:"Alps",country:"Switzerland",continent:"Europe",elevation_m:4545,first_ascent:1858,category:"High"},
-  {name:"Weisshorn",range:"Alps",country:"Switzerland",continent:"Europe",elevation_m:4506,first_ascent:1861,category:"High"},
-  {name:"Matterhorn",range:"Alps",country:"Switzerland/Italy",continent:"Europe",elevation_m:4478,first_ascent:1865,category:"High"},
-  {name:"Dent Blanche",range:"Pennine Alps",country:"Switzerland",continent:"Europe",elevation_m:4357,first_ascent:1862,category:"High"},
-  {name:"Grand Combin",range:"Pennine Alps",country:"Switzerland",continent:"Europe",elevation_m:4314,first_ascent:1859,category:"High"},
-  {name:"Finsteraarhorn",range:"Bernese Alps",country:"Switzerland",continent:"Europe",elevation_m:4274,first_ascent:1812,category:"High"},
-  {name:"Jungfrau",range:"Bernese Alps",country:"Switzerland",continent:"Europe",elevation_m:4158,first_ascent:1811,category:"High"},
-  {name:"Eiger",range:"Bernese Alps",country:"Switzerland",continent:"Europe",elevation_m:3967,first_ascent:1858,category:"High"},
-  {name:"Piz Bernina",range:"Alps",country:"Switzerland/Italy",continent:"Europe",elevation_m:4049,first_ascent:1850,category:"High"},
-  {name:"Puncak Jaya",range:"Maoke Mountains",country:"Indonesia",continent:"Oceania",elevation_m:4884,first_ascent:1962,category:"High"},
-  {name:"Puncak Trikora",range:"Maoke Mountains",country:"Indonesia",continent:"Oceania",elevation_m:4750,first_ascent:1913,category:"High"},
-  {name:"Puncak Mandala",range:"Maoke Mountains",country:"Indonesia",continent:"Oceania",elevation_m:4760,first_ascent:1959,category:"High"},
-  {name:"Mount Wilhelm",range:"Bismarck Range",country:"Papua New Guinea",continent:"Oceania",elevation_m:4509,first_ascent:1938,category:"High"},
-  {name:"Aoraki/Mount Cook",range:"Southern Alps",country:"New Zealand",continent:"Oceania",elevation_m:3724,first_ascent:1894,category:"High"},
-  {name:"Mount Tasman",range:"Southern Alps",country:"New Zealand",continent:"Oceania",elevation_m:3497,first_ascent:1895,category:"High"},
-  {name:"Kosciuszko",range:"Australian Alps",country:"Australia",continent:"Oceania",elevation_m:2228,first_ascent:1840,category:"High"},
-  {name:"Vinson Massif",range:"Ellsworth Mountains",country:"Antarctica",continent:"Antarctica",elevation_m:4892,first_ascent:1966,category:"High"},
-  {name:"Mount Tyree",range:"Ellsworth Mountains",country:"Antarctica",continent:"Antarctica",elevation_m:4852,first_ascent:1967,category:"High"},
-  {name:"Mount Shinn",range:"Ellsworth Mountains",country:"Antarctica",continent:"Antarctica",elevation_m:4661,first_ascent:1966,category:"High"},
-  {name:"Mount Gardner",range:"Ellsworth Mountains",country:"Antarctica",continent:"Antarctica",elevation_m:4587,first_ascent:1966,category:"High"},
-  {name:"Mount Kirkpatrick",range:"Queen Alexandra Range",country:"Antarctica",continent:"Antarctica",elevation_m:4528,first_ascent:null,category:"High"},
+const INDIAN_TERRAIN_REGIONS: IndianTerrainRegion[] = [
+  {
+    id: "himalayas_joshimath",
+    name: "Himalayan Alpine & Glaciated Ridge (Nanda Devi / Joshimath)",
+    physiography: "High-relief alpine glaciated valley with severe topographic relief around Nanda Devi (7,816m), Trishul, and deep river gorges",
+    location: "Joshimath / Chamoli, Uttarakhand (30.55°N, 79.56°E)",
+    elevationRange: "1,789 m – 5,510 m a.s.l.",
+    slopeProfile: "35° – 68° extreme glaciated escarpments",
+    challenges: "Snow albedo saturation, steep cast shadows, acute relief displacement",
+    crs: "EPSG:32644 (UTM Zone 44N)",
+    sensor: "Cartosat-2/3 PAN/MX & Sentinel-2 MSI",
+    status: "Sample Available",
+    thumbnailUrl: "/indian_mountains/himalayas_joshimath.png",
+  },
+  {
+    id: "western_ghats_kudremukh",
+    name: "Western Ghats Escarpment & Rainforest (Kudremukh)",
+    physiography: "Steep seaward orographic cliffs, Kudremukh Peak (1,894m), dense tropical evergreen rainforest canopy, and shola mountain grasslands",
+    location: "Kudremukh / Sahyadri Range, Karnataka (13.13°N, 75.25°E)",
+    elevationRange: "650 m – 1,894 m a.s.l.",
+    slopeProfile: "25° – 60° fault-block trap escarpments",
+    challenges: "Dense multi-tier canopy occluding bare earth, frequent monsoonal cloud persistence",
+    crs: "EPSG:32643 (UTM Zone 43N)",
+    sensor: "Sentinel-2 MSI / Resourcesat-2A LISS-IV",
+    status: "Sample Available",
+    thumbnailUrl: "/indian_mountains/western_ghats_kudremukh.png",
+  },
+  {
+    id: "ladakh_leh",
+    name: "Ladakh High-Altitude Cold Desert (Leh & Indus Valley)",
+    physiography: "Hyper-arid periglacial plateau, barren scree slopes, braided Indus riverbed, and sharp mountain shadows",
+    location: "Leh / Indus River Valley, Ladakh (34.15°N, 77.58°E)",
+    elevationRange: "3,200 m – 5,850 m a.s.l.",
+    slopeProfile: "15° – 45° scree slopes and dry valley floors",
+    challenges: "Near-total lack of vegetation canopy, high ground reflectance, atmospheric clarity",
+    crs: "EPSG:32643 (UTM Zone 43N)",
+    sensor: "Cartosat-3 PAN / Landsat-9 OLI-2",
+    status: "Sample Available",
+    thumbnailUrl: "/indian_mountains/ladakh_leh.png",
+  },
+  {
+    id: "eastern_ghats_araku",
+    name: "Eastern Ghats Dissected Peninsular Hills (Araku Valley)",
+    physiography: "Discontinuous relict mountain belt, deeply eroded charnockite-khondalite ridges, red lateritic soil, and coffee terraces",
+    location: "Araku Valley, Andhra Pradesh (18.33°N, 82.88°E)",
+    elevationRange: "600 m – 1,680 m a.s.l.",
+    slopeProfile: "12° – 38° dissected structural valleys",
+    challenges: "Subtle topographic gradients, mixed deciduous canopy and terrace cultivation",
+    crs: "EPSG:32644 (UTM Zone 44N)",
+    sensor: "Resourcesat-2 LISS-IV / Cartosat-2",
+    status: "Sample Available",
+    thumbnailUrl: "/indian_mountains/eastern_ghats_araku.png",
+  },
+  {
+    id: "northeast_tawang",
+    name: "Northeast Mountainous Fold Belts (Tawang River Gorge)",
+    physiography: "Precipitous Eastern Himalayan V-valleys, roaring glacial river gorges, and dense coniferous montane forest slopes",
+    location: "Tawang, Arunachal Pradesh (27.59°N, 91.86°E)",
+    elevationRange: "2,100 m – 4,800 m a.s.l.",
+    slopeProfile: "20° – 55° heavily incised drainage valleys",
+    challenges: "Persistent cloud cover, extreme rainfall erosion features, dense bamboo understory",
+    crs: "EPSG:32645 (UTM Zone 45N)",
+    sensor: "Sentinel-2 MSI / Cartosat-2C",
+    status: "Sample Available",
+    thumbnailUrl: "/indian_mountains/northeast_tawang.png",
+  },
+  {
+    id: "deccan_plateau_pune",
+    name: "Deccan Basaltic Traps & Mesa (Sinhagad & Sahyadri)",
+    physiography: "Stepped volcanic trap lava flows, flat-topped mesas, buttressed ravines, and near-vertical basalt cliff drops",
+    location: "Sinhagad / Western Maharashtra Plateau (18.37°N, 73.76°E)",
+    elevationRange: "580 m – 1,312 m a.s.l.",
+    slopeProfile: "0° – 5° plateau summits, 70° – 90° basalt cliff drops",
+    challenges: "Sharp cliff-top boundaries requiring strict edge preservation in depth models",
+    crs: "EPSG:32643 (UTM Zone 43N)",
+    sensor: "Resourcesat-2 LISS-4 / Cartosat-2D",
+    status: "Sample Available",
+    thumbnailUrl: "/indian_mountains/deccan_plateau_pune.png",
+  },
+  {
+    id: "urban_foothills",
+    name: "Indo-Gangetic Transition & Dehradun Foothills",
+    physiography: "Alluvial gravel fans (Bhabhar), marshy Terai transition, urbanized duns",
+    location: "Dehradun / Rishikesh, Uttarakhand (30.31°N, 78.03°E)",
+    elevationRange: "350 m – 1,200 m a.s.l.",
+    slopeProfile: "2° – 18° rolling foothills and piedmont gravel fans",
+    challenges: "Dense urban structures alongside natural river terraces requiring nDSM separation",
+    crs: "EPSG:32644 (UTM Zone 44N)",
+    sensor: "Cartosat-3 / WorldView-3 / Sentinel-2",
+    status: "Integration Ready",
+    thumbnailUrl: "/indian_mountains/himalayas_joshimath.png",
+  },
 ];
-function ElevationHistogram({ data }: { data: typeof MOUNTAIN_DATA }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const canvas = canvasRef.current; if (!canvas) return;
-    const ctx = canvas.getContext("2d"); if (!ctx) return;
-    const W = canvas.width; const H = canvas.height;
-    const bins: number[] = new Array(14).fill(0);
-    for (const m of data) {
-      const idx = Math.min(13, Math.floor((m.elevation_m - 2000) / 600));
-      if (idx >= 0) bins[idx]++;
-    }
-    const maxV = Math.max(...bins, 1);
-    ctx.clearRect(0, 0, W, H);
-    const barW = (W - 24) / bins.length - 2;
-    bins.forEach((v, i) => {
-      const barH = ((v / maxV) * (H - 28)) | 0;
-      const x = 12 + i * (barW + 2);
-      const grad = ctx.createLinearGradient(x, H - barH, x, H);
-      grad.addColorStop(0, "#38bdf8"); grad.addColorStop(1, "#3b82f6");
-      ctx.fillStyle = grad;
-      ctx.beginPath(); ctx.roundRect(x, H - barH - 16, barW, barH, 2); ctx.fill();
-      if (v > 0) {
-        ctx.fillStyle = "#94a3b8"; ctx.font = "9px system-ui"; ctx.textAlign = "center";
-        ctx.fillText(String(v), x + barW / 2, H - barH - 19);
-      }
-    });
-    ctx.fillStyle = "#64748b"; ctx.font = "8px system-ui"; ctx.textAlign = "center";
-    ["2k","","3.2k","","4.4k","","5.6k","","6.8k","","8k","","9.2k",""].forEach((lbl, i) => {
-      if (lbl) ctx.fillText(lbl, 12 + i * (barW + 2) + barW / 2, H - 3);
-    });
-  }, [data]);
-  return <canvas ref={canvasRef} width={340} height={120} style={{display:"block",width:"100%",height:"120px"}} />;
-}
 
-function CategoryPie({ data }: { data: typeof MOUNTAIN_DATA }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const canvas = canvasRef.current; if (!canvas) return;
-    const ctx = canvas.getContext("2d"); if (!ctx) return;
-    const counts: Record<string, number> = {};
-    for (const m of data) counts[m.category] = (counts[m.category] ?? 0) + 1;
-    const cats = [{key:"Extreme",color:"#ef4444"},{key:"Ultra",color:"#f97316"},{key:"High",color:"#38bdf8"},{key:"Major",color:"#10b981"}];
-    const total = data.length || 1;
-    let angle = -Math.PI / 2;
-    const cx = 60; const cy = 60; const r = 52;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (const cat of cats) {
-      const slice = ((counts[cat.key] ?? 0) / total) * Math.PI * 2;
-      ctx.beginPath(); ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, r, angle, angle + slice); ctx.closePath();
-      ctx.fillStyle = cat.color; ctx.fill();
-      angle += slice;
-    }
-    ctx.beginPath(); ctx.arc(cx, cy, 30, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(6,11,25,1)"; ctx.fill();
-    ctx.fillStyle = "#f8fafc"; ctx.font = "bold 12px system-ui";
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillText(String(total), cx, cy);
-    const lx = 130;
-    cats.forEach((cat, i) => {
-      const y = 10 + i * 26;
-      ctx.fillStyle = cat.color; ctx.fillRect(lx, y, 12, 12);
-      ctx.fillStyle = "#94a3b8"; ctx.font = "11px system-ui"; ctx.textAlign = "left"; ctx.textBaseline = "top";
-      ctx.fillText(`${cat.key} (${counts[cat.key] ?? 0})`, lx + 16, y + 1);
-    });
-  }, [data]);
-  return <canvas ref={canvasRef} width={250} height={124} style={{display:"block",width:"250px",height:"124px"}} />;
-}
-
-function KpiCard({ label, value, sub, accent, icon, onClick }: {
-  label: string; value: string; sub: string; accent: string; icon: React.ReactNode; onClick?: () => void;
-}) {
-  return (
-    <div className="bn-kpi-card" onClick={onClick} style={{cursor: onClick ? "pointer" : undefined}}>
-      <div className="bn-kpi-icon" style={{color: accent}}>{icon}</div>
-      <div className="bn-kpi-body">
-        <div className="bn-kpi-value" style={{color: accent}}>{value}</div>
-        <div className="bn-kpi-label">{label}</div>
-        <div className="bn-kpi-sub">{sub}</div>
-      </div>
-    </div>
-  );
-}
-
-function Sparkline({ values, color }: { values: number[]; color: string }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const canvas = canvasRef.current; if (!canvas) return;
-    const ctx = canvas.getContext("2d"); if (!ctx) return;
-    const W = canvas.width; const H = canvas.height;
-    const min = Math.min(...values); const max = Math.max(...values);
-    const range = max - min || 1;
-    ctx.clearRect(0, 0, W, H);
-    const step = W / (values.length - 1);
-    ctx.beginPath();
-    values.forEach((v, i) => {
-      const x = i * step;
-      const y = H - ((v - min) / range) * (H - 4) - 2;
-      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    });
-    ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke();
-  }, [values, color]);
-  return <canvas ref={canvasRef} width={80} height={28} style={{display:"block"}} />;
-}
-
-const TOP10 = MOUNTAIN_DATA.slice().sort((a, b) => b.elevation_m - a.elevation_m).slice(0, 10);
 export function DashboardView({
-  metadata, manifest, mesh, validation, processing,
-  onNavigate, onRunReconstruction, onInstant3D, onExploreGamus, onImportImagery,
+  metadata,
+  manifest,
+  mesh,
+  validation,
+  processing,
+  onNavigate,
+  onRunReconstruction,
+  onInstant3D,
+  onExploreGamus,
+  onImportImagery,
+  onLoadIndianRegion,
 }: DashboardViewProps) {
+  const [selectedRegion, setSelectedRegion] = useState<string>("himalayas_joshimath");
   const hasInput = Boolean(metadata);
   const geometryReady = Boolean(manifest?.artifacts.dsm || manifest?.artifacts.rdsm || mesh);
   const calibrationReady = Boolean(manifest?.stages.calibration?.status === "completed" || metadata?.crs);
   const meshReady = Boolean(mesh || manifest?.artifacts.terrain_lod0);
   const validationReady = Boolean(validation || manifest?.artifacts.metrics);
 
-  const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState<keyof typeof MOUNTAIN_DATA[0]>("elevation_m");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
-  const [filterContinent, setFilterContinent] = useState("All");
-  const [page, setPage] = useState(0);
-  const PAGE_SIZE = 12;
-
-  const continents = ["All","Asia","Europe","Africa","North America","South America","Oceania","Antarctica"];
-
-  const filtered = MOUNTAIN_DATA
-    .filter(m =>
-      (filterContinent === "All" || m.continent === filterContinent) &&
-      (search === "" || m.name.toLowerCase().includes(search.toLowerCase()) ||
-        m.range.toLowerCase().includes(search.toLowerCase()) ||
-        m.country.toLowerCase().includes(search.toLowerCase()))
-    )
-    .sort((a, b) => {
-      const va = a[sortKey]; const vb = b[sortKey];
-      if (va === null && vb === null) return 0;
-      if (va === null) return 1; if (vb === null) return -1;
-      if (typeof va === "number" && typeof vb === "number") return sortDir === "asc" ? va - vb : vb - va;
-      return sortDir === "asc" ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
-    });
-
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-
-  const handleSort = (key: keyof typeof MOUNTAIN_DATA[0]) => {
-    if (key === sortKey) setSortDir(d => d === "asc" ? "desc" : "asc");
-    else { setSortKey(key); setSortDir("desc"); }
-    setPage(0);
-  };
-
-  const catColors: Record<string, string> = {Extreme:"#ef4444",Ultra:"#f97316",High:"#38bdf8",Major:"#10b981"};
-  const catBadge = (cat: string) => (
-    <span style={{fontSize:10,fontWeight:700,padding:"2px 6px",borderRadius:4,background:`${catColors[cat]}22`,color:catColors[cat],border:`1px solid ${catColors[cat]}55`,whiteSpace:"nowrap"}}>{cat}</span>
-  );
-
   const pipelineStages = [
-    {label:"Optical Ingestion",ready:hasInput,code:"01"},
-    {label:"AI Depth Estimation",ready:geometryReady,code:"02"},
-    {label:"Scale Calibration",ready:calibrationReady,code:"03"},
-    {label:"DSM Generation",ready:geometryReady,code:"04"},
-    {label:"3D Terrain Mesh",ready:meshReady,code:"05"},
-    {label:"Validation & Export",ready:validationReady,code:"06"},
+    { code: "01", label: "Upload & Ingest", desc: "RGB optical chip / GeoTIFF verification", ready: hasInput, page: "Inspector" },
+    { code: "02", label: "Image Analysis", desc: "Radiometric checks, blur, exposure & telemetry", ready: hasInput, page: "Inspector" },
+    { code: "03", label: "Monocular Depth", desc: "Vision Transformer deep geometry inference", ready: geometryReady, page: "Reconstruction" },
+    { code: "04", label: "Scale Calibration", desc: "Huber IRLS alignment via DEM / GCPs", ready: calibrationReady, page: "Elevation" },
+    { code: "05", label: "Elevation Map", desc: "Metric DSM or Relative rDSM surface", ready: geometryReady, page: "Elevation" },
+    { code: "06", label: "3D Terrain", desc: "Textured WebGL mesh with multi-mode flythrough", ready: meshReady, page: "Terrain" },
+    { code: "07", label: "Terrain Derivatives", desc: "Slope, aspect, contours & cross-sections", ready: geometryReady, page: "Intelligence" },
+    { code: "08", label: "Export Products", desc: "GeoTIFF, GLB LOD pyramid, provenance audit", ready: geometryReady, page: "Exports" },
   ];
 
   return (
-    <div className="bn-page-container" style={{padding:"0 0 24px 0"}}>
-
+    <div className="bn-page-container" style={{ padding: "0 0 32px 0" }}>
       {/* Hero Banner */}
-      <div style={{padding:"20px 24px 16px",borderBottom:"1px solid rgba(56,189,248,0.12)"}}>
-        <div style={{marginBottom:10,display:"flex",gap:8,flexWrap:"wrap"}}>
-          <span className="bn-badge bn-badge--cyan">ISRO SIH-26175</span>
-          <span className="bn-badge bn-badge--violet">AI-POWERED EARTH INTELLIGENCE</span>
-          <span className="bn-badge" style={{background:"rgba(16,185,129,0.15)",border:"1px solid rgba(16,185,129,0.4)",color:"#10b981"}}>
-            SYSTEM NOMINAL
+      <div style={{ padding: "20px 24px 18px", borderBottom: "1px solid rgba(56,189,248,0.12)", background: "rgba(10,16,31,0.6)" }}>
+        <div style={{ marginBottom: 10, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <span className="bn-badge bn-badge--cyan">SIH 2026 · PROBLEM STATEMENT 26175</span>
+          <span className="bn-badge bn-badge--violet">ISRO / DEPARTMENT OF SPACE</span>
+          <span className="bn-badge" style={{ background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.4)", color: "#10b981" }}>
+            SYSTEM OPERATIONAL
           </span>
+          {calibrationReady ? (
+            <span className="bn-badge" style={{ background: "rgba(56,189,248,0.15)", border: "1px solid rgba(56,189,248,0.4)", color: "#38bdf8" }}>
+              MODE: ABSOLUTE METRIC DSM
+            </span>
+          ) : geometryReady ? (
+            <span className="bn-badge" style={{ background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.4)", color: "#f97316" }}>
+              MODE: RELATIVE rDSM (UNANCHORED)
+            </span>
+          ) : null}
         </div>
-        <div style={{display:"flex",alignItems:"center",gap:20}}>
-          <img src="/depthwizard-mark.png" alt="BhuNetra" style={{width:72,height:72,objectFit:"contain",flexShrink:0,filter:"drop-shadow(0 0 18px rgba(56,189,248,0.6))"}} />
-          <div style={{flex:1,minWidth:0}}>
-            <h1 style={{margin:"0 0 4px",fontSize:26,fontWeight:800,background:"linear-gradient(135deg,#fff,#38bdf8)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>
-              BhuNetra Executive Intelligence Dashboard
+
+        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+          <DepthWizardLogo size={74} className="dw-hero-logo" />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h1 style={{ margin: "0 0 4px", fontSize: 25, fontWeight: 800, background: "linear-gradient(135deg,#fff,#38bdf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "-0.3px" }}>
+              DepthWizard — Single-View Height Estimation & 3D Terrain Intelligence
             </h1>
-            <p style={{margin:0,fontSize:14,color:"var(--bn-text-secondary)"}}>
-              Monocular depth estimation · DA3MONO-LARGE Vision Transformer · Zero stereo-pair DSM generation
+            <p style={{ margin: 0, fontSize: 13, color: "var(--bn-text-secondary)", lineHeight: 1.5 }}>
+              Single RGB / GeoTIFF Image → Monocular Depth Estimation → Robust Scale Calibration → DSM/rDSM Elevation Surface → Navigable 3D WebGL Flythrough
             </p>
           </div>
-          <div style={{display:"flex",gap:8,flexWrap:"wrap",justifyContent:"flex-end"}}>
-            <button className="dw-btn dw-btn--primary" onClick={onRunReconstruction} disabled={processing} style={{fontSize:13,height:36}}>
-              <AiReconstructionIcon /> {processing ? "Reconstructing..." : "Reconstruct"}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <button className="dw-btn dw-btn--primary" onClick={onRunReconstruction} disabled={processing || !hasInput} style={{ fontSize: 13, height: 36 }}>
+              <AiReconstructionIcon /> {processing ? "Estimating Height..." : "Run Height Estimation"}
             </button>
-            <button className="dw-btn" onClick={onInstant3D} style={{fontSize:13,height:36}}>3D Terrain</button>
-            <button className="dw-btn" onClick={onImportImagery} style={{fontSize:13,height:36}}><UploadIcon /> Import</button>
-            <button className="dw-btn" onClick={onExploreGamus} style={{fontSize:13,height:36}}><DatasetIcon /> GAMUS</button>
+            <button className="dw-btn" onClick={onInstant3D} style={{ fontSize: 13, height: 36 }}>
+              <TerrainIcon /> 3D Flythrough
+            </button>
+            <button className="dw-btn" onClick={onImportImagery} style={{ fontSize: 13, height: 36 }}>
+              <UploadIcon /> Import Imagery
+            </button>
+            <button className="dw-btn" onClick={onExploreGamus} style={{ fontSize: 13, height: 36 }}>
+              <DatasetIcon /> Datasets & GAMUS
+            </button>
           </div>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="bn-kpi-strip" style={{padding:"16px 24px 0"}}>
-        <KpiCard label="Input Imagery" value={hasInput ? `${metadata!.width}x${metadata!.height}` : "—"} sub={hasInput ? `${metadata!.count} bands · ${metadata!.ground_sample_distance_x?.toFixed(2) ?? "—"}m GSD` : "No image loaded"} accent="#38bdf8" icon={<UploadIcon />} onClick={() => onNavigate("Inspector")} />
-        <KpiCard label="AI Depth Model" value="DA3MONO-L" sub="768px tiles · 128px overlap" accent="#818cf8" icon={<AiReconstructionIcon />} onClick={() => onNavigate("Reconstruction")} />
-        <KpiCard label="Scale Calibration" value={calibrationReady ? "METRIC" : "RELATIVE"} sub={calibrationReady ? "Evidence-anchored DSM (m)" : "rDSM - no metric claim"} accent={calibrationReady ? "#10b981" : "#f97316"} icon={<ElevationModelIcon />} onClick={() => onNavigate("Elevation")} />
-        <KpiCard label="3D Terrain Mesh" value={meshReady ? "LOD 0-3" : "PENDING"} sub={meshReady ? "524K faces · WebGL" : "Build after reconstruction"} accent={meshReady ? "#10b981" : "#64748b"} icon={<AnalysisIcon />} onClick={() => onNavigate("DigitalTwin")} />
-        <KpiCard label="Accuracy" value={validationReady ? "VALIDATED" : "BENCHMARKED"} sub="RMSE 2.41m · MAE 1.68m · r 0.942" accent={validationReady ? "#10b981" : "#f97316"} icon={<AccuracyIcon />} onClick={() => onNavigate("Accuracy")} />
-        <KpiCard label="Export Package" value="READY" sub="ZIP · SHA-256 · GeoTIFF/GLB" accent="#38bdf8" icon={<ExportIcon />} onClick={() => onNavigate("Exports")} />
-      </div>
-
-      {/* Charts Row */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:14,padding:"14px 24px 0"}}>
-        <div className="bn-card" style={{padding:16}}>
-          <div className="bn-card-title" style={{marginBottom:10,fontSize:11}}>ELEVATION DISTRIBUTION (m)</div>
-          <ElevationHistogram data={MOUNTAIN_DATA} />
-          <div style={{fontSize:10,color:"var(--bn-text-muted)",marginTop:4}}>{MOUNTAIN_DATA.length} mountains · 2,000 – 8,849m range</div>
-        </div>
-        <div className="bn-card" style={{padding:16}}>
-          <div className="bn-card-title" style={{marginBottom:10,fontSize:11}}>MOUNTAIN CATEGORIES</div>
-          <CategoryPie data={MOUNTAIN_DATA} />
-          <div style={{fontSize:10,color:"var(--bn-text-muted)",marginTop:4}}>Extreme &gt;8000m · Ultra &gt;6800m · High &gt;3800m</div>
-        </div>
-        <div className="bn-card" style={{padding:16}}>
-          <div className="bn-card-title" style={{marginBottom:10,fontSize:11}}>PIPELINE STATUS</div>
-          {pipelineStages.map(s => (
-            <div key={s.code} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 0",borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
-              <span style={{width:22,height:22,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:700,flexShrink:0,background:s.ready ? "rgba(16,185,129,0.2)" : "rgba(56,189,248,0.08)",border:`1px solid ${s.ready ? "rgba(16,185,129,0.5)" : "rgba(56,189,248,0.2)"}`,color:s.ready ? "#10b981" : "#64748b"}}>{s.code}</span>
-              <span style={{flex:1,fontSize:12,color:s.ready ? "var(--bn-text-primary)" : "var(--bn-text-muted)"}}>{s.label}</span>
-              <span style={{fontSize:9,fontWeight:700,padding:"1px 5px",borderRadius:3,background:s.ready ? "rgba(16,185,129,0.15)" : "rgba(100,116,139,0.1)",color:s.ready ? "#10b981" : "#64748b"}}>{s.ready ? "DONE" : "WAIT"}</span>
+      {/* The 3 Core SIH Milestones Tracker */}
+      <div style={{ padding: "16px 24px 0" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+          {/* Milestone 1 */}
+          <div className="bn-card" style={{ padding: "14px 16px", borderLeft: "3px solid #38bdf8" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8", textTransform: "uppercase", letterSpacing: "0.5px" }}>MILESTONE 1</span>
+              <span className={`bn-badge ${geometryReady ? "bn-badge--green" : "bn-badge--cyan"}`}>
+                {geometryReady ? "ESTIMATED" : "READY"}
+              </span>
             </div>
-          ))}
-          <div style={{fontSize:10,color:"var(--bn-text-muted)",marginTop:6}}>{pipelineStages.filter(s => s.ready).length} / 6 stages complete</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "#f8fafc", marginBottom: 4 }}>
+              Elevation Extraction
+            </div>
+            <p style={{ fontSize: 12, color: "var(--bn-text-secondary)", margin: "0 0 8px", lineHeight: 1.4 }}>
+              Extracts high-fidelity dense depth cues from a single optical image using Vision Transformer foundation priors without requiring stereo pairs.
+            </p>
+            <div style={{ fontSize: 11, color: "var(--bn-text-muted)", display: "flex", justifyContent: "space-between" }}>
+              <span>Prior: DA3MONO-LARGE</span>
+              <span>Tiles: 768px + Hann Blend</span>
+            </div>
+          </div>
+
+          {/* Milestone 2 */}
+          <div className="bn-card" style={{ padding: "14px 16px", borderLeft: `3px solid ${calibrationReady ? "#10b981" : "#f97316"}` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: calibrationReady ? "#10b981" : "#f97316", textTransform: "uppercase", letterSpacing: "0.5px" }}>MILESTONE 2</span>
+              <span className={`bn-badge ${calibrationReady ? "bn-badge--green" : "bn-badge--violet"}`}>
+                {calibrationReady ? "CALIBRATED (METRIC)" : "RELATIVE (rDSM)"}
+              </span>
+            </div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "#f8fafc", marginBottom: 4 }}>
+              Scale Calibration
+            </div>
+            <p style={{ fontSize: 12, color: "var(--bn-text-secondary)", margin: "0 0 8px", lineHeight: 1.4 }}>
+              Converts dimensionless depth into physical metric elevations using reference DEMs (Copernicus/SRTM) or surveyed GCPs via Huber IRLS regression.
+            </p>
+            <div style={{ fontSize: 11, color: "var(--bn-text-muted)", display: "flex", justifyContent: "space-between" }}>
+              <span>Method: Positive Huber IRLS</span>
+              <span>Fail-closed: No false units</span>
+            </div>
+          </div>
+
+          {/* Milestone 3 */}
+          <div className="bn-card" style={{ padding: "14px 16px", borderLeft: "3px solid #818cf8" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#818cf8", textTransform: "uppercase", letterSpacing: "0.5px" }}>MILESTONE 3</span>
+              <span className={`bn-badge ${meshReady ? "bn-badge--green" : "bn-badge--cyan"}`}>
+                {meshReady ? "LOD 0-3 ACTIVE" : "GPU READY"}
+              </span>
+            </div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "#f8fafc", marginBottom: 4 }}>
+              3D Flythrough Visualization
+            </div>
+            <p style={{ fontSize: 12, color: "var(--bn-text-secondary)", margin: "0 0 8px", lineHeight: 1.4 }}>
+              Generates a four-level terrain mesh pyramid with original optical texture projection, supporting Orbit, Fly, First-Person, and Top-Down flight.
+            </p>
+            <div style={{ fontSize: 11, color: "var(--bn-text-muted)", display: "flex", justifyContent: "space-between" }}>
+              <span>Engine: WebGL / Three.js</span>
+              <span>Cameras: 4 Flight Modes</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Sparkline Row */}
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:14,padding:"14px 24px 0"}}>
-        <div className="bn-card" style={{padding:"12px 16px",display:"flex",alignItems:"center",gap:14}}>
-          <div style={{flex:1}}>
-            <div style={{fontSize:10,color:"var(--bn-text-muted)",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.5px"}}>RMSE Trend</div>
-            <div style={{fontSize:22,fontWeight:800,color:"#38bdf8"}}>2.41 m</div>
-            <div style={{fontSize:11,color:"var(--bn-text-secondary)"}}>OrthoLoC protocol · 64 anchors</div>
+      {/* Dual Ingest Contract Guide */}
+      <div style={{ padding: "14px 24px 0" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          {/* Non-Georeferenced Ingest */}
+          <div className="bn-card" style={{ padding: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <span className="bn-badge bn-badge--violet">WORKFLOW A</span>
+              <strong style={{ fontSize: 13, color: "#f8fafc" }}>Non-Georeferenced Input (JPG / JPEG / PNG)</strong>
+            </div>
+            <div style={{ fontSize: 12, color: "var(--bn-text-secondary)", marginBottom: 10, lineHeight: 1.4 }}>
+              Designed for standard single-view aerial photographs, drone shots, or cropped optical chips without embedded coordinate metadata.
+            </div>
+            <div style={{ background: "rgba(15,23,42,0.6)", borderRadius: 6, padding: "8px 12px", fontSize: 11, fontFamily: "monospace", color: "#38bdf8", marginBottom: 10 }}>
+              RGB Image → Monocular Depth → Normalized Inversion → Relative DSM (rDSM) → 3D Mesh
+            </div>
+            <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12, color: "var(--bn-text-muted)", lineHeight: 1.5 }}>
+              <li>Output is strictly labeled: <strong style={{ color: "#f97316" }}>Relative Digital Surface Model (rDSM)</strong></li>
+              <li>No false metric elevation or geographic coordinates are fabricated</li>
+              <li>Supports relative slope analysis, relative height cross-sections, and full 3D flythrough</li>
+            </ul>
           </div>
-          <Sparkline values={[4.2,3.8,3.5,3.1,2.9,2.7,2.6,2.5,2.45,2.41]} color="#38bdf8" />
-        </div>
-        <div className="bn-card" style={{padding:"12px 16px",display:"flex",alignItems:"center",gap:14}}>
-          <div style={{flex:1}}>
-            <div style={{fontSize:10,color:"var(--bn-text-muted)",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.5px"}}>Pearson r</div>
-            <div style={{fontSize:22,fontWeight:800,color:"#10b981"}}>0.942</div>
-            <div style={{fontSize:11,color:"var(--bn-text-secondary)"}}>Strong linear correlation</div>
+
+          {/* Georeferenced Ingest */}
+          <div className="bn-card" style={{ padding: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <span className="bn-badge bn-badge--cyan">WORKFLOW B</span>
+              <strong style={{ fontSize: 13, color: "#f8fafc" }}>Georeferenced Input (GeoTIFF / Orthophoto)</strong>
+            </div>
+            <div style={{ fontSize: 12, color: "var(--bn-text-secondary)", marginBottom: 10, lineHeight: 1.4 }}>
+              Designed for remote-sensing satellite orthophotos (Sentinel-2, Cartosat, Resourcesat) with CRS and affine transform preservation.
+            </div>
+            <div style={{ background: "rgba(15,23,42,0.6)", borderRadius: 6, padding: "8px 12px", fontSize: 11, fontFamily: "monospace", color: "#10b981", marginBottom: 10 }}>
+              GeoTIFF → Depth Prior → Reference DEM/GCP Alignment → Metric DSM (m) → Validated 3D Terrain
+            </div>
+            <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12, color: "var(--bn-text-muted)", lineHeight: 1.5 }}>
+              <li>Output is verified as: <strong style={{ color: "#10b981" }}>Absolute Digital Surface Model (DSM)</strong> in physical metres</li>
+              <li>Preserves projected CRS, pixel resolution (GSD), bounding box, and affine coordinates</li>
+              <li>Generates genuine residual analysis (RMSE, MAE, distribution) against independent ground control</li>
+            </ul>
           </div>
-          <Sparkline values={[0.71,0.78,0.82,0.85,0.88,0.9,0.91,0.93,0.94,0.942]} color="#10b981" />
-        </div>
-        <div className="bn-card" style={{padding:"12px 16px",display:"flex",alignItems:"center",gap:14}}>
-          <div style={{flex:1}}>
-            <div style={{fontSize:10,color:"var(--bn-text-muted)",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.5px"}}>Tile Throughput</div>
-            <div style={{fontSize:22,fontWeight:800,color:"#818cf8"}}>768 px</div>
-            <div style={{fontSize:11,color:"var(--bn-text-secondary)"}}>128px overlap · harmonic blend</div>
-          </div>
-          <Sparkline values={[120,140,155,168,175,182,190,198,210,220]} color="#818cf8" />
         </div>
       </div>
 
-      {/* Top 10 Mountains */}
-      <div style={{padding:"14px 24px 0"}}>
-        <div className="bn-card" style={{padding:16}}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-            <div className="bn-card-title" style={{margin:0,fontSize:11}}>TOP 10 HIGHEST PEAKS — GLOBAL REFERENCE</div>
-            <span style={{fontSize:11,color:"var(--bn-text-muted)"}}>metres ASL</span>
+      {/* 8-Stage Pipeline Stepper */}
+      <div style={{ padding: "14px 24px 0" }}>
+        <div className="bn-card" style={{ padding: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <div className="bn-card-title" style={{ margin: 0, fontSize: 12 }}>
+              SIH 26175 END-TO-END PIPELINE LIFECYCLE
+            </div>
+            <span style={{ fontSize: 11, color: "var(--bn-text-muted)" }}>
+              {pipelineStages.filter((s) => s.ready).length} / 8 stages completed for current workspace
+            </span>
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(5, 1fr)",gap:6}}>
-            {TOP10.map((m, i) => (
-              <div key={m.name} style={{background:"rgba(15,23,42,0.6)",border:"1px solid rgba(56,189,248,0.12)",borderRadius:6,padding:"8px 10px",position:"relative"}}>
-                <div style={{position:"absolute",top:5,right:7,fontSize:9,fontWeight:800,color:i < 3 ? "#f59e0b" : "var(--bn-text-muted)"}}>#{i+1}</div>
-                <div style={{fontSize:12,fontWeight:700,color:"var(--bn-text-primary)",marginBottom:2,paddingRight:18}}>{m.name}</div>
-                <div style={{fontSize:18,fontWeight:800,color:"#38bdf8"}}>{m.elevation_m.toLocaleString()}<span style={{fontSize:10,fontWeight:500,color:"var(--bn-text-muted)",marginLeft:2}}>m</span></div>
-                <div style={{fontSize:10,color:"var(--bn-text-secondary)"}}>{m.range}</div>
-                <div style={{marginTop:3}}>{catBadge(m.category)}</div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: 8 }}>
+            {pipelineStages.map((stage) => (
+              <div
+                key={stage.code}
+                onClick={() => onNavigate(stage.page)}
+                style={{
+                  background: stage.ready ? "rgba(16,185,129,0.08)" : "rgba(15,23,42,0.6)",
+                  border: `1px solid ${stage.ready ? "rgba(16,185,129,0.35)" : "rgba(56,189,248,0.12)"}`,
+                  borderRadius: 6,
+                  padding: "10px 8px",
+                  cursor: "pointer",
+                  textAlign: "center",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                <div style={{ fontSize: 10, fontWeight: 800, color: stage.ready ? "#10b981" : "#64748b", marginBottom: 4 }}>
+                  STAGE {stage.code}
+                </div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: stage.ready ? "#f8fafc" : "#94a3b8", marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {stage.label}
+                </div>
+                <div style={{ fontSize: 9, color: "var(--bn-text-muted)", lineHeight: 1.2, height: 22, overflow: "hidden" }}>
+                  {stage.desc}
+                </div>
+                <div style={{ marginTop: 6 }}>
+                  <span
+                    style={{
+                      fontSize: 9,
+                      fontWeight: 700,
+                      padding: "2px 5px",
+                      borderRadius: 3,
+                      background: stage.ready ? "rgba(16,185,129,0.2)" : "rgba(100,116,139,0.15)",
+                      color: stage.ready ? "#10b981" : "#64748b",
+                    }}
+                  >
+                    {stage.ready ? "READY" : "PENDING"}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Mountain Database */}
-      <div style={{padding:"14px 24px 0"}}>
-        <div className="bn-card" style={{padding:16}}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,flexWrap:"wrap",gap:8}}>
-            <div className="bn-card-title" style={{margin:0,fontSize:11}}>GLOBAL MOUNTAIN DATABASE · {MOUNTAIN_DATA.length} RECORDS</div>
-            <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-              <input className="dw-compact-select" placeholder="Search name, range, country..." value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} style={{padding:"4px 10px",width:200,fontSize:12}} />
-              <select className="dw-compact-select" value={filterContinent} onChange={e => { setFilterContinent(e.target.value); setPage(0); }} style={{fontSize:12}}>
-                {continents.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+      {/* Indian Terrain Physiographic Profiles */}
+      <div style={{ padding: "14px 24px 0" }}>
+        <div className="bn-card" style={{ padding: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
+            <div>
+              <div className="bn-card-title" style={{ margin: 0, fontSize: 12 }}>
+                INDIAN PHYSIOGRAPHIC TERRAIN REPOSITORIES
+              </div>
+              <div style={{ fontSize: 11, color: "var(--bn-text-secondary)", marginTop: 2 }}>
+                7 authoritative Indian terrain environments configured for remote-sensing height validation (ISRO / Bhuvan / Copernicus DEM alignment)
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 6 }}>
+              <button className="dw-btn" onClick={() => onNavigate("Datasets")} style={{ fontSize: 12, height: 30 }}>
+                View Full Catalog ({INDIAN_TERRAIN_REGIONS.length})
+              </button>
+              <button
+                className="dw-btn dw-btn--primary"
+                onClick={() => void onInstant3D()}
+                style={{ fontSize: 12, height: 30 }}
+                title="Loads the verified Joshimath, Uttarakhand alpine terrain sample"
+              >
+                ⚡ Load Joshimath Sample
+              </button>
             </div>
           </div>
-          <div style={{overflowX:"auto"}}>
-            <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-              <thead>
-                <tr style={{borderBottom:"1px solid rgba(56,189,248,0.2)"}}>
-                  {([["name","Mountain"],["range","Range"],["country","Country"],["continent","Continent"],["elevation_m","Elev (m)"],["category","Category"],["first_ascent","First Ascent"]] as const).map(([key,label]) => (
-                    <th key={key} onClick={() => handleSort(key as keyof typeof MOUNTAIN_DATA[0])} style={{textAlign:"left",padding:"6px 8px",cursor:"pointer",fontSize:10,fontWeight:700,color:sortKey === key ? "#38bdf8" : "var(--bn-text-secondary)",textTransform:"uppercase",letterSpacing:"0.5px",whiteSpace:"nowrap",userSelect:"none"}}>
-                      {label} {sortKey === key ? (sortDir === "asc" ? "▲" : "▼") : ""}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {paged.map((m, i) => (
-                  <tr key={`${m.name}-${i}`} style={{borderBottom:"1px solid rgba(255,255,255,0.04)"}} onMouseEnter={e => (e.currentTarget.style.background="rgba(56,189,248,0.05)")} onMouseLeave={e => (e.currentTarget.style.background="")}>
-                    <td style={{padding:"6px 8px",fontWeight:600,color:"var(--bn-text-primary)"}}>{m.name}</td>
-                    <td style={{padding:"6px 8px",color:"var(--bn-text-secondary)"}}>{m.range}</td>
-                    <td style={{padding:"6px 8px",color:"var(--bn-text-secondary)"}}>{m.country}</td>
-                    <td style={{padding:"6px 8px",color:"var(--bn-text-muted)"}}>{m.continent}</td>
-                    <td style={{padding:"6px 8px",fontWeight:700,color:"#38bdf8",fontFamily:"monospace"}}>{m.elevation_m.toLocaleString()}</td>
-                    <td style={{padding:"6px 8px"}}>{catBadge(m.category)}</td>
-                    <td style={{padding:"6px 8px",color:m.first_ascent ? "var(--bn-text-secondary)" : "var(--bn-text-muted)",fontStyle:!m.first_ascent ? "italic" : undefined}}>{m.first_ascent ?? "Unclimbed"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:10,fontSize:11,color:"var(--bn-text-muted)"}}>
-            <span>{filtered.length} matching · {page * PAGE_SIZE + 1}–{Math.min((page+1)*PAGE_SIZE, filtered.length)} of {filtered.length}</span>
-            <div style={{display:"flex",gap:4}}>
-              <button className="dw-chip" disabled={page === 0} onClick={() => setPage(p => p-1)} style={{padding:"2px 10px",fontSize:11}}>Prev</button>
-              <span style={{lineHeight:"24px",padding:"0 8px"}}>{page+1} / {totalPages || 1}</span>
-              <button className="dw-chip" disabled={page >= totalPages-1} onClick={() => setPage(p => p+1)} style={{padding:"2px 10px",fontSize:11}}>Next</button>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 14 }}>
+            {/* Region List */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 320, overflowY: "auto" }}>
+              {INDIAN_TERRAIN_REGIONS.map((region) => {
+                const isSelected = selectedRegion === region.id;
+                return (
+                  <div
+                    key={region.id}
+                    onClick={() => setSelectedRegion(region.id)}
+                    style={{
+                      background: isSelected ? "rgba(56,189,248,0.12)" : "rgba(15,23,42,0.4)",
+                      border: `1px solid ${isSelected ? "#38bdf8" : "rgba(56,189,248,0.08)"}`,
+                      borderRadius: 6,
+                      padding: "8px 12px",
+                      cursor: "pointer",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: isSelected ? "#38bdf8" : "#f8fafc" }}>
+                        {region.name}
+                      </div>
+                      <div style={{ fontSize: 10, color: "var(--bn-text-muted)" }}>
+                        {region.elevationRange}
+                      </div>
+                    </div>
+                    <span
+                      style={{
+                        fontSize: 9,
+                        fontWeight: 700,
+                        padding: "2px 5px",
+                        borderRadius: 3,
+                        background: region.status === "Sample Available" ? "rgba(16,185,129,0.2)" : "rgba(56,189,248,0.1)",
+                        color: region.status === "Sample Available" ? "#10b981" : "#38bdf8",
+                      }}
+                    >
+                      {region.status === "Sample Available" ? "SAMPLE" : "CONFIG"}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
+
+            {/* Region Detail Card */}
+            {(() => {
+              const r = INDIAN_TERRAIN_REGIONS.find((x) => x.id === selectedRegion) ?? INDIAN_TERRAIN_REGIONS[0];
+              return (
+                <div style={{ background: "rgba(15,23,42,0.5)", border: "1px solid rgba(56,189,248,0.15)", borderRadius: 6, padding: 14 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                    <div>
+                      <h3 style={{ margin: "0 0 2px", fontSize: 15, fontWeight: 700, color: "#f8fafc" }}>
+                        {r.name}
+                      </h3>
+                      <div style={{ fontSize: 11, color: "#38bdf8" }}>{r.location}</div>
+                    </div>
+                    <button
+                      className="dw-btn dw-btn--primary"
+                      onClick={() => onLoadIndianRegion ? onLoadIndianRegion(r.id) : onInstant3D()}
+                      style={{ fontSize: 11, height: 28 }}
+                    >
+                      ⚡ Load 3D Terrain
+                    </button>
+                  </div>
+
+                  {r.thumbnailUrl && (
+                    <div style={{ margin: "10px 0", borderRadius: 6, overflow: "hidden", border: "1px solid rgba(56,189,248,0.2)", position: "relative", height: 160 }}>
+                      <img src={r.thumbnailUrl} alt={r.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <div style={{ position: "absolute", bottom: 6, left: 10, background: "rgba(0,0,0,0.75)", padding: "2px 8px", borderRadius: 4, fontSize: 10, color: "#38bdf8" }}>
+                        Optical Satellite Ingest · {r.sensor}
+                      </div>
+                    </div>
+                  )}
+
+                  <p style={{ fontSize: 12, color: "var(--bn-text-secondary)", margin: "0 0 10px", lineHeight: 1.4 }}>
+                    {r.physiography}
+                  </p>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 11 }}>
+                    <div style={{ background: "rgba(0,0,0,0.2)", padding: "6px 10px", borderRadius: 4 }}>
+                      <span style={{ color: "var(--bn-text-muted)", display: "block" }}>Elevation Span</span>
+                      <strong style={{ color: "#38bdf8" }}>{r.elevationRange}</strong>
+                    </div>
+                    <div style={{ background: "rgba(0,0,0,0.2)", padding: "6px 10px", borderRadius: 4 }}>
+                      <span style={{ color: "var(--bn-text-muted)", display: "block" }}>Slope Dynamics</span>
+                      <strong style={{ color: "#f8fafc" }}>{r.slopeProfile}</strong>
+                    </div>
+                    <div style={{ background: "rgba(0,0,0,0.2)", padding: "6px 10px", borderRadius: 4 }}>
+                      <span style={{ color: "var(--bn-text-muted)", display: "block" }}>Target Projected CRS</span>
+                      <strong style={{ color: "#f8fafc" }}>{r.crs}</strong>
+                    </div>
+                    <div style={{ background: "rgba(0,0,0,0.2)", padding: "6px 10px", borderRadius: 4 }}>
+                      <span style={{ color: "var(--bn-text-muted)", display: "block" }}>Recommended Sensor</span>
+                      <strong style={{ color: "#f8fafc" }}>{r.sensor}</strong>
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: 10, fontSize: 11, color: "var(--bn-text-secondary)" }}>
+                    <strong style={{ color: "#f59e0b" }}>Scientific Challenge: </strong>
+                    {r.challenges}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>
 
-      {/* Scientific Architecture */}
-      <div style={{padding:"14px 24px 0"}}>
-        <div className="bn-card" style={{padding:16}}>
-          <div className="bn-card-title" style={{fontSize:11,marginBottom:12}}>SCIENTIFIC ARCHITECTURE · PROBLEM TO SOLUTION TO RESULT</div>
-          <div className="bn-psr-grid">
-            <div className="bn-psr-col">
-              <span className="bn-psr-tag bn-psr-tag--red">THE PROBLEM</span>
-              <h4 style={{margin:"8px 0 6px",fontSize:14}}>Stereo Dependency</h4>
-              <p style={{margin:0,fontSize:13,color:"var(--bn-text-secondary)",lineHeight:1.6}}>Traditional DSM generation demands dual-pass stereo pairs or LiDAR — high cost, latency, and cloud sensitivity.</p>
+      {/* Live Workspace Telemetry */}
+      <div style={{ padding: "14px 24px 0" }}>
+        <div className="bn-card" style={{ padding: 16 }}>
+          <div className="bn-card-title" style={{ margin: "0 0 10px", fontSize: 12 }}>
+            ACTIVE WORKSPACE TELEMETRY & PRODUCT STATUS
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+            <div style={{ background: "rgba(15,23,42,0.4)", borderRadius: 6, padding: "10px 12px" }}>
+              <div style={{ fontSize: 10, color: "var(--bn-text-muted)", textTransform: "uppercase" }}>Source Optical Ingest</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: hasInput ? "#38bdf8" : "#64748b", margin: "4px 0 2px" }}>
+                {hasInput ? `${metadata!.width} × ${metadata!.height} px` : "No image ingested"}
+              </div>
+              <div style={{ fontSize: 11, color: "var(--bn-text-secondary)" }}>
+                {hasInput ? `${metadata!.count} Bands · GSD ${metadata!.ground_sample_distance_x?.toFixed(2) ?? "—"} m` : "Upload single-view image"}
+              </div>
             </div>
-            <div className="bn-psr-col">
-              <span className="bn-psr-tag bn-psr-tag--yellow">THE AI SOLUTION</span>
-              <h4 style={{margin:"8px 0 6px",fontSize:14}}>DA3MONO-LARGE VIT</h4>
-              <p style={{margin:0,fontSize:13,color:"var(--bn-text-secondary)",lineHeight:1.6}}>Monocular vision transformer with 1024x1024 tiling, harmonic overlap blending, and affine anchor calibration.</p>
+
+            <div style={{ background: "rgba(15,23,42,0.4)", borderRadius: 6, padding: "10px 12px" }}>
+              <div style={{ fontSize: 10, color: "var(--bn-text-muted)", textTransform: "uppercase" }}>Surface Product Mode</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: calibrationReady ? "#10b981" : geometryReady ? "#f97316" : "#64748b", margin: "4px 0 2px" }}>
+                {calibrationReady ? "Absolute DSM (m)" : geometryReady ? "Relative rDSM" : "Pending Estimation"}
+              </div>
+              <div style={{ fontSize: 11, color: "var(--bn-text-secondary)" }}>
+                {calibrationReady ? "Huber IRLS evidence anchored" : geometryReady ? "Dimensionless relative height" : "Run depth estimation"}
+              </div>
             </div>
-            <div className="bn-psr-col">
-              <span className="bn-psr-tag bn-psr-tag--green">THE RESULT</span>
-              <h4 style={{margin:"8px 0 6px",fontSize:14}}>Metric 3D Intelligence</h4>
-              <p style={{margin:0,fontSize:13,color:"var(--bn-text-secondary)",lineHeight:1.6}}>Textured terrain pyramids (LOD0-LOD3), geodesic profiling, scientific heatmaps, hash-audited export packages.</p>
+
+            <div style={{ background: "rgba(15,23,42,0.4)", borderRadius: 6, padding: "10px 12px" }}>
+              <div style={{ fontSize: 10, color: "var(--bn-text-muted)", textTransform: "uppercase" }}>3D Terrain Mesh</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: meshReady ? "#10b981" : "#64748b", margin: "4px 0 2px" }}>
+                {meshReady ? "LOD 0-3 Generated" : "Mesh Not Built"}
+              </div>
+              <div style={{ fontSize: 11, color: "var(--bn-text-secondary)" }}>
+                {meshReady ? "Persistent WebGL GLB pyramid" : "Requires elevation surface"}
+              </div>
+            </div>
+
+            <div style={{ background: "rgba(15,23,42,0.4)", borderRadius: 6, padding: "10px 12px" }}>
+              <div style={{ fontSize: 10, color: "var(--bn-text-muted)", textTransform: "uppercase" }}>Technical Validation</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: validationReady ? "#10b981" : "#f59e0b", margin: "4px 0 2px" }}>
+                {validationReady && validation?.elevation?.rmse_m != null ? `RMSE ${validation.elevation.rmse_m.toFixed(2)} m` : "No Reference DEM"}
+              </div>
+              <div style={{ fontSize: 11, color: "var(--bn-text-secondary)" }}>
+                {validationReady ? `${validation?.valid_pixels.toLocaleString()} points validated` : "Validation unavailable without reference"}
+              </div>
             </div>
           </div>
         </div>

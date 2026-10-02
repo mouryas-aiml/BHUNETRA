@@ -1,0 +1,44 @@
+{
+  "project_id": "pithoragarh_kumaon",
+  "title": "Pithoragarh & Kumaon Himalayas (Panchachuli Massif)",
+  "state": "COMPLETED",
+  "georeferenced": true,
+  "crs": "EPSG:32644",
+  "gsd_m": 2.5,
+  "vertical_units": "m",
+  "elevation_range": [
+    1600.0,
+    6903.9931640625
+  ],
+  "artifacts": {
+    "source_image": "optical.png",
+    "dsm": "products/dsm.tif",
+    "rdsm": "products/rdsm.tif",
+    "slope": "products/slope.tif",
+    "residual": "products/residual.tif",
+    "confidence": "products/confidence.tif",
+    "mesh_manifest": "mesh/mesh-manifest.json",
+    "provenance": "provenance.json",
+    "terrain_lod0": "mesh/terrain-lod0.glb",
+    "terrain_lod1": "mesh/terrain-lod1.glb",
+    "terrain_lod2": "mesh/terrain-lod2.glb",
+    "terrain_lod3": "mesh/terrain-lod3.glb"
+  },
+  "provenance": {
+    "system": "DepthWizard",
+    "version": "0.2.0",
+    "region_id": "pithoragarh_kumaon",
+    "region_name": "Pithoragarh & Kumaon Himalayas (Panchachuli Massif)",
+    "crs": "EPSG:32644",
+    "latitude": 29.5828,
+    "longitude": 80.2181,
+    "gsd_m": 2.5,
+    "elevation_envelope_m": [
+      1600.0,
+      6904.0
+    ],
+    "calibration_model": "Positive-Scale Huber IRLS",
+    "reference_dem": "Copernicus GLO-30 / CartoDEM 30m"
+  },
+  "status": "complete"
+}

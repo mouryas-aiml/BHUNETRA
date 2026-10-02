@@ -101,7 +101,7 @@ export function AnalysisInspector({
   const profileMode = activeTool === "Profiles";
   const showProbe = Boolean(probe);
   const showMeasurement = measureMode && Boolean(measurement);
-  const showProfile = profileMode && Boolean(profile);
+  const showProfile = Boolean(profile);
   if (!showProbe && !showMeasurement && !showProfile && !analysisBusy && !measureMode && !profileMode) return null;
 
   return (
@@ -113,7 +113,7 @@ export function AnalysisInspector({
             <strong>{probe ? "Select endpoint B" : "Select endpoint A"}</strong>
             <p>
               {measureMode
-                ? "Click two registered surface locations. BhuNetra reports geodesic ground distance when trustworthy plus signed endpoint elevation change; hold Space while dragging to pan without placing a point."
+                ? "Click two registered surface locations. DepthWizard reports geodesic ground distance when trustworthy plus signed endpoint elevation change; hold Space while dragging to pan without placing a point."
                 : "Click the start and end of a transect. The canvas previews the line before endpoint B is committed, then samples the persisted elevation surface at subpixel positions along the path."}
             </p>
           </div>

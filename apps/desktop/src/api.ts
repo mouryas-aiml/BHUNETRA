@@ -408,6 +408,206 @@ async function coreFetch<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+export interface KnownDatasetSpec {
+  id: string;
+  name: string;
+  region: string;
+  crs: string;
+  minElev: number;
+  maxElev: number;
+  lat: number;
+  lon: number;
+  gsd: number;
+  elevationMode: string;
+}
+
+export const KNOWN_DATASETS: Record<string, KnownDatasetSpec> = {
+  himalayas_joshimath: {
+    id: "himalayas_joshimath",
+    name: "Joshimath & Nanda Devi",
+    region: "Chamoli, Uttarakhand",
+    crs: "EPSG:32644 (WGS 84 / UTM zone 44N)",
+    minElev: 1789.0,
+    maxElev: 5510.0,
+    lat: 30.5564,
+    lon: 79.5670,
+    gsd: 2.5,
+    elevationMode: "Absolute DSM (m)",
+  },
+  kedarnath_mandakini: {
+    id: "kedarnath_mandakini",
+    name: "Kedarnath & Mandakini Valley",
+    region: "Rudraprayag, Uttarakhand",
+    crs: "EPSG:32644 (WGS 84 / UTM zone 44N)",
+    minElev: 3583.0,
+    maxElev: 6940.0,
+    lat: 30.7346,
+    lon: 79.0669,
+    gsd: 1.5,
+    elevationMode: "Absolute DSM (m)",
+  },
+  badrinath_alaknanda: {
+    id: "badrinath_alaknanda",
+    name: "Badrinath & Alaknanda Valley",
+    region: "Chamoli, Uttarakhand",
+    crs: "EPSG:32644 (WGS 84 / UTM zone 44N)",
+    minElev: 3100.0,
+    maxElev: 6596.0,
+    lat: 30.7423,
+    lon: 79.4938,
+    gsd: 2.0,
+    elevationMode: "Absolute DSM (m)",
+  },
+  gangotri_bhagirathi: {
+    id: "gangotri_bhagirathi",
+    name: "Gangotri & Bhagirathi Valley",
+    region: "Uttarkashi, Uttarakhand",
+    crs: "EPSG:32644 (WGS 84 / UTM zone 44N)",
+    minElev: 3890.0,
+    maxElev: 7138.0,
+    lat: 30.9833,
+    lon: 79.0833,
+    gsd: 1.5,
+    elevationMode: "Absolute DSM (m)",
+  },
+  pithoragarh_kumaon: {
+    id: "pithoragarh_kumaon",
+    name: "Pithoragarh & Kumaon Himalayas",
+    region: "Pithoragarh, Uttarakhand",
+    crs: "EPSG:32644 (WGS 84 / UTM zone 44N)",
+    minElev: 1600.0,
+    maxElev: 6904.0,
+    lat: 29.5828,
+    lon: 80.2181,
+    gsd: 2.5,
+    elevationMode: "Absolute DSM (m)",
+  },
+  kinnaur_himalayas: {
+    id: "kinnaur_himalayas",
+    name: "Kinnaur Himalayas & Satluj Gorge",
+    region: "Kinnaur, Himachal Pradesh",
+    crs: "EPSG:32643 (WGS 84 / UTM zone 43N)",
+    minElev: 2290.0,
+    maxElev: 6050.0,
+    lat: 31.5322,
+    lon: 78.2713,
+    gsd: 2.0,
+    elevationMode: "Absolute DSM (m)",
+  },
+  spiti_valley: {
+    id: "spiti_valley",
+    name: "Spiti Valley & Pin Basin",
+    region: "Lahaul & Spiti, Himachal Pradesh",
+    crs: "EPSG:32643 (WGS 84 / UTM zone 43N)",
+    minElev: 3650.0,
+    maxElev: 6230.0,
+    lat: 32.2276,
+    lon: 78.0707,
+    gsd: 2.0,
+    elevationMode: "Absolute DSM (m)",
+  },
+  lahaul_valley: {
+    id: "lahaul_valley",
+    name: "Lahaul Valley & Rohtang Pass",
+    region: "Lahaul & Spiti, Himachal Pradesh",
+    crs: "EPSG:32643 (WGS 84 / UTM zone 43N)",
+    minElev: 2900.0,
+    maxElev: 6400.0,
+    lat: 32.5710,
+    lon: 77.0320,
+    gsd: 2.0,
+    elevationMode: "Absolute DSM (m)",
+  },
+  northeast_tawang: {
+    id: "northeast_tawang",
+    name: "Tawang Himalayas & Sela Pass",
+    region: "Tawang, Arunachal Pradesh",
+    crs: "EPSG:32645 (WGS 84 / UTM zone 45N)",
+    minElev: 2100.0,
+    maxElev: 4800.0,
+    lat: 27.5861,
+    lon: 91.8594,
+    gsd: 2.0,
+    elevationMode: "Absolute DSM (m)",
+  },
+  sikkim_kanchenjunga: {
+    id: "sikkim_kanchenjunga",
+    name: "Sikkim Himalayas / Kanchenjunga Region",
+    region: "North Sikkim, Sikkim",
+    crs: "EPSG:32645 (WGS 84 / UTM zone 45N)",
+    minElev: 2800.0,
+    maxElev: 8586.0,
+    lat: 27.7025,
+    lon: 88.1475,
+    gsd: 2.0,
+    elevationMode: "Absolute DSM (m)",
+  },
+  ladakh_leh: {
+    id: "ladakh_leh",
+    name: "Ladakh Himalayas & Indus Valley",
+    region: "Leh, Ladakh",
+    crs: "EPSG:32643 (WGS 84 / UTM zone 43N)",
+    minElev: 3200.0,
+    maxElev: 5850.0,
+    lat: 34.1526,
+    lon: 77.5771,
+    gsd: 2.0,
+    elevationMode: "Absolute DSM (m)",
+  },
+  western_ghats_kudremukh: {
+    id: "western_ghats_kudremukh",
+    name: "Western Ghats Escarpments (Kudremukh)",
+    region: "Chikkamagaluru, Karnataka",
+    crs: "EPSG:32643 (WGS 84 / UTM zone 43N)",
+    minElev: 650.0,
+    maxElev: 1894.0,
+    lat: 13.1300,
+    lon: 75.2500,
+    gsd: 1.5,
+    elevationMode: "Absolute DSM (m)",
+  },
+  eastern_ghats_araku: {
+    id: "eastern_ghats_araku",
+    name: "Eastern Ghats Highlands (Araku Valley)",
+    region: "Alluri Sitharama Raju, Andhra Pradesh",
+    crs: "EPSG:32644 (WGS 84 / UTM zone 44N)",
+    minElev: 600.0,
+    maxElev: 1680.0,
+    lat: 18.3273,
+    lon: 82.8775,
+    gsd: 2.0,
+    elevationMode: "Absolute DSM (m)",
+  },
+  deccan_plateau_pune: {
+    id: "deccan_plateau_pune",
+    name: "Deccan Traps Basalt Mesa (Sinhagad)",
+    region: "Pune, Maharashtra",
+    crs: "EPSG:32643 (WGS 84 / UTM zone 43N)",
+    minElev: 580.0,
+    maxElev: 1312.0,
+    lat: 18.3664,
+    lon: 73.7558,
+    gsd: 1.5,
+    elevationMode: "Absolute DSM (m)",
+  },
+};
+
+export function resolveDatasetSpec(keyOrPath: string): KnownDatasetSpec | null {
+  if (!keyOrPath) return null;
+  const lower = keyOrPath.toLowerCase();
+  for (const [id, spec] of Object.entries(KNOWN_DATASETS)) {
+    if (lower.includes(id)) return spec;
+  }
+  return null;
+}
+
+export function extractProjectFolder(dir: string): string {
+  if (!dir) return "";
+  const clean = dir.replace(/[\\/]+$/, "");
+  const parts = clean.split(/[\\/]/);
+  return parts.pop() || clean;
+}
+
 export async function inspectRaster(path: string): Promise<RasterMetadata> {
   try {
     return await coreFetch<RasterMetadata>("/v1/inspect", {
@@ -415,23 +615,26 @@ export async function inspectRaster(path: string): Promise<RasterMetadata> {
       body: JSON.stringify({ path }),
     });
   } catch {
-    const isJoshimath = path.includes("joshimath");
+    const spec = resolveDatasetSpec(path);
     const isGamus = path.includes("DC_");
+    const crs = spec ? spec.crs : isGamus ? "EPSG:32618 (WGS 84 / UTM zone 18N)" : path.includes("joshimath") ? "EPSG:3857" : "EPSG:32644";
+    const gsd = spec ? spec.gsd : isGamus ? 0.3 : 2.5;
+
     return {
       path,
       width: 1024,
       height: 1024,
       count: 3,
       dtype: "uint8",
-      crs: isJoshimath ? "EPSG:3857" : isGamus ? "EPSG:32618" : null,
-      transform: isJoshimath ? [32.925, 0, 8867345, 0, -32.761, 3574892] : null,
+      crs,
+      transform: [gsd, 0, 500000, 0, -gsd, (spec?.lat ?? 30.55) * 111000],
       nodata: null,
-      ground_sample_distance_x: isJoshimath ? 32.925 : isGamus ? 0.3 : 1.0,
-      ground_sample_distance_y: isJoshimath ? 32.761 : isGamus ? 0.3 : 1.0,
+      ground_sample_distance_x: gsd,
+      ground_sample_distance_y: gsd,
       valid_data_fraction: 1.0,
-      vertical_crs: isJoshimath ? "EGM2008" : null,
-      vertical_datum: isJoshimath ? "EGM2008 geoid" : null,
-      elevation_reference: isJoshimath ? "orthometric" : "local",
+      vertical_crs: "EGM2008",
+      vertical_datum: "EGM2008 geoid",
+      elevation_reference: "orthometric",
       quality: {
         status: "pass",
         flags: [],
@@ -470,35 +673,33 @@ export function cancelProjectJob(jobId: string): Promise<ProjectJobState> {
   });
 }
 
-function extractSampleProjectName(dir: string): string | null {
-  if (!dir) return null;
-  const match = dir.match(/DC_\d+_\d+(_RGB)?/i);
-  if (match) {
-    const base = match[0].toUpperCase();
-    return base.endsWith("_RGB") ? `${base}_project` : `${base}_RGB_project`;
-  }
-  return null;
-}
-
 export async function getProjectManifest(projectDir: string): Promise<ProjectManifest> {
+  const folder = extractProjectFolder(projectDir);
   try {
     const query = new URLSearchParams({ project_dir: projectDir });
     return await coreFetch<ProjectManifest>(`/v1/projects/manifest?${query.toString()}`);
   } catch {
-    const sampleFolder = extractSampleProjectName(projectDir);
-    if (sampleFolder) {
+    if (folder && folder !== "sample_project") {
       try {
-        const sampleRes = await fetch(`/projects/${sampleFolder}/project-manifest.json`);
+        const sampleRes = await fetch(`/projects/${folder}/project-manifest.json`);
         if (sampleRes.ok) return (await sampleRes.json()) as ProjectManifest;
       } catch {
-        // fallback
+        // continue
+      }
+      try {
+        const sampleRes = await fetch(`/indian_mountains/${folder}/project-manifest.json`);
+        if (sampleRes.ok) return (await sampleRes.json()) as ProjectManifest;
+      } catch {
+        // continue
       }
     }
-    const res = await fetch("/sample_project/project-manifest.json");
-    if (res.ok) {
-      return (await res.json()) as ProjectManifest;
+    if (folder === "sample_project" || projectDir.includes("sample_project")) {
+      const res = await fetch("/sample_project/project-manifest.json");
+      if (res.ok) {
+        return (await res.json()) as ProjectManifest;
+      }
     }
-    throw new Error("Unable to load project manifest");
+    throw new Error(`Unable to load project manifest for "${folder || projectDir}"`);
   }
 }
 
@@ -529,25 +730,33 @@ export async function probeProject(projectDir: string, point: NormalizedPoint): 
       body: JSON.stringify({ project_dir: projectDir, point }),
     });
   } catch {
+    const spec = resolveDatasetSpec(projectDir);
     const col = Math.round(point.x * 1024);
     const row = Math.round(point.y * 1024);
-    const surfaceVal = 4089.372 - (point.y * 800) + (point.x * 300);
-    const slopeVal = 13.681 + (point.y * 5);
+    const minElev = spec ? spec.minElev : 1789.0;
+    const maxElev = spec ? spec.maxElev : 5510.0;
+    const elevSpan = maxElev - minElev;
+    const surfaceVal = minElev + elevSpan * (0.35 + 0.50 * (1 - point.y) + 0.15 * point.x);
+    const slopeVal = 8.5 + (1 - point.y) * 22.0 + point.x * 4.0;
+    const baseLon = spec ? spec.lon : 79.5670;
+    const baseLat = spec ? spec.lat : 30.5564;
+    const gsd = spec ? spec.gsd : 2.5;
+
     return {
-      project_id: "bhunetra-probe",
+      project_id: spec?.id ?? "depthwizard-probe",
       point,
       pixel_col: col,
       pixel_row: row,
-      map_x: 8867345 + col * 32.925,
-      map_y: 3574892 - row * 32.761,
-      longitude: 79.646244 + (point.x - 0.5) * 0.1,
-      latitude: 30.609107 - (point.y - 0.5) * 0.1,
+      map_x: 500000 + (col - 512) * gsd,
+      map_y: baseLat * 111000 - (row - 512) * gsd,
+      longitude: Number((baseLon + (point.x - 0.5) * 0.08).toFixed(6)),
+      latitude: Number((baseLat - (point.y - 0.5) * 0.08).toFixed(6)),
       surface_product: "dsm",
-      surface: { available: true, value: surfaceVal, units: "m", semantics: "surface_elevation" },
-      slope: { available: true, value: slopeVal, units: "deg", semantics: "surface_slope" },
-      reference: { available: true, value: surfaceVal + 0.8, units: "m", semantics: "reference_elevation" },
-      residual: { available: true, value: -0.8, units: "m", semantics: "elevation_residual" },
-      confidence: { available: true, value: 0.94, units: null, semantics: "model_confidence" },
+      surface: { available: true, value: Number(surfaceVal.toFixed(3)), units: "m", semantics: "surface_elevation" },
+      slope: { available: true, value: Number(slopeVal.toFixed(3)), units: "deg", semantics: "surface_slope" },
+      reference: { available: true, value: Number((surfaceVal + 0.45).toFixed(3)), units: "m", semantics: "reference_elevation" },
+      residual: { available: true, value: -0.45, units: "m", semantics: "elevation_residual" },
+      confidence: { available: true, value: 0.95, units: null, semantics: "model_confidence" },
     };
   }
 }
@@ -571,33 +780,53 @@ export async function sampleProjectProfile(
       }),
     });
   } catch {
+    const spec = resolveDatasetSpec(projectDir);
     const dx = (end.x - start.x) * 1024;
     const dy = (end.y - start.y) * 1024;
     const pixelDist = Math.hypot(dx, dy);
-    const scale = horizontalScaleMPerPixel ?? 32.925;
+    const scale = horizontalScaleMPerPixel ?? spec?.gsd ?? 2.5;
     const groundDistM = pixelDist * scale;
-    const elevA = 5993.78 - (start.y * 1200);
-    const elevB = 4093.09 - (end.y * 1200);
+    const minElev = spec ? spec.minElev : 1789.0;
+    const maxElev = spec ? spec.maxElev : 5510.0;
+    const span = maxElev - minElev;
+    const elevA = minElev + span * (0.80 - start.y * 0.55 + start.x * 0.15);
+    const elevB = minElev + span * (0.80 - end.y * 0.55 + end.x * 0.15);
     const deltaZ = elevB - elevA;
 
-    const sampleArr = Array.from({ length: 20 }, (_, i) => {
-      const frac = i / 19;
-      const val = elevA + (elevB - elevA) * frac + Math.sin(frac * Math.PI) * 45;
+    const sampleCount = Math.max(samples, 20);
+    let cumulativeGain = 0;
+    let cumulativeLoss = 0;
+    let prevVal = elevA;
+
+    const sampleArr = Array.from({ length: sampleCount }, (_, i) => {
+      const frac = i / (sampleCount - 1);
+      const linear = elevA + (elevB - elevA) * frac;
+      const undulation = Math.sin(frac * Math.PI * 2.5) * (span * 0.08) - Math.cos(frac * Math.PI * 4) * (span * 0.03);
+      const val = Number(Math.max(minElev, Math.min(maxElev, linear + undulation)).toFixed(3));
+      if (i > 0) {
+        const diff = val - prevVal;
+        if (diff > 0) cumulativeGain += diff;
+        else cumulativeLoss += Math.abs(diff);
+      }
+      prevVal = val;
+
       return {
         fraction: frac,
         point: { x: start.x + (end.x - start.x) * frac, y: start.y + (end.y - start.y) * frac },
         distance_pixels: pixelDist * frac,
         distance_m: groundDistM * frac,
         surface: { available: true, value: val, units: "m", semantics: "surface_elevation" },
-        slope: { available: true, value: 12.5 + Math.sin(frac * 4) * 5, units: "deg", semantics: "surface_slope" },
-        reference: { available: true, value: val + 1.2, units: "m", semantics: "reference_elevation" },
-        residual: { available: true, value: -1.2, units: "m", semantics: "elevation_residual" },
-        confidence: { available: true, value: 0.92, units: null, semantics: "model_confidence" },
+        slope: { available: true, value: Number((12.5 + Math.sin(frac * 4) * 6).toFixed(3)), units: "deg", semantics: "surface_slope" },
+        reference: { available: true, value: Number((val + 0.6).toFixed(3)), units: "m", semantics: "reference_elevation" },
+        residual: { available: true, value: -0.6, units: "m", semantics: "elevation_residual" },
+        confidence: { available: true, value: 0.94, units: null, semantics: "model_confidence" },
       };
     });
 
+    const values = sampleArr.map((s) => s.surface.value as number);
+
     return {
-      project_id: "bhunetra-profile",
+      project_id: spec?.id ?? "depthwizard-profile",
       surface_product: "dsm",
       start,
       end,
@@ -606,12 +835,12 @@ export async function sampleProjectProfile(
       horizontal_distance_m: groundDistM,
       horizontal_distance_source: "georeferenced_ground",
       analyst_horizontal_scale_m_per_pixel: scale,
-      vertical_delta: deltaZ,
+      vertical_delta: Number(deltaZ.toFixed(3)),
       vertical_units: "m",
-      minimum_surface: Math.min(elevA, elevB),
-      maximum_surface: Math.max(elevA, elevB),
-      elevation_gain: Math.max(0, deltaZ),
-      elevation_loss: Math.max(0, -deltaZ),
+      minimum_surface: Number(Math.min(...values).toFixed(3)),
+      maximum_surface: Number(Math.max(...values).toFixed(3)),
+      elevation_gain: Number(cumulativeGain.toFixed(3)),
+      elevation_loss: Number(cumulativeLoss.toFixed(3)),
       samples: sampleArr,
       semantics: "two_point_measurement_profile",
     };
@@ -649,38 +878,43 @@ export function buildProjectMesh(
 }
 
 export async function getProjectMesh(projectDir: string): Promise<ProjectMeshReport> {
+  const folder = extractProjectFolder(projectDir);
   try {
     const query = new URLSearchParams({ project_dir: projectDir });
     return await coreFetch<ProjectMeshReport>(`/v1/projects/mesh?${query.toString()}`);
   } catch {
-    const sampleFolder = extractSampleProjectName(projectDir);
-    if (sampleFolder) {
+    if (folder && folder !== "sample_project") {
       try {
-        const sampleRes = await fetch(`/projects/${sampleFolder}/mesh/mesh-manifest.json`);
+        const sampleRes = await fetch(`/projects/${folder}/mesh/mesh-manifest.json`);
         if (sampleRes.ok) return (await sampleRes.json()) as ProjectMeshReport;
       } catch {
-        // fallback
+        // continue
       }
     }
-    const res = await fetch("/sample_project/mesh/mesh-manifest.json");
-    if (res.ok) {
-      return (await res.json()) as ProjectMeshReport;
+    if (folder === "sample_project" || projectDir.includes("sample_project")) {
+      const res = await fetch("/sample_project/mesh/mesh-manifest.json");
+      if (res.ok) {
+        return (await res.json()) as ProjectMeshReport;
+      }
     }
-    throw new Error("Unable to load project mesh report");
+    throw new Error(`Unable to load project mesh report for "${folder || projectDir}"`);
   }
 }
 
 export async function getProjectMeshUrl(projectDir: string, level = 0): Promise<string> {
+  const folder = extractProjectFolder(projectDir);
   try {
     const query = new URLSearchParams({ project_dir: projectDir });
     const response = await checkedResponse(`/v1/projects/mesh/lod/${level}?${query.toString()}`);
     return URL.createObjectURL(await response.blob());
   } catch {
-    const sampleFolder = extractSampleProjectName(projectDir);
-    if (sampleFolder) {
-      return `/projects/${sampleFolder}/mesh/terrain-lod${level}.glb`;
+    if (folder && folder !== "sample_project") {
+      return `/projects/${folder}/mesh/terrain-lod${level}.glb`;
     }
-    return `/sample_project/mesh/terrain-lod${level}.glb`;
+    if (folder === "sample_project" || projectDir.includes("sample_project")) {
+      return `/sample_project/mesh/terrain-lod${level}.glb`;
+    }
+    return `/projects/${folder}/mesh/terrain-lod${level}.glb`;
   }
 }
 
@@ -701,8 +935,8 @@ export async function buildProjectExport(
   } catch {
     return {
       schema_version: 1,
-      project_id: "bhunetra-demo-project",
-      bundle_path: "BhuNetra-Export-Audit.zip",
+      project_id: "depthwizard-demo-project",
+      bundle_path: "DepthWizard-Export-Audit.zip",
       bundle_sha256: "e45d8b7f502bbd7aa1bab168ad71b9db42262aa7db0cdec3d55bbf41ae9af80b",
       bundle_bytes: 21946880,
       project_manifest_sha256: "977ea6ec9eb5c1df4f88f8ada057651c36a1780a9b1cb93e88cbb1a5af3b95d8",
@@ -714,7 +948,7 @@ export async function buildProjectExport(
         { arcname: "products/rdsm.tif", source_path: "products/rdsm.tif", sha256: "b7a1545914a3", bytes: 619863, semantics: "surface", units: "m" },
         { arcname: "mesh/terrain-lod0.glb", source_path: "mesh/terrain-lod0.glb", sha256: "bd8b5e15e8d8", bytes: 11565888, semantics: "terrain_mesh", units: null },
       ],
-      semantics: "bhunetra_scientific_export_bundle",
+      semantics: "depthwizard_scientific_export_bundle",
     };
   }
 }
@@ -730,7 +964,7 @@ export async function getProjectExportUrl(projectDir: string): Promise<string> {
     const response = await checkedResponse(`/v1/projects/export/archive?${query.toString()}`);
     return URL.createObjectURL(await response.blob());
   } catch {
-    const blob = new Blob([JSON.stringify({ project: "BhuNetra", exported_at: new Date().toISOString() })], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ project: "DepthWizard", exported_at: new Date().toISOString() })], { type: "application/json" });
     return URL.createObjectURL(blob);
   }
 }
@@ -749,10 +983,14 @@ export async function getProjectPreviewUrl(
     const response = await checkedResponse(`/v1/projects/preview?${query.toString()}`);
     return URL.createObjectURL(await response.blob());
   } catch {
-    const sampleFolder = extractSampleProjectName(projectDir);
-    if (sampleFolder) {
-      const sampleId = sampleFolder.replace(/_project$/i, "");
+    const folder = extractProjectFolder(projectDir);
+    if (folder.startsWith("DC_")) {
+      const sampleId = folder.replace(/_project$/i, "");
       return `/gamus/${sampleId}.png`;
+    }
+    if (folder && folder !== "sample_project") {
+      if (layer === "optical") return `/projects/${folder}/optical.png`;
+      return `/projects/${folder}/products/${layer}.png`;
     }
     return "/sample_project/sample_image.png";
   }

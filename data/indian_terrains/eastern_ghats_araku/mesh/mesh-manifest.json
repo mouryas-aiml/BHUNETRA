@@ -1,0 +1,56 @@
+{
+  "project_id": "eastern_ghats_araku",
+  "surface_product": "dsm",
+  "horizontal_units": "m",
+  "vertical_units": "m",
+  "gsd_x": 2.0,
+  "gsd_y": 2.0,
+  "raster_width": 1024,
+  "raster_height": 1024,
+  "valid_pixels": 1048576,
+  "minimum_elevation": 600.0,
+  "maximum_elevation": 1679.998291015625,
+  "relief": 1079.998291015625,
+  "lods": [
+    {
+      "level": 0,
+      "stride": 1,
+      "path": "terrain-lod0.glb",
+      "sha256": "59d93cddb68efc461270f430d4842bb0e72984962f942bbfd112b78fea555d5c",
+      "vertices": 1048576,
+      "faces": 2093058,
+      "width_samples": 1024,
+      "height_samples": 1024
+    },
+    {
+      "level": 1,
+      "stride": 2,
+      "path": "terrain-lod1.glb",
+      "sha256": "c0beedc3ec904a2493fa8c668f8bef12707f524052dfcd0f1bc636a4cf47a75c",
+      "vertices": 263169,
+      "faces": 524288,
+      "width_samples": 513,
+      "height_samples": 513
+    },
+    {
+      "level": 2,
+      "stride": 4,
+      "path": "terrain-lod2.glb",
+      "sha256": "25e210fb3110bbf132c3041588d2aa661019eb94cdb3ebaf1a47e3c26cb0c934",
+      "vertices": 66049,
+      "faces": 131072,
+      "width_samples": 257,
+      "height_samples": 257
+    },
+    {
+      "level": 3,
+      "stride": 8,
+      "path": "terrain-lod3.glb",
+      "sha256": "06cbe73f00b2f07129eb710ab7f95841c80306be027db9cfe30723f1bae1d936",
+      "vertices": 16641,
+      "faces": 32768,
+      "width_samples": 129,
+      "height_samples": 129
+    }
+  ]
+}

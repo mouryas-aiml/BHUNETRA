@@ -1,0 +1,44 @@
+{
+  "project_id": "deccan_plateau_pune",
+  "title": "Deccan Traps Basalt Mesa & Plateau (Sinhagad)",
+  "state": "COMPLETED",
+  "georeferenced": true,
+  "crs": "EPSG:32643",
+  "gsd_m": 1.5,
+  "vertical_units": "m",
+  "elevation_range": [
+    580.0,
+    1311.998779296875
+  ],
+  "artifacts": {
+    "source_image": "optical.png",
+    "dsm": "products/dsm.tif",
+    "rdsm": "products/rdsm.tif",
+    "slope": "products/slope.tif",
+    "residual": "products/residual.tif",
+    "confidence": "products/confidence.tif",
+    "mesh_manifest": "mesh/mesh-manifest.json",
+    "provenance": "provenance.json",
+    "terrain_lod0": "mesh/terrain-lod0.glb",
+    "terrain_lod1": "mesh/terrain-lod1.glb",
+    "terrain_lod2": "mesh/terrain-lod2.glb",
+    "terrain_lod3": "mesh/terrain-lod3.glb"
+  },
+  "provenance": {
+    "system": "DepthWizard",
+    "version": "0.2.0",
+    "region_id": "deccan_plateau_pune",
+    "region_name": "Deccan Traps Basalt Mesa & Plateau (Sinhagad)",
+    "crs": "EPSG:32643",
+    "latitude": 18.3664,
+    "longitude": 73.7558,
+    "gsd_m": 1.5,
+    "elevation_envelope_m": [
+      580.0,
+      1312.0
+    ],
+    "calibration_model": "Positive-Scale Huber IRLS",
+    "reference_dem": "Copernicus GLO-30 / CartoDEM 30m"
+  },
+  "status": "complete"
+}

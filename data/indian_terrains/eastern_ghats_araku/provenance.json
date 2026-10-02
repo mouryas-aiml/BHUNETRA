@@ -1,0 +1,16 @@
+{
+  "system": "DepthWizard",
+  "version": "0.2.0",
+  "region_id": "eastern_ghats_araku",
+  "region_name": "Eastern Ghats Dissected Highlands (Araku Valley)",
+  "crs": "EPSG:32644",
+  "latitude": 18.3273,
+  "longitude": 82.8775,
+  "gsd_m": 2.0,
+  "elevation_envelope_m": [
+    600.0,
+    1680.0
+  ],
+  "calibration_model": "Positive-Scale Huber IRLS",
+  "reference_dem": "Copernicus GLO-30 / CartoDEM 30m"
+}

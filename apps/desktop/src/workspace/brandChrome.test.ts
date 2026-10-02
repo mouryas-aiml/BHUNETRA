@@ -35,7 +35,7 @@ describe("DepthWizard product identity chrome", () => {
     const baseIcons = tauri.bundle?.icon ?? [];
     const wrapper = source("../../scripts/tauri-with-macos-icon.sh");
 
-    expect(html).toContain('href=\"/bhu-netra-mark.png\"');
+    expect(html).toContain('href="/depthwizard-mark.png"');
 
     // Raw cargo fmt/clippy/test must be able to compile from a clean checkout.
     expect(baseIcons).toEqual(["icons/icon.png"]);

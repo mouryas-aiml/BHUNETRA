@@ -1,0 +1,16 @@
+{
+  "system": "DepthWizard",
+  "version": "0.2.0",
+  "region_id": "badrinath_alaknanda",
+  "region_name": "Badrinath & Alaknanda Valley (Neelkanth Cirque)",
+  "crs": "EPSG:32644",
+  "latitude": 30.7423,
+  "longitude": 79.4938,
+  "gsd_m": 2.0,
+  "elevation_envelope_m": [
+    3100.0,
+    6596.0
+  ],
+  "calibration_model": "Positive-Scale Huber IRLS",
+  "reference_dem": "Copernicus GLO-30 / CartoDEM 30m"
+}

@@ -1,4 +1,4 @@
-/* DepthWizard / BhuNetra final product identity: logo-only chrome and centered project context. */
+/* DepthWizard final product identity: logo-only chrome and centered project context. */
 
 .dw-topbar {
   grid-template-columns: 68px minmax(0, 1fr) auto;
@@ -54,7 +54,7 @@
 }
 
 /* ============================================================
-   BhuNetra Space-Themed Visual Design System & Component Rules
+   DepthWizard Space-Themed Visual Design System & Component Rules
    ============================================================ */
 
 :root {
@@ -536,7 +536,7 @@ body {
   width: 100%;
 }
 
-/* Stepper Bar for Evaluator Mode */
+/* Stepper Bar for Milestone Pipeline */
 .bn-evaluator-stepper-bar {
   display: flex;
   overflow-x: auto;
@@ -629,7 +629,7 @@ body {
 }
 
 /* ============================================================
-   BhuNetra Comprehensive Dark Space Theme Overrides
+   DepthWizard Comprehensive Dark Space Theme Overrides
    ============================================================ */
 
 .dw-app {
@@ -919,7 +919,7 @@ body {
 }
 
 /* ==============================================================
-   BHUNETRA 16-PAGE FEATURE VIEWS & ANALYTICS STYLES
+   DEPTHWIZARD CORE FEATURE VIEWS & ANALYTICS STYLES
    ============================================================== */
 .bn-page-container {
   width: 100%;

@@ -110,3 +110,60 @@ def model_confidence_to_uncertainty(
         semantics=semantics,
         reason=None,
     )
+
+
+def derive_uncertainty_indicator(
+    relative_height: np.ndarray,
+    *,
+    model_confidence: np.ndarray | None = None,
+    image_gradient: np.ndarray | None = None,
+) -> np.ndarray:
+    """Derive an empirical uncertainty indicator from terrain gradients and radiometric texture.
+
+    Deliberately labeled an 'Uncertainty Indicator' rather than a statistically calibrated
+    probability. Combines monocular depth gradient discontinuities with radiometric texture
+    ambiguity. Output is in [0.0, 1.0], where 1.0 indicates highest confidence / lowest uncertainty.
+    """
+    if model_confidence is not None:
+        finite = np.isfinite(model_confidence)
+        if np.any(finite):
+            lo, hi = np.percentile(model_confidence[finite], [2.0, 98.0])
+            span = max(float(hi - lo), 1e-6)
+            norm = np.clip((model_confidence - lo) / span, 0.0, 1.0).astype(np.float32)
+            norm[~finite] = 0.0
+            return norm
+
+    h = np.asarray(relative_height, dtype=np.float64)
+    valid = np.isfinite(h)
+    if not np.any(valid):
+        return np.zeros(h.shape, dtype=np.float32)
+
+    fill_val = float(np.median(h[valid]))
+    filled = np.where(valid, h, fill_val)
+    gy, gx = np.gradient(filled)
+    grad_mag = np.hypot(gx, gy)
+    finite_grad = grad_mag[valid]
+    if finite_grad.size > 4:
+        lo, hi = np.percentile(finite_grad, [5.0, 95.0])
+        span = max(float(hi - lo), 1e-6)
+        norm_grad = np.clip((grad_mag - lo) / span, 0.0, 1.0)
+    else:
+        norm_grad = np.zeros_like(grad_mag)
+
+    # High gradient discontinuities introduce monocular scale ambiguity -> higher uncertainty.
+    # Base confidence is lower at extreme cliffs/discontinuities, higher on continuous relief.
+    confidence = 1.0 - 0.5 * norm_grad
+
+    if image_gradient is not None and image_gradient.shape == h.shape:
+        ig_valid = np.isfinite(image_gradient)
+        if np.any(ig_valid):
+            ig_lo, ig_hi = np.percentile(image_gradient[ig_valid], [5.0, 95.0])
+            ig_span = max(float(ig_hi - ig_lo), 1e-6)
+            norm_ig = np.clip((image_gradient - ig_lo) / ig_span, 0.0, 1.0)
+            # Low optical texture increases depth ambiguity
+            confidence = confidence * (0.4 + 0.6 * norm_ig)
+
+    confidence = np.clip(confidence, 0.05, 0.98)
+    confidence[~valid] = 0.0
+    return confidence.astype(np.float32)
+

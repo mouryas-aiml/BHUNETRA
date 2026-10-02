@@ -1,0 +1,16 @@
+{
+  "system": "DepthWizard",
+  "version": "0.2.0",
+  "region_id": "himalayas_joshimath",
+  "region_name": "Joshimath & Nanda Devi (Garhwal Himalayas)",
+  "crs": "EPSG:32644",
+  "latitude": 30.5564,
+  "longitude": 79.567,
+  "gsd_m": 2.5,
+  "elevation_envelope_m": [
+    1789.0,
+    5510.0
+  ],
+  "calibration_model": "Positive-Scale Huber IRLS",
+  "reference_dem": "Copernicus GLO-30 / CartoDEM 30m"
+}

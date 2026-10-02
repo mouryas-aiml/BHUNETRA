@@ -21,8 +21,6 @@ export const DsmIcon = () => <Icon><rect x="3" y="3" width="18" height="18" rx="
 export const AnalysisIcon = () => <Icon><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></Icon>;
 export const DashboardIcon = () => <Icon><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></Icon>;
 export const SettingsIcon = () => <Icon><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></Icon>;
-export const EvaluatorIcon = () => <Icon><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></Icon>;
-
 export const HeatmapIcon = () => <Icon><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="2.5" fill="currentColor"/><circle cx="16" cy="12" r="3.5" fill="currentColor" opacity="0.7"/><circle cx="9" cy="16" r="2" fill="currentColor" opacity="0.5"/></Icon>;
 export const FlythroughIcon = () => <Icon><path d="m3 9 18-6-6 18-3-7-9-5Z"/></Icon>;
 export const DigitalTwinIcon = () => <Icon><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="4"/><line x1="12" y1="3" x2="12" y2="21"/></Icon>;
@@ -31,7 +29,7 @@ export const AiReconstructionIcon = () => <Icon><polygon points="13 2 3 14 12 14
 export const AccuracyIcon = () => <Icon><path d="M18 20V10M12 20V4M6 20v-6"/><path d="M3 20h18"/></Icon>;
 export const ElevationModelIcon = () => <Icon><path d="M2 20h20"/><path d="m4 17 6-10 4 6 2-3 4 7"/></Icon>;
 
-export const BhuNetraLogo = ({ size = 26, className = "" }: { size?: number; className?: string }) => (
+export const DepthWizardLogo = ({ size = 26, className = "" }: { size?: number; className?: string }) => (
   <img
     src="/depthwizard-mark.png"
     alt="DepthWizard Logo"
@@ -42,6 +40,6 @@ export const BhuNetraLogo = ({ size = 26, className = "" }: { size?: number; cla
   />
 );
 
-export const DepthWizardLogo = BhuNetraLogo;
+
 
 

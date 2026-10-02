@@ -1,0 +1,16 @@
+{
+  "system": "DepthWizard",
+  "version": "0.2.0",
+  "region_id": "gangotri_bhagirathi",
+  "region_name": "Gangotri & Bhagirathi Valley (Shivling & Meru Peaks)",
+  "crs": "EPSG:32644",
+  "latitude": 30.9833,
+  "longitude": 79.0833,
+  "gsd_m": 1.5,
+  "elevation_envelope_m": [
+    3890.0,
+    7138.0
+  ],
+  "calibration_model": "Positive-Scale Huber IRLS",
+  "reference_dem": "Copernicus GLO-30 / CartoDEM 30m"
+}
